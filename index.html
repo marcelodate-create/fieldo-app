@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#0e0e14"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Fieldo · Dashboard</title>
+  <!-- v6.9 · Fora do índice. Painel do profissional — exige sessão.
+       Rastreio NÃO é bloqueado no robots.txt de propósito: o robô
+       precisa poder ler esta linha para respeitá-la. -->
+  <meta name="robots" content="noindex,follow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    /* ═══════════════════════════════════════
+       HERO — Dark ink header
+    ═══════════════════════════════════════ */
+    .dash-hero {
+      background: var(--topbar-bg);
+      padding: 1.5rem 1.25rem 0;
+      position: relative; overflow: hidden;
+    }
+    .dash-hero::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 85% 0%, rgba(154,114,24,.13) 0%, transparent 55%),
+        radial-gradient(ellipse at 10% 100%, rgba(154,114,24,.06) 0%, transparent 50%);
+    }
+    .dash-hero-inner { max-width: 1200px; margin: 0 auto; }
+
+    /* Profile row */
+    .dash-profile {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .dash-avatar {
+      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-d) 100%);
+      border: 2px solid rgba(154,114,24,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 1.25rem; font-style: italic;
+      color: #fff; overflow: hidden; cursor: pointer;
+      transition: border-color var(--t);
+    }
+    .dash-avatar:hover { border-color: rgba(154,114,24,.65); }
+    .dash-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .dash-id { flex: 1; min-width: 0; }
+    .dash-greeting {
+      font-family: var(--mono); font-size: .55rem; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: .18rem;
+    }
+    .dash-name {
+      font-family: var(--serif); font-size: 1.15rem; font-weight: 300;
+      font-style: italic; color: rgba(255,255,255,.9);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dash-spec {
+      font-family: var(--mono); font-size: .62rem; color: rgba(255,255,255,.35);
+      margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .dash-plan-badge {
+      flex-shrink: 0; display: flex; align-items: center; gap: .35rem;
+      background: var(--gold-bg); border: 1px solid var(--gold-bd);
+      border-radius: 2rem; padding: .28rem .7rem;
+      font-family: var(--mono); font-size: .55rem;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--gold-l);
+    }
+    .dash-plan-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--gold-l);
+      animation: pulse 2.2s infinite;
+    }
+
+    /* Score section */
+    .dash-score-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; padding-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .dash-score-main {}
+    .dash-score-lbl {
+      font-family: var(--mono); font-size: .52rem; letter-spacing: .2em;
+      text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: .2rem;
+    }
+    .dash-score-val {
+      font-family: var(--serif); font-size: 3.2rem; font-weight: 300;
+      line-height: .95; color: rgba(255,255,255,.92); letter-spacing: -.03em;
+    }
+    .dash-score-val em { font-style: italic; color: var(--gold-l); }
+    .dash-score-stars {
+      color: var(--gold-l); font-size: .9rem; letter-spacing: -.04em; margin-top: .25rem;
+    }
+    .dash-score-sub {
+      font-family: var(--mono); font-size: .6rem;
+      color: rgba(255,255,255,.28); margin-top: .15rem;
+    }
+
+    .dash-qs-row { display: flex; gap: 1.5rem; }
+    .dash-qs {}
+    .dash-qs-val {
+      font-family: var(--mono); font-size: 1rem; font-weight: 500;
+      color: rgba(255,255,255,.75); line-height: 1;
+    }
+    .dash-qs-lbl {
+      font-family: var(--mono); font-size: .52rem; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.28); margin-top: .18rem;
+    }
+
+    /* Tabs */
+    .dash-tabs {
+      display: flex; gap: 0; margin: 0 -1.25rem;
+    }
+    .dash-tab {
+      flex: 1; padding: .8rem .5rem; text-align: center;
+      font-family: var(--mono); font-size: .62rem; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      border: none; background: transparent; cursor: pointer;
+      border-top: 2px solid transparent; transition: color .2s, border-color .2s;
+    }
+    .dash-tab.active { color: var(--gold-l); border-top-color: var(--gold); }
+    .dash-tab:hover:not(.active) { color: rgba(255,255,255,.55); }
+
+    /* ═══════════════════════════════════════
+       QUICK ACTIONS
+    ═══════════════════════════════════════ */
+    .qa-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: .5rem;
+      margin: 1.25rem 0 1.5rem;
+    }
+    .qa-btn {
+      display: flex; flex-direction: column; align-items: center; gap: .4rem;
+      padding: .85rem .4rem; border-radius: var(--r-l);
+      background: var(--paper); border: 1px solid var(--border);
+      cursor: pointer; transition: var(--t); text-decoration: none; color: var(--text2);
+    }
+    .qa-btn:hover { background: var(--paper2); border-color: var(--border2); color: var(--text); transform: translateY(-1px); }
+    .qa-btn.qa-primary { background: var(--gold-bg); border-color: var(--gold-bd); color: var(--gold-d); }
+    .qa-btn.qa-primary:hover { background: rgba(154,114,24,.13); }
+    .qa-icon {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--paper3);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .qa-btn.qa-primary .qa-icon { background: rgba(154,114,24,.1); }
+    .qa-label { font-size: .63rem; font-weight: 500; text-align: center; line-height: 1.3; }
+
+    /* ═══════════════════════════════════════
+       SECTION HEADERS
+    ═══════════════════════════════════════ */
+    .sec-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .85rem;
+    }
+    .sec-title {
+      font-family: var(--mono); font-size: .58rem; font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .sec-title::before {
+      content: ''; display: inline-block; width: 10px; height: 1px; background: var(--gold);
+    }
+    .sec-action {
+      font-family: var(--mono); font-size: .65rem; color: var(--gold-d);
+      background: none; border: none; cursor: pointer; display: flex;
+      align-items: center; gap: .2rem; padding: 0; transition: color var(--t);
+    }
+    .sec-action:hover { color: var(--gold); }
+    .sec-toggle {
+      font-family: var(--mono); font-size: .65rem; color: var(--muted);
+      background: none; border: none; cursor: pointer; padding: 0;
+      transition: color var(--t);
+    }
+    .sec-toggle:hover { color: var(--ink); }
+    .sec-toggle[aria-pressed="true"] { color: var(--gold-d); font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       MÉTRICAS EDITORIAIS
+    ═══════════════════════════════════════ */
+    .doc-metrics {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border2);
+      border-radius: var(--r-l); overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .doc-metric {
+      background: var(--paper2); padding: 1rem 1.1rem; transition: background var(--t);
+    }
+    .doc-metric:hover { background: var(--paper3); }
+    .doc-metric-val {
+      font-family: var(--serif); font-size: 1.6rem; font-weight: 300;
+      line-height: 1; color: var(--ink); margin-bottom: .18rem;
+    }
+    .doc-metric-val em { font-style: italic; color: var(--gold-d); }
+    .doc-metric-lbl {
+      font-family: var(--mono); font-size: .54rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .doc-metric-sub { font-size: .68rem; color: var(--ghost); margin-top: .08rem; }
+
+    /* ═══════════════════════════════════════
+       PLAN CALLOUT
+    ═══════════════════════════════════════ */
+    .plan-bar {
+      background: var(--paper2); border: 1px solid var(--border);
+      border-left: 3px solid var(--gold); border-radius: 0 var(--r) var(--r) 0;
+      padding: .85rem 1rem; display: flex; align-items: center; gap: .85rem;
+      margin-bottom: 1.25rem;
+    }
+    .plan-bar-body { flex: 1; min-width: 0; }
+    .plan-bar-title { font-size: .82rem; font-weight: 500; color: var(--text); }
+    .plan-bar-sub {
+      font-family: var(--mono); font-size: .62rem; color: var(--muted); margin-top: .08rem;
+    }
+    .plan-bar-cta {
+      font-family: var(--mono); font-size: .62rem; color: var(--gold-d);
+      background: var(--gold-bg); border: 1px solid var(--gold-bd);
+      border-radius: var(--r); padding: .38rem .75rem; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0; transition: var(--t);
+      text-decoration: none; display: inline-block;
+    }
+    .plan-bar-cta:hover { background: rgba(154,114,24,.13); }
+
+    /* ═══════════════════════════════════════
+       TAB CONTENT
+    ═══════════════════════════════════════ */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn .2s ease; }
+
+    /* ═══════════════════════════════════════
+       PROFILE MODAL AVATAR INLINE
+    ═══════════════════════════════════════ */
+    #planCallout { transition: opacity .3s; }
+
+    @media(max-width:380px) {
+      .qa-grid { grid-template-columns: repeat(2,1fr); }
+      .doc-metrics { grid-template-columns: repeat(2,1fr); }
+      .dash-score-val { font-size: 2.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="sr-only">Pular para o conteúdo principal</a>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+      <span class="topbar-badge">v1</span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay + Drawer -->
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand">
+      <div class="logo-icon" style="width:22px;height:22px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <em>Fieldo</em>
+    </div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-drawer-perfil" id="drawerPerfil"></div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item active">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a href="locacao.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="12" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg></span><span>Locação</span></a>
+    <a href="servico.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+      <span>Novo Serviço</span>
+    </a>
+    <a href="orcamento.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+      <span>Orçamento</span>
+    </a>
+    <a href="contratos.html" class="menu-nav-item" data-pro="1" style="display:none">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+      <span>Contratos</span>
+    </a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span>Pesquisa</span>
+    </a>
+    <a href="explorar.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+      <span>Explorar profissionais</span>
+    </a>
+    <div class="menu-divider"></div>
+    <button class="menu-nav-item" onclick="HBG.close();abrirPerfil()">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span>Editar perfil</span>
+    </button>
+    <a href="configuracoes.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+      <span>Configurações</span>
+    </a>
+    <a href="suporte.html" class="menu-nav-item">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+      <span>Suporte</span>
+    </a>
+    <button class="menu-nav-item" onclick="confirmarLogout()">
+      <span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+      <span>Sair</span>
+    </button>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<div class="dash-hero">
+  <div class="dash-hero-inner">
+
+    <div class="dash-profile">
+      <div class="dash-avatar" id="dashAvatar" onclick="abrirPerfil()">F</div>
+      <div class="dash-id">
+        <div class="dash-greeting">Olá,</div>
+        <div class="dash-name" id="dashName">Carregando...</div>
+        <div class="dash-spec" id="dashSpec">—</div>
+      </div>
+      <div class="dash-plan-badge" id="dashPlanBadge">
+        <span class="dash-plan-dot"></span>
+        <span id="dashPlanLabel">Free</span>
+      </div>
+    </div>
+
+    <div class="dash-score-row">
+      <div class="dash-score-main">
+        <div class="dash-score-lbl">Score médio</div>
+        <div class="dash-score-val" id="dashScoreVal"><em>—</em></div>
+        <div class="dash-score-stars" id="dashStars"></div>
+        <div class="dash-score-sub" id="dashScoreSub">aguardando avaliações</div>
+      </div>
+      <div class="dash-qs-row">
+        <div class="dash-qs">
+          <div class="dash-qs-val" id="qsServicos">—</div>
+          <div class="dash-qs-lbl">Serviços</div>
+        </div>
+        <div class="dash-qs">
+          <div class="dash-qs-val" id="qsMes">—</div>
+          <div class="dash-qs-lbl">Este mês</div>
+        </div>
+        <div class="dash-qs">
+          <div class="dash-qs-val" id="qsHashes">—</div>
+          <div class="dash-qs-lbl">Selos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="setTab('atividade',this)">Atividade</button>
+      <button class="dash-tab" onclick="setTab('orcamentos',this)">Orçamentos</button>
+      <button class="dash-tab" onclick="setTab('reputacao',this)">Reputação</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CONTEÚDO
+══════════════════════════════════════════ -->
+<main id="main-content" class="page" style="padding-top:1.25rem">
+
+  <!-- Callout de plano (dinâmico: Free → Upgrade · Pro → Status) -->
+  <div class="plan-bar" id="planCallout" style="display:none">
+    <span id="planIcon" style="font-size:1.2rem;flex-shrink:0">⬡</span>
+    <div class="plan-bar-body">
+      <div class="plan-bar-title" id="planTitle">Plano Grátis</div>
+      <div class="plan-bar-sub" id="planSub">Desbloqueie Contratos com Fieldo Pro</div>
+    </div>
+    <a href="ativar.html" class="plan-bar-cta" id="planCta">Ativar Pro →</a>
+  </div>
+
+  <!-- Ações rápidas -->
+  <div class="qa-grid">
+    <a href="servico.html" class="qa-btn qa-primary">
+      <div class="qa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <span class="qa-label">Novo Serviço</span>
+    </a>
+    <a href="orcamento.html" class="qa-btn">
+      <div class="qa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      </div>
+      <span class="qa-label">Orçamento</span>
+    </a>
+    <a href="contratos.html" class="qa-btn" id="qaContratos" data-pro="1">
+      <div class="qa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      <span class="qa-label" id="qaContratosLabel">Contratos</span>
+    </a>
+    <a href="explorar.html" class="qa-btn">
+      <div class="qa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      </div>
+      <span class="qa-label">Explorar</span>
+    </a>
+  </div>
+
+  <!-- ── TAB: ATIVIDADE ── -->
+  <div class="tab-content active" id="tab-atividade">
+
+    <!-- v5.3: dinheiro primeiro. "Quanto tenho a receber?" é a pergunta
+         que o profissional faz ao abrir o app; "quantos serviços fiz"
+         não é. Some quando não há nada cobrado, para não poluir. -->
+    <div style="margin-bottom:1.5rem;display:none" id="secFinanceiro">
+      <div class="sec-head">
+        <div class="sec-title">Financeiro</div>
+        <a class="sec-action" href="busca.html?receber=1" id="linkAReceber">Ver a receber →</a>
+      </div>
+      <div class="doc-metrics doc-metrics--2">
+        <div class="doc-metric doc-metric--alert" id="cardReceber">
+          <div class="doc-metric-val" id="mReceber">—</div>
+          <div class="doc-metric-lbl">A receber</div>
+          <div class="doc-metric-sub" id="mReceberSub">nenhum pendente</div>
+        </div>
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="mRecebido">—</div>
+          <div class="doc-metric-lbl">Recebido</div>
+          <div class="doc-metric-sub" id="mRecebidoSub">este mês</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.5rem">
+      <div class="sec-head">
+        <div class="sec-title">Atividade</div>
+      </div>
+      <div class="doc-metrics">
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="mTotal">—</div>
+          <div class="doc-metric-lbl">Serviços</div>
+          <div class="doc-metric-sub">total registrado</div>
+        </div>
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="mMes">—</div>
+          <div class="doc-metric-lbl">Este mês</div>
+          <div class="doc-metric-sub">últimos 30 dias</div>
+        </div>
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="mNicho"><em>—</em></div>
+          <div class="doc-metric-lbl">Nicho</div>
+          <div class="doc-metric-sub">mais frequente</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-head">
+        <div class="sec-title">Serviços recentes</div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <button type="button" id="arqServToggle" class="sec-toggle" aria-pressed="false">Arquivados</button>
+          <a href="servico.html" class="sec-action">+ Novo</a>
+        </div>
+      </div>
+      <div class="service-list" id="serviceList">
+        <div class="skel" style="height:64px;border-radius:var(--r);margin-bottom:.4rem"></div>
+        <div class="skel" style="height:64px;border-radius:var(--r);margin-bottom:.4rem"></div>
+        <div class="skel" style="height:64px;border-radius:var(--r)"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TAB: ORÇAMENTOS ── -->
+  <div class="tab-content" id="tab-orcamentos">
+    <div class="sec-head">
+      <div class="sec-title">Orçamentos recentes</div>
+      <div style="display:flex;gap:.75rem;align-items:center">
+        <button type="button" id="arqOrcToggle" class="sec-toggle" aria-pressed="false">Arquivados</button>
+        <a href="orcamento.html" class="sec-action">+ Novo</a>
+      </div>
+    </div>
+    <div id="orcList">
+      <div class="empty-state">
+        <div class="empty-state-glyph">§</div>
+        <h3>Nenhum orçamento <em>ainda</em></h3>
+        <p>Crie propostas profissionais com Pix integrado.<br>O cliente aprova pelo WhatsApp em 1 clique.</p>
+        <a href="orcamento.html" class="btn btn--primary">Criar orçamento</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: REPUTAÇÃO ── -->
+  <div class="tab-content" id="tab-reputacao">
+    <div style="margin-bottom:1.25rem">
+      <div class="sec-head">
+        <div class="sec-title">Reputação verificada</div>
+        <a href="perfil.html" class="sec-action">Ver perfil →</a>
+      </div>
+      <div class="doc-metrics">
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="rScore">—</div>
+          <div class="doc-metric-lbl">Score médio</div>
+          <div class="doc-metric-sub">qualidade</div>
+        </div>
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="rAvals">—</div>
+          <div class="doc-metric-lbl">Avaliações</div>
+          <div class="doc-metric-sub">de clientes reais</div>
+        </div>
+        <div class="doc-metric">
+          <div class="doc-metric-val" id="rSelos">—</div>
+          <div class="doc-metric-lbl">Selos SHA-256</div>
+          <div class="doc-metric-sub">provas registradas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Selo de Autenticidade Fieldo</div>
+      <p style="font-size:.82rem;color:var(--text);line-height:1.65">
+        Cada relatório gerado recebe um hash SHA-256 único com timestamp imutável. Qualquer pessoa pode verificar em
+        <strong>fieldo.app/verificar</strong> que o documento é autêntico e não foi alterado.
+      </p>
+    </div>
+
+    <div style="margin-top:1.25rem">
+      <div class="sec-head">
+        <div class="sec-title">Selos recentes</div>
+        <a href="verificar.html" class="sec-action">Verificar →</a>
+      </div>
+      <div id="hashList">
+        <div class="empty-state" style="padding:1.5rem">
+          <div class="empty-state-glyph" style="font-size:1.5rem">⬡</div>
+          <p style="margin-bottom:0;font-size:.78rem">Nenhum selo registrado ainda.<br>Gere seu primeiro relatório para criar o primeiro selo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main><!-- /page -->
+
+<!-- Toast -->
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL DE PERFIL
+══════════════════════════════════════════ -->
+<div class="modal-backdrop" role="dialog" aria-modal="true" id="perfilModal" style="display:none" onclick="fecharPerfil(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-eyebrow">Configuração</div>
+        <div class="modal-title">Seu <em>Perfil</em></div>
+      </div>
+      <button class="modal-close" onclick="fecharPerfil()" aria-label="Fechar perfil">✕</button>
+    </div>
+
+    <div class="avatar-section">
+      <div class="avatar-wrap">
+        <div class="avatar-img" id="modalAvatarImg" onclick="document.getElementById('avatarFile').click()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="opacity:.3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="avatar-badge" onclick="document.getElementById('avatarFile').click()">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="previewAvatar(this)"/>
+      </div>
+      <div>
+        <div class="avatar-name" id="modalAvatarName">Seu nome aqui</div>
+        <div class="avatar-hint">Foto aparece no relatório<br>enviado ao cliente</div>
+      </div>
+    </div>
+
+    <div class="modal-fields">
+      <div class="modal-section-label">Identidade</div>
+      <div class="field-group">
+        <label class="field-label">Nome completo <span class="required">*</span></label>
+        <input class="field-input" id="pNome" type="text" placeholder="Ex: João da Silva"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Especialidade</label>
+        <input class="field-input" id="pSpec" type="text" placeholder="Ex: Eletricista residencial"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Categoria principal</label>
+        <select class="field-select" id="pNicho"></select>
+        <div class="field-hint">Usada nos filtros do Explorar — diferente da "Especialidade" acima, que é só o texto exibido no seu perfil.</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Bio (opcional)</label>
+        <textarea class="field-textarea" id="pBio" placeholder="Breve apresentação profissional..." style="min-height:60px"></textarea>
+      </div>
+
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">Contato</div>
+
+      <div class="fields-row-2">
+        <div class="field-group">
+          <label class="field-label">WhatsApp</label>
+          <input class="field-input" id="pWpp" type="tel" placeholder="(11) 99999-9999"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Cidade</label>
+          <input class="field-input" id="pCidade" type="text" placeholder="Campinas – SP"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Instagram (opcional)</label>
+        <input class="field-input" id="pInsta" type="text" placeholder="@seuusuario"/>
+      </div>
+
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">Chave Pix</div>
+
+      <div class="fields-row-2">
+        <div class="field-group">
+          <label class="field-label">Tipo</label>
+          <select class="field-select" id="pPixTipo">
+            <option value="CPF">CPF</option>
+            <option value="CNPJ">CNPJ</option>
+            <option value="Telefone">Telefone</option>
+            <option value="E-mail">E-mail</option>
+            <option value="Aleatória">Aleatória</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Chave</label>
+          <input class="field-input" id="pPixChave" type="text" placeholder="Sua chave"/>
+        </div>
+      </div>
+      <div class="field-hint">Aparece no relatório — cliente paga na hora</div>
+
+      <!-- v6.0: consentimento de portfólio.
+           Padrão desligado. Um opt-in que já vem ligado não é consentimento. -->
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">Portfólio público</div>
+
+      <label class="toggle-wrap" style="align-items:flex-start;gap:.7rem">
+        <input type="checkbox" id="pPortfolio"/>
+        <span>
+          <span class="toggle-label">Mostrar fotos dos meus serviços</span>
+          <span style="display:block;font-size:.75rem;color:var(--muted);line-height:1.55;margin-top:.3rem">
+            As fotos passam a aparecer no seu perfil e na busca de profissionais,
+            visíveis para qualquer pessoa.
+          </span>
+        </span>
+      </label>
+
+      <div class="callout" id="portfolioAviso" style="display:none;margin-top:.6rem">
+        <div class="callout-label">Sua responsabilidade</div>
+        <p style="font-size:.76rem;color:var(--muted);line-height:1.6;margin:.3rem 0 0">
+          As fotos podem mostrar a casa, o rosto ou o endereço do seu cliente.
+          Avise cada um antes de ativar. Você pode esconder um serviço específico
+          na lista, sem desligar tudo.
+        </p>
+      </div>
+
+
+      <!-- v5.4: código de recuperação.
+           Antes só aparecia no onboarding, uma única vez. Quem pulou
+           perdia a conta ao limpar o navegador — foi o que gerou 9
+           perfis órfãos durante os testes. -->
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">Segurança da conta</div>
+
+      <div class="callout" style="margin-bottom:.75rem">
+        <div class="callout-label">Código de recuperação</div>
+        <div id="recCode" style="font-family:var(--mono);font-size:.95rem;letter-spacing:.12em;
+             color:var(--ink);word-break:break-all;margin:.5rem 0;font-weight:500">••••-••••-••••-••••</div>
+        <p style="font-size:.74rem;color:var(--muted);line-height:1.55;margin:0">
+          É a única forma de recuperar seus dados em outro celular. O Fieldo não guarda cópia.
+        </p>
+        <div style="display:flex;gap:.5rem;margin-top:.7rem">
+          <button type="button" class="btn btn--ghost btn--sm" style="flex:1" id="btnRecVer">Mostrar</button>
+          <button type="button" class="btn btn--ghost btn--sm" style="flex:1" id="btnRecBaixar">Baixar .txt</button>
+        </div>
+      </div>
+
+      <div class="field-hint" style="margin-top:.6rem">
+        <button type="button" class="btn btn--ghost btn--sm" id="btnPwaReset"
+                style="width:100%">Corrigir app travado</button>
+        <div style="margin-top:.4rem;line-height:1.5">
+          Se o app ficar preso numa versão antiga, isto limpa o cache e recarrega.
+          Seus dados não são apagados.
+        </div>
+      </div>
+
+      <!-- v4.3: Personalização (temas + nichos custom) -->
+      <div class="modal-divider"></div>
+      <div class="modal-section-label">Personalização</div>
+
+      <div class="field-group">
+        <label class="field-label" style="margin-bottom:.5rem">Tema da interface</label>
+        <div class="theme-picker" id="themePicker"></div>
+        <div class="field-hint" id="themeHint">Pergaminho é o tema padrão. Os demais são Pro.</div>
+      </div>
+
+      <div class="field-group" style="margin-top:.5rem">
+        <label class="field-label" style="margin-bottom:.5rem">Categorias de serviço</label>
+        <div class="niche-edit-list" id="nicheList"></div>
+        <div class="niche-add-row" id="nicheAddRow" style="display:none">
+          <input class="field-input niche-add-emoji" id="nicheEmoji" type="text" maxlength="4" placeholder="🔧"/>
+          <input class="field-input" id="nicheLabel" type="text" maxlength="22" placeholder="Nome da categoria"/>
+          <button type="button" class="niche-add-btn" onclick="adicionarNicho()">Add</button>
+        </div>
+        <button type="button" class="btn btn--ghost" id="nicheAddToggle" onclick="abrirAddNicho()" style="width:100%;margin-top:.4rem;font-size:.78rem">
+          + Adicionar categoria personalizada
+        </button>
+        <div class="niche-hint" id="nicheHint">Pro libera até 12 categorias personalizadas.</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn--primary" onclick="salvarPerfil()">
+        Salvar perfil
+        <span class="btn__spin" id="spinSalvar"></span>
+      </button>
+      <button class="btn btn--ghost" onclick="fecharPerfil()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+
+/* ── Guard: redireciona se não logado ── */
+if (!FIELDO.Auth.isLoggedIn()) {
+  window.location.href = 'entrar.html';
+}
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+function setTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  document.getElementById('tab-' + id).classList.add('active');
+  document.querySelectorAll('.dash-tab').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD — carrega dados
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  carregarDashboard();
+  ligarTogglesArquivo();
+  initRecoveryUI();
+  initPortfolioUI();
+  bindNichoBtns();
+  bindTemaBtns();
+  bindPwaReset();
+});
+
+function carregarDashboard() {
+  FIELDO.Professionals.me().then(function(prof) {
+    if (!prof) { window.location.href = 'entrar.html'; return; }
+    renderProfissional(prof);
+
+    /* Pro check em paralelo (não bloqueia rendering) */
+    FIELDO.Pro.check().then(renderPlanCallout).catch(function () {
+      renderPlanCallout(false);
+    });
+
+    /* v5.7.2: cada chamada com o próprio .catch.
+       Promise.all é tudo-ou-nada: bastava UMA rejeitar (Hashes.list não
+       tinha fallback) para NENHUM render rodar — e o painel ficava
+       vazio offline mesmo com o cache cheio. Era esta a causa de
+       "os dados somem ao atualizar".
+
+       Num painel, falha parcial deve degradar a seção, não a tela. */
+    function seguro(p, vazio) {
+      return p.catch(function (e) {
+        console.warn('[dashboard] seção falhou:', e && e.message);
+        return vazio;
+      });
+    }
+
+    return Promise.all([
+      seguro(FIELDO.Reports.stats(),   { total: 0, mes: 0 }),
+      seguro(FIELDO.Reports.recent(5), []),
+      seguro(FIELDO.Hashes.list(3),    []),
+      seguro(FIELDO.Budgets.list(5),   []),
+    ]);
+  }).then(function(results) {
+    if (!results) return;
+    var stats   = results[0];
+    var recents = results[1];
+    var hashes  = results[2];
+    var orcs    = results[3];
+    /* Cada render isolado: um erro de layout numa seção não pode
+       impedir as outras de aparecerem. */
+    [[renderMetricas, stats], [renderServicos, recents],
+     [renderHashes, hashes], [renderOrcamentos, orcs],
+     [renderReputacao, stats, hashes]].forEach(function (r) {
+      try { r[0](r[1], r[2]); }
+      catch (e) { console.warn('[dashboard] render:', e && e.message); }
+    });
+  }).catch(function(e) {
+    console.warn('Dashboard:', e);
+    FIELDO.UI.toast('Erro ao carregar dados');
+  });
+}
+
+
+/* ── v5.4: código de recuperação no perfil ────────────────────
+   O código é gerado no dispositivo durante o onboarding e guardado
+   localmente. O servidor nunca o vê em texto claro — ele só conhece
+   o e-mail sintético derivado. Se o armazenamento local for perdido,
+   não há como reexibi-lo: por isso o aviso é explícito. */
+/* v6.0: o aviso de responsabilidade só aparece quando o toggle liga.
+   Texto permanente vira paisagem; texto que surge no momento da decisão
+   é lido. */
+function initPortfolioUI() {
+  var chk = document.getElementById('pPortfolio');
+  var aviso = document.getElementById('portfolioAviso');
+  if (!chk || !aviso) return;
+  function sync() { aviso.style.display = chk.checked ? '' : 'none'; }
+  chk.addEventListener('change', sync);
+  sync();
+}
+
+function initRecoveryUI() {
+  var elCode = document.getElementById('recCode');
+  var btnVer = document.getElementById('btnRecVer');
+  var btnDl  = document.getElementById('btnRecBaixar');
+  if (!elCode || !btnVer) return;
+
+  var code = null;
+  try { code = localStorage.getItem('fieldo_recovery_code'); } catch (e) {}
+
+  if (!code) {
+    elCode.textContent = 'indisponível neste aparelho';
+    elCode.style.fontSize = '.8rem';
+    elCode.style.letterSpacing = '0';
+    btnVer.disabled = true;
+    if (btnDl) btnDl.disabled = true;
+    return;
+  }
+
+  var fmt = (code.match(/.{1,4}/g) || [code]).join('-');
+  var visivel = false;
+
+  btnVer.addEventListener('click', function () {
+    visivel = !visivel;
+    elCode.textContent = visivel ? fmt : '••••-••••-••••-••••';
+    btnVer.textContent = visivel ? 'Ocultar' : 'Mostrar';
+  });
+
+  if (btnDl) btnDl.addEventListener('click', function () {
+    var txt = 'FIELDO — CÓDIGO DE RECUPERAÇÃO\n\n' + fmt +
+      '\n\nGuarde este arquivo. É a única forma de recuperar seus dados\n' +
+      'em outro aparelho. O Fieldo não mantém cópia deste código.\n\n' +
+      'Gerado em ' + new Date().toLocaleString('pt-BR') + '\n';
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fieldo-codigo-recuperacao.txt';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+}
+
+/* Render dinâmico do callout de plano: Free vs Pro */
+function renderPlanCallout(isPro) {
+  var bar   = document.getElementById('planCallout');
+  var icon  = document.getElementById('planIcon');
+  var title = document.getElementById('planTitle');
+  var sub   = document.getElementById('planSub');
+  var cta   = document.getElementById('planCta');
+  if (!bar) return;
+
+  if (isPro) {
+    icon.textContent  = '✓';
+    title.textContent = 'Fieldo Pro · ativo';
+    sub.textContent   = 'Acesso ao módulo Contratos liberado';
+    cta.textContent   = 'Contratos →';
+    cta.setAttribute('href', 'contratos.html');
+    bar.style.background  = 'rgba(45,122,79,.06)';
+    bar.style.borderColor = 'rgba(45,122,79,.22)';
+  } else {
+    icon.textContent  = '⬡';
+    title.textContent = 'Plano Grátis';
+    sub.textContent   = 'Desbloqueie Contratos com Fieldo Pro';
+    cta.textContent   = 'Ativar Pro →';
+    cta.setAttribute('href', 'ativar.html');
+    bar.style.background  = '';
+    bar.style.borderColor = '';
+  }
+  bar.style.display = 'flex';
+}
+
+/* ── Profissional ── */
+function renderProfissional(prof) {
+  var name = prof.name || prof.profissao || 'Profissional';
+  var spec = prof.profissao || '';
+  var city = prof.city ? ' · ' + prof.city : '';
+
+  setText('dashName', name);
+  setText('dashSpec', spec + city);
+  setText('dashPlanLabel', (prof.plan || 'free').toUpperCase());
+
+  /* Avatar */
+  var av = document.getElementById('dashAvatar');
+  if (prof.logo_url) {
+    av.innerHTML = '<img src="' + esc(prof.logo_url) + '" alt=""/>';
+  } else {
+    av.textContent = name.charAt(0).toUpperCase();
+  }
+
+  /* Oculta callout de upgrade para pro/team */
+  if (prof.plan === 'pro' || prof.plan === 'team') {
+    var pc = document.getElementById('planCallout');
+    if (pc) pc.style.display = 'none';
+  }
+
+  /* Drawer perfil badge */
+  var dp = document.getElementById('drawerPerfil');
+  if (dp) {
+    dp.innerHTML = '<div style="display:flex;align-items:center;gap:.75rem;padding:.25rem 0">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:#fff;font-size:.95rem;flex-shrink:0;overflow:hidden">' +
+      (prof.logo_url ? '<img src="'+esc(prof.logo_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : name.charAt(0).toUpperCase()) +
+      '</div>' +
+      '<div style="min-width:0"><div style="font-size:.82rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(name) + '</div>' +
+      '<div style="font-family:var(--mono);font-size:.6rem;color:var(--muted)">' + esc(prof.plan || 'free') + '</div></div></div>';
+  }
+
+  /* Preenche modal de perfil */
+  setVal('pNome', prof.name || '');
+  setVal('pSpec', prof.profissao || prof.specialty || '');
+  preencherSelectNicho(prof.niche || '');
+  setVal('pBio', prof.bio || '');
+  setVal('pWpp', prof.whatsapp || '');
+  setVal('pCidade', prof.city || '');
+  setVal('pInsta', prof.instagram || '');
+  setVal('pPixTipo', prof.pix_tipo || 'CPF');
+  setVal('pPixChave', prof.pix_key || '');
+  /* v6.0: reflete o consentimento salvo */
+  var chkP = document.getElementById('pPortfolio');
+  if (chkP) {
+    chkP.checked = prof.portfolio_publico === true;
+    var av = document.getElementById('portfolioAviso');
+    if (av) av.style.display = chkP.checked ? '' : 'none';
+  }
+  setText('modalAvatarName', name);
+
+  if (prof.logo_url) {
+    var mai = document.getElementById('modalAvatarImg');
+    if (mai) mai.innerHTML = '<img src="' + esc(prof.logo_url) + '" style="width:100%;height:100%;object-fit:cover"/>';
+  }
+}
+
+/* ── Métricas ── */
+/* ── v5.3: painel financeiro ──────────────────────────────────
+   Só aparece quando existe algo cobrado. Um cartão "R$ 0,00" todo
+   dia para quem nunca preenche valor é ruído, não informação. */
+/* ── v5.3: marcar recebido ────────────────────────────────────
+   Delegação de evento no container: a lista é recriada a cada render,
+   então listener por botão vazaria a cada atualização.
+
+   Envia paid_at junto porque o banco tem constraint: 'pago' exige data.
+   Atualiza a lista inteira depois — o cartão financeiro precisa
+   refletir a mudança na hora. */
+/* ── v5.6: delegação dos botões de reenvio ────────────────────
+   Os dados agora chegam por data-*, lidos via dataset — que devolve
+   a string já decodificada pelo parser, sem passar por avaliação de
+   JavaScript. É o que torna a injeção impossível, não o escape. */
+/* v5.7: botão de emergência do service worker.
+   Um SW quebrado persiste no aparelho e o usuário não tem como sair
+   sozinho — "limpar dados do navegador" apagaria a conta junto, já que
+   a identidade vive no localStorage. Isto remove só o SW e os caches. */
+function bindPwaReset() {
+  var b = document.getElementById('btnPwaReset');
+  if (!b || !window.FIELDO || !FIELDO.PWA) return;
+  b.addEventListener('click', function () {
+    if (!window.confirm('Limpar o cache do app e recarregar?\n\nSeus dados e sua conta não são apagados.')) return;
+    b.disabled = true;
+    b.textContent = 'Limpando…';
+    FIELDO.PWA.reset().catch(function () {
+      b.disabled = false;
+      b.textContent = 'Corrigir app travado';
+      FIELDO.UI.toast('Não foi possível limpar');
+    });
+  });
+}
+
+function bindTemaBtns() {
+  var box = document.getElementById('themePicker');
+  if (!box || box._temaBound) return;
+  box._temaBound = true;
+  box.addEventListener('click', function (ev) {
+    var el = ev.target.closest && ev.target.closest('[data-tema]');
+    if (el) selecionarTema(el.dataset.key);
+  });
+}
+
+function bindNichoBtns() {
+  var box = document.getElementById('nicheList') || document.getElementById('nichePicker');
+  if (!box || box._nichoBound) return;
+  box._nichoBound = true;
+  box.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-rmnicho]');
+    if (!b) return;
+    ev.preventDefault();
+    removerNicho(b.dataset.rmnicho);
+  });
+}
+
+function bindReenvioBtns() {
+  ['serviceList', 'orcList'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el || el._reenvBound) return;
+    el._reenvBound = true;
+
+    el.addEventListener('click', function (ev) {
+      var btn = ev.target.closest && ev.target.closest('[data-act]');
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      var act = btn.dataset.act;
+      if (act === 'rel') {
+        reenviarRelatorio(btn.dataset.token, btn.dataset.cliente);
+      } else if (act === 'orc') {
+        reenviarOrcamento(btn.dataset.oid, btn.dataset.cliente,
+                          parseFloat(btn.dataset.total) || 0);
+      }
+      else if (act === 'arq-rel')  { arquivarRegistro('reports', btn.dataset.rid); }
+      else if (act === 'rest-rel') { restaurarRegistro('reports', btn.dataset.rid); }
+      else if (act === 'del-rel')  { excluirRegistro('reports', btn.dataset.rid); }
+      else if (act === 'arq-orc')  { arquivarRegistro('budgets', btn.dataset.oid); }
+      else if (act === 'rest-orc') { restaurarRegistro('budgets', btn.dataset.oid); }
+      else if (act === 'del-orc')  { excluirRegistro('budgets', btn.dataset.oid); }
+    });
+  });
+}
+
+/* ── v7.2: arquivamento (soft-delete) ─────────────────────────────
+   Arquivar tira o registro da lista do profissional SEM apagar: o link
+   que o cliente já tem e a avaliação continuam vivos. Excluir é o
+   hard-delete (cascata remove a avaliação) — por isso pede confirmação.
+   Itens ainda não sincronizados não mostram arquivar (não existem no
+   servidor); o render já os exclui do botão. */
+var _arqServ = false, _arqOrc = false;
+
+function _apiAlvo(tabela) {
+  return tabela === 'reports' ? FIELDO.Reports : FIELDO.Budgets;
+}
+
+function arquivarRegistro(tabela, id) {
+  _apiAlvo(tabela).update(id, { arquivado_em: new Date().toISOString() })
+    .then(function () {
+      FIELDO.UI.toast(tabela === 'reports' ? 'Serviço arquivado' : 'Orçamento arquivado');
+      tabela === 'reports' ? recarregarServicos() : recarregarOrcamentos();
+    })
+    .catch(function () { FIELDO.UI.toast('Não foi possível arquivar agora'); });
+}
+
+function restaurarRegistro(tabela, id) {
+  _apiAlvo(tabela).update(id, { arquivado_em: null })
+    .then(function () {
+      FIELDO.UI.toast('Restaurado');
+      tabela === 'reports' ? recarregarServicos() : recarregarOrcamentos();
+    })
+    .catch(function () { FIELDO.UI.toast('Não foi possível restaurar agora'); });
+}
+
+function excluirRegistro(tabela, id) {
+  var msg = tabela === 'reports'
+    ? 'Excluir este serviço para sempre? A avaliação do cliente também será perdida. Se só quer tirá-lo da lista, use Arquivar.'
+    : 'Excluir este orçamento para sempre? Esta ação não pode ser desfeita.';
+  if (!window.confirm(msg)) return;
+  _apiAlvo(tabela).delete(id)
+    .then(function () {
+      FIELDO.UI.toast('Excluído');
+      tabela === 'reports' ? recarregarServicos() : recarregarOrcamentos();
+    })
+    .catch(function () { FIELDO.UI.toast('Não foi possível excluir agora'); });
+}
+
+function recarregarServicos() {
+  FIELDO.Reports.list({ limit: 50, arquivados: _arqServ })
+    .then(renderServicos)
+    .catch(function () { FIELDO.UI.toast('Erro ao carregar serviços'); });
+}
+
+function recarregarOrcamentos() {
+  FIELDO.Budgets.list(50, { arquivados: _arqOrc })
+    .then(renderOrcamentos)
+    .catch(function () { FIELDO.UI.toast('Erro ao carregar orçamentos'); });
+}
+
+function ligarTogglesArquivo() {
+  var ts = document.getElementById('arqServToggle');
+  if (ts && !ts._bound) {
+    ts._bound = true;
+    ts.addEventListener('click', function () {
+      _arqServ = !_arqServ;
+      ts.textContent = _arqServ ? '← Ativos' : 'Arquivados';
+      ts.setAttribute('aria-pressed', _arqServ ? 'true' : 'false');
+      recarregarServicos();
+    });
+  }
+  var to = document.getElementById('arqOrcToggle');
+  if (to && !to._bound) {
+    to._bound = true;
+    to.addEventListener('click', function () {
+      _arqOrc = !_arqOrc;
+      to.textContent = _arqOrc ? '← Ativos' : 'Arquivados';
+      to.setAttribute('aria-pressed', _arqOrc ? 'true' : 'false');
+      recarregarOrcamentos();
+    });
+  }
+}
+
+function bindPagoBtns() {
+  var list = document.getElementById('serviceList');
+  if (!list || list._pagoBound) return;
+  list._pagoBound = true;
+
+  list.addEventListener('click', function (ev) {
+    var btn = ev.target.closest && ev.target.closest('.pago-btn');
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    var id = btn.dataset.rid;
+    if (!id || btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    FIELDO.Reports.update(id, {
+      payment_status: 'pago',
+      paid_at: new Date().toISOString(),
+    }).then(function () {
+      FIELDO.UI.toast('Marcado como recebido ✓');
+      carregarDashboard();
+    }).catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = 'R$';
+      FIELDO.UI.toast('Não foi possível atualizar');
+      console.error('[pago]', err);
+    });
+  });
+}
+
+function renderFinanceiro(stats) {
+  var sec = document.getElementById('secFinanceiro');
+  if (!sec) return;
+
+  var temMovimento = (stats.qtdReceber > 0) || (stats.qtdPagoMes > 0);
+  if (!temMovimento) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+
+  setText('mReceber',  FIELDO.UI.brl(stats.aReceber || 0));
+  setText('mRecebido', FIELDO.UI.brl(stats.recebidoMes || 0));
+
+  setText('mReceberSub', stats.qtdReceber
+    ? stats.qtdReceber + (stats.qtdReceber === 1 ? ' serviço' : ' serviços')
+    : 'nada pendente');
+  setText('mRecebidoSub', stats.qtdPagoMes
+    ? stats.qtdPagoMes + (stats.qtdPagoMes === 1 ? ' serviço · este mês' : ' serviços · este mês')
+    : 'este mês');
+
+  /* Destaque só quando há de fato algo a cobrar */
+  var card = document.getElementById('cardReceber');
+  if (card) card.classList.toggle('doc-metric--alert', (stats.qtdReceber || 0) > 0);
+
+  var link = document.getElementById('linkAReceber');
+  if (link) link.style.display = (stats.qtdReceber || 0) > 0 ? '' : 'none';
+}
+
+function renderMetricas(stats) {
+  renderFinanceiro(stats);
+  setText('mTotal',    stats.total || '—');
+  setText('mMes',      stats.mes   || '—');
+  setHTML('mNicho',    stats.nichoTop ? '<em>' + esc(stats.nichoTop) + '</em>' : '—');
+  setText('qsServicos', stats.total || '—');
+  setText('qsMes',      stats.mes   || '—');
+
+  if (stats.avgScore) {
+    setHTML('dashScoreVal', '<em>' + stats.avgScore + '</em>');
+    setText('dashStars',   FIELDO.UI.stars(Math.round(parseFloat(stats.avgScore))));
+    setText('dashScoreSub', 'média de ' + (stats.total || 0) + ' serviço' + (stats.total !== 1 ? 's' : ''));
+  }
+}
+
+/* ── Serviços recentes ── */
+var NICHE_EMOJI = {
+  eletrica: '⚡', hidraulica: '🔧', pintura: '🎨',
+  'ar-condicionado': '❄️', alvenaria: '🧱', informatica: '💻',
+  serralheria: '🔩',
+};
+
+function renderServicos(rows) {
+  var list = document.getElementById('serviceList');
+  if (!list) return;
+  bindPagoBtns();
+  bindReenvioBtns();
+
+  if (!rows || !rows.length) {
+    list.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-state-glyph">⬡</div>' +
+        '<h3>Comece seu <em>histórico técnico</em></h3>' +
+        '<p>Cada serviço documentado constrói sua reputação verificável.<br>Relatórios que o cliente guarda — e que aparecem no Google.</p>' +
+        '<a href="servico.html" class="btn btn--primary">Registrar primeiro serviço</a>' +
+      '</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(function(r) {
+    var emoji = NICHE_EMOJI[r.niche || r.category_key] || '🔧';
+    var thumb = r.photos && r.photos[0]
+      ? '<img src="' + esc(r.photos[0]) + '" alt=""/>'
+      : '<div class="service-thumb-ph">' + emoji + '</div>';
+    var rating = r.rating
+      ? '<div class="service-score">' + FIELDO.UI.stars(r.rating) + '</div>'
+      : '';
+    return '<div class="service-card" style="position:relative">' +
+      '<a href="relatorio.html?id=' + esc(r.id) + '" style="display:flex;align-items:center;gap:.75rem;flex:1;text-decoration:none;color:inherit">' +
+        '<div class="service-thumb">' + thumb + '</div>' +
+        '<div class="service-info">' +
+          '<div class="service-client">' + esc(r.client_name) + '</div>' +
+          '<div class="service-meta">' +
+            '<span class="service-niche">' + esc(r.category_label || r.niche || r.category_key || '—') + '</span>' +
+            '<span class="service-dot"></span>' +
+            '<span class="service-date">' + FIELDO.UI.fmtDate(r.service_date || r.created_at) + '</span>' +
+            /* v5.3: valor e situação de pagamento na própria lista.
+               Sem isto o profissional teria que abrir cada relatório
+               para saber quem ainda deve. */
+            /* v5.7.3: registro criado offline ainda não subiu. Sem este
+               aviso, o profissional não sabe que precisa pegar sinal em
+               algum momento — e some do aparelho se ele limpar dados. */
+            (r._pendingSync
+              ? '<span class="service-dot"></span>' +
+                '<span class="service-pend" title="Aguardando conexão">⟳ não enviado</span>'
+              : '') +
+            (r.valor
+              ? '<span class="service-dot"></span>' +
+                '<span class="service-valor' + (r.payment_status === 'pendente' ? ' service-valor--pend' : '') + '">' +
+                  esc(FIELDO.UI.brl(r.valor)) +
+                  (r.payment_status === 'pago' ? ' ✓' : '') +
+                '</span>' +
+                /* v5.4: o cliente avisou que pagou, mas isso é AVISO, não
+                   confirmação. O profissional confirma tocando no botão. */
+                (r.client_paid_claim_at && r.payment_status === 'pendente'
+                  ? '<span class="service-claim">cliente avisou que pagou</span>' : '')
+              : '') +
+          '</div>' +
+        '</div>' +
+        rating +
+      '</a>' +
+      /* v7.2: ações agrupadas num contêiner flex. Modo arquivado mostra
+         restaurar/excluir; ativo mantém pago + reenvio e ganha arquivar.
+         data-* + delegação preserva a proteção XSS (nome do cliente nunca
+         vira código dentro de atributo). */
+      '<div class="card-acts">' +
+        (_arqServ
+          ? '<button class="arq-btn" data-act="rest-rel" data-rid="' + esc(r.id) + '" aria-label="Restaurar serviço" title="Restaurar">⤺</button>' +
+            '<button class="arq-btn arq-btn--danger" data-act="del-rel" data-rid="' + esc(r.id) + '" aria-label="Excluir definitivamente" title="Excluir definitivamente">✕</button>'
+          : (
+            (r.payment_status === 'pendente'
+              ? '<button class="pago-btn' + (r.client_paid_claim_at ? ' pago-btn--claim' : '') + '" data-rid="' + esc(r.id) + '" aria-label="Confirmar recebimento" title="' + (r.client_paid_claim_at ? 'Cliente avisou que pagou — confirmar' : 'Marcar como recebido') + '">R$</button>'
+              : '') +
+            (r.rating_token
+              ? '<button class="reenvio-btn" data-act="rel" data-token="' + esc(r.rating_token) + '" data-cliente="' + esc(r.client_name) + '" aria-label="Reenviar relatório por WhatsApp" title="Reenviar para o cliente">↗</button>'
+              : '') +
+            (r._pendingSync ? ''
+              : '<button class="arq-btn" data-act="arq-rel" data-rid="' + esc(r.id) + '" aria-label="Arquivar serviço" title="Arquivar">🗄</button>')
+          )) +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── Reenvio de relatório por WhatsApp ── */
+function reenviarRelatorio(token, cliente) {
+  /* v6.9: avisa ANTES de enviar um link que o cliente não conseguirá
+     abrir. Rodando local, a URL aponta para o aparelho do profissional
+     — mandar assim gera confusão dos dois lados. */
+  if (!FIELDO.publicUrlConfigurado() &&
+      !window.confirm('Você está rodando o app localmente.\n\n' +
+        'O link gerado NÃO vai abrir no celular do cliente. ' +
+        'Publique o app ou configure PUBLIC_BASE_URL no db.js.\n\nEnviar mesmo assim?')) {
+    return;
+  }
+  /* v6.8: link para o cliente precisa abrir no aparelho DELE.
+     Testando em 127.0.0.1 o link saía com o IP local — o WhatsApp
+     nem reconhecia como link, e mesmo colado não abriria. */
+  var origin = FIELDO.publicUrl('').replace(/\/$/, '');
+  var url = origin + '/avaliar.html?token=' + encodeURIComponent(token);
+  var msg = 'Olá ' + (cliente || '') + '! Segue o link do relatório do serviço — você pode avaliar por aqui:\n\n' + url;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ── Orçamentos recentes ── */
+function renderOrcamentos(rows) {
+  var list = document.getElementById('orcList');
+  if (!list) return;
+  bindReenvioBtns();
+
+  if (!rows || !rows.length) {
+    list.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-state-glyph">§</div>' +
+        '<h3>Nenhum orçamento <em>ainda</em></h3>' +
+        '<p>Crie propostas profissionais com Pix integrado.<br>O cliente aprova pelo WhatsApp em 1 clique.</p>' +
+        '<a href="orcamento.html" class="btn btn--primary">Criar orçamento</a>' +
+      '</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(function (o) {
+    var statusBadge = '';
+    var status = (o.status || 'pendente').toLowerCase();
+    if (status === 'aprovado') statusBadge = '<span style="font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(45,122,79,.1);color:var(--green);padding:.15rem .4rem;border-radius:3px;margin-left:.5rem">Aprovado</span>';
+    else if (status === 'recusado') statusBadge = '<span style="font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(192,57,43,.08);color:var(--red);padding:.15rem .4rem;border-radius:3px;margin-left:.5rem">Recusado</span>';
+
+    return '<div class="service-card" style="position:relative">' +
+      '<a href="relatorio.html?orc=' + esc(o.id) + '" style="display:flex;align-items:center;gap:.75rem;flex:1;text-decoration:none;color:inherit">' +
+        '<div class="service-thumb"><div class="service-thumb-ph">📋</div></div>' +
+        '<div class="service-info">' +
+          '<div class="service-client">' + esc(o.client_name || o.cliente || '—') + statusBadge + '</div>' +
+          '<div class="service-meta">' +
+            '<span class="service-niche">' + esc(o.titulo || 'Orçamento') + '</span>' +
+            '<span class="service-dot"></span>' +
+            '<span class="service-date">' + FIELDO.UI.fmtDate(o.created_at) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="service-score" style="color:var(--gold-d);font-family:var(--mono);font-size:.85rem;font-weight:500">' + FIELDO.UI.brl(o.total || 0) + '</div>' +
+      '</a>' +
+      /* v5.5: orçamento aprovado e ainda sem serviço vira serviço com
+         um toque, com cliente/valor/local já preenchidos. Antes o
+         profissional redigitava o que já estava no orçamento. */
+      '<div class="card-acts">' +
+        (_arqOrc
+          ? '<button class="arq-btn" data-act="rest-orc" data-oid="' + esc(o.id) + '" aria-label="Restaurar orçamento" title="Restaurar">⤺</button>' +
+            '<button class="arq-btn arq-btn--danger" data-act="del-orc" data-oid="' + esc(o.id) + '" aria-label="Excluir definitivamente" title="Excluir definitivamente">✕</button>'
+          : (
+            (status === 'aprovado' && !o.linked_report_id
+              ? '<a class="virar-btn" href="servico.html?orc=' + esc(o.id) + '" aria-label="Criar serviço a partir deste orçamento" title="Criar serviço">▶</a>'
+              : '') +
+            '<button class="reenvio-btn" data-act="orc" data-oid="' + esc(o.id) + '" data-cliente="' + esc(o.client_name || o.cliente || '') + '" data-total="' + Number(o.total || 0) + '" aria-label="Reenviar orçamento por WhatsApp" title="Reenviar para o cliente">↗</button>' +
+            (o._pendingSync ? ''
+              : '<button class="arq-btn" data-act="arq-orc" data-oid="' + esc(o.id) + '" aria-label="Arquivar orçamento" title="Arquivar">🗄</button>')
+          )) +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function reenviarOrcamento(orcId, cliente, total) {
+  /* v6.9: avisa ANTES de enviar um link que o cliente não conseguirá
+     abrir. Rodando local, a URL aponta para o aparelho do profissional
+     — mandar assim gera confusão dos dois lados. */
+  if (!FIELDO.publicUrlConfigurado() &&
+      !window.confirm('Você está rodando o app localmente.\n\n' +
+        'O link gerado NÃO vai abrir no celular do cliente. ' +
+        'Publique o app ou configure PUBLIC_BASE_URL no db.js.\n\nEnviar mesmo assim?')) {
+    return;
+  }
+  /* v6.8: link para o cliente precisa abrir no aparelho DELE.
+     Testando em 127.0.0.1 o link saía com o IP local — o WhatsApp
+     nem reconhecia como link, e mesmo colado não abriria. */
+  var origin = FIELDO.publicUrl('').replace(/\/$/, '');
+  var url = origin + '/relatorio.html?orc=' + encodeURIComponent(orcId);
+  var msg = 'Olá ' + (cliente || '') + '! Segue o orçamento que preparei:\n\n' +
+    '💰 Total: ' + FIELDO.UI.brl(total) + '\n' +
+    '📄 Ver detalhes: ' + url + '\n\n' +
+    'Qualquer dúvida estou à disposição!';
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ── Hashes ── */
+function renderHashes(rows) {
+  var hl = document.getElementById('hashList');
+  if (!hl) return;
+  setText('qsHashes', rows.length || '—');
+
+  if (!rows || !rows.length) return;
+
+  hl.innerHTML = rows.map(function(h) {
+    return '<div class="hash-row">' +
+      '<div class="hash-icon">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+      '</div>' +
+      '<div class="hash-val">' + esc((h.hash || '').slice(0, 36)) + '…</div>' +
+      '<div class="hash-badge">✓ válido</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── Reputação ── */
+function renderReputacao(stats, hashes) {
+  setText('rScore', stats.avgScore || '—');
+  setText('rSelos', (hashes || []).length || '—');
+  FIELDO.Avaliacoes.list().then(function(rows) {
+    setText('rAvals', rows.length || '—');
+  }).catch(function() {});
+}
+
+/* ══════════════════════════════════════════
+   PERFIL MODAL
+══════════════════════════════════════════ */
+function abrirPerfil() {
+  document.getElementById('perfilModal').style.display = 'flex';
+  /* v4.3: renderiza seções de personalização ao abrir */
+  renderThemePicker();
+  renderNicheEditor();
+}
+
+function fecharPerfil(e) {
+  if (e && e.target !== document.getElementById('perfilModal')) return;
+  document.getElementById('perfilModal').style.display = 'none';
+}
+
+/* ── v4.3 ── Theme picker ───────────────────────────────────── */
+function renderThemePicker() {
+  var box = document.getElementById('themePicker');
+  if (!box) return;
+  var current = FIELDO.Themes.current();
+
+  FIELDO.Pro.check().then(function(isPro){
+    var swatches = {
+      paper:    'linear-gradient(135deg,#f0ece3 0%,#e4dfd2 60%,#9a7218 60%,#9a7218 100%)',
+      midnight: 'linear-gradient(135deg,#0e0e14 0%,#16161e 60%,#c49a30 60%,#c49a30 100%)',
+      sage:     'linear-gradient(135deg,#dfe6dc 0%,#ccd4c4 60%,#5a6b2e 60%,#5a6b2e 100%)',
+      ember:    'linear-gradient(135deg,#f4e2d0 0%,#e6c8a7 60%,#b85427 60%,#b85427 100%)',
+    };
+
+    box.innerHTML = FIELDO.Themes.list().map(function(t){
+      var locked = t.proOnly && !isPro;
+      var active = t.key === current;
+      var cls = 'theme-opt' + (active ? ' is-active' : '') + (locked ? ' is-locked' : '');
+      /* v5.6: já existe data-key; o onclick era redundante e repetia
+         o padrão inseguro. Delegação usa o data-key. */
+      return '<div class="'+cls+'" data-key="'+FIELDO.UI.esc(t.key)+'" data-tema="1" role="button" tabindex="0">'+
+        '<div class="theme-swatch" style="background:'+swatches[t.key]+'"></div>'+
+        '<div class="theme-opt-lbl">'+FIELDO.UI.esc(t.label)+'</div>'+
+      '</div>';
+    }).join('');
+  });
+}
+
+function selecionarTema(key) {
+  FIELDO.Themes.set(key).then(function(r){
+    if (r.ok) {
+      renderThemePicker();
+      FIELDO.UI.toast('Tema "'+FIELDO.Themes.meta(key).label+'" aplicado');
+    } else if (r.error === 'pro_required') {
+      FIELDO.UpgradeUI.show({ reason: 'pro_required', action: 'use_themes' });
+    }
+  });
+}
+
+/* ── v4.3 ── Niche editor ───────────────────────────────────── */
+function renderNicheEditor() {
+  var box = document.getElementById('nicheList');
+  if (!box) return;
+  var all = FIELDO.Niches.list();
+  box.innerHTML = all.map(function(n){
+    var custom = FIELDO.Niches.isCustom(n.key);
+    return '<span class="niche-chip'+(custom?'':' is-default')+'">'+
+      FIELDO.UI.esc(n.emoji)+' '+FIELDO.UI.esc(n.label)+
+      (custom
+      /* v5.6: nicho customizado é texto digitado pelo usuário —
+         não pode entrar em string JS dentro de atributo. */
+      ? '<button type="button" class="niche-chip-x" data-rmnicho="' + FIELDO.UI.esc(n.key) + '" aria-label="Remover">✕</button>'
+        : '')+
+    '</span>';
+  }).join('');
+}
+
+function abrirAddNicho() {
+  /* Gate: só Pro pode adicionar custom niches */
+  FIELDO.UsageGuard.enforce('use_custom_niches').then(function(ok){
+    if (!ok) return;
+    document.getElementById('nicheAddToggle').style.display = 'none';
+    document.getElementById('nicheAddRow').style.display = 'grid';
+    document.getElementById('nicheEmoji').focus();
+  });
+}
+
+function adicionarNicho() {
+  var emoji = (document.getElementById('nicheEmoji').value || '🔧').trim();
+  var label = (document.getElementById('nicheLabel').value || '').trim();
+  if (!label) {
+    FIELDO.UI.toast('Digite um nome para a categoria');
+    return;
+  }
+  var r = FIELDO.Niches.add({ label: label, emoji: emoji });
+  if (!r.ok) {
+    var msgs = {
+      empty_label: 'Nome obrigatório',
+      too_long:    'Nome muito longo (máx 22)',
+      duplicate:   'Já existe categoria com esse nome',
+      limit:       'Limite de 12 personalizadas atingido',
+    };
+    FIELDO.UI.toast(msgs[r.error] || 'Falha ao adicionar');
+    return;
+  }
+  document.getElementById('nicheEmoji').value = '';
+  document.getElementById('nicheLabel').value = '';
+  document.getElementById('nicheAddRow').style.display = 'none';
+  document.getElementById('nicheAddToggle').style.display = '';
+  renderNicheEditor();
+  FIELDO.UI.toast('Categoria "'+label+'" adicionada');
+}
+
+function removerNicho(key) {
+  if (!confirm('Remover essa categoria? Relatórios já criados continuam funcionando.')) return;
+  FIELDO.Niches.remove(key);
+  renderNicheEditor();
+}
+
+var _avatarFile = null; /* arquivo de foto pendente de upload */
+
+function previewAvatar(input) {
+  var file = input.files[0];
+  if (!file) return;
+  _avatarFile = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById('modalAvatarImg');
+    if (img) img.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover"/>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvarPerfil() {
+  var nome = (getVal('pNome') || '').trim();
+  if (!nome) { FIELDO.UI.toast('Informe seu nome'); return; }
+
+  setLoading('spinSalvar', true);
+
+  /* Upload de avatar com validação de tipo (delegado ao módulo) */
+  var uploadPromise = Promise.resolve(null);
+  if (_avatarFile) {
+    uploadPromise = FIELDO.Professionals.uploadAvatar(_avatarFile)
+      .catch(function(err) {
+        console.warn('[Fieldo] avatar upload falhou:', err);
+        FIELDO.UI.toast('Não foi possível enviar a foto: ' + (err && err.message || ''));
+        return null; /* não bloqueia o salvamento do perfil */
+      });
+  }
+
+  uploadPromise.then(function(logoUrl) {
+    var data = {
+      name:      nome,
+      profissao: getVal('pSpec'),
+      niche:     getVal('pNicho') || null,
+      bio:       getVal('pBio'),
+      whatsapp:  getVal('pWpp'),
+      city:      getVal('pCidade'),
+      instagram: getVal('pInsta'),
+      pix_tipo:  getVal('pPixTipo'),
+      pix_key:   getVal('pPixChave'),
+      /* v6.0: consentimento explícito de portfólio */
+      portfolio_publico: !!(document.getElementById('pPortfolio') || {}).checked,
+    };
+    if (logoUrl) data.logo_url = logoUrl;
+
+    return FIELDO.Professionals.update(data);
+  }).then(function(prof) {
+    _avatarFile = null;
+    setLoading('spinSalvar', false);
+    document.getElementById('perfilModal').style.display = 'none';
+    renderProfissional(prof);
+    FIELDO.UI.toast('Perfil salvo ✓');
+  }).catch(function(e) {
+    setLoading('spinSalvar', false);
+    FIELDO.UI.handleError(e);
+  });
+}
+
+/* ══════════════════════════════════════════
+   LOGOUT
+══════════════════════════════════════════ */
+function confirmarLogout() {
+  if (confirm('Sair do Fieldo?')) {
+    FIELDO.Auth.logout();
+    window.location.href = 'entrar.html';
+  }
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setHTML(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.innerHTML = val;
+}
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (el.tagName === 'SELECT') {
+    Array.from(el.options).forEach(function(o) { o.selected = o.value === val; });
+  } else {
+    el.value = val || '';
+  }
+}
+function getVal(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+/* v7.3 Fase 4 do plano de nicho: popula o select com os 8 padrão +
+   os customizados deste aparelho (FIELDO.Niches já existe pro
+   dropdown de categoria dos relatórios — reaproveitado aqui). Se o
+   profissional ainda não tem niche salvo (perfil antigo, sem
+   relatório ainda), o select abre em branco — força uma escolha
+   consciente em vez de assumir um valor errado silenciosamente. */
+function preencherSelectNicho(valorAtual) {
+  var el = document.getElementById('pNicho');
+  if (!el) return;
+  var opts = ['<option value="">Selecione…</option>'].concat(
+    FIELDO.Niches.list().map(function (n) {
+      return '<option value="' + esc(n.key) + '">' + esc(n.emoji) + ' ' + esc(n.label) + '</option>';
+    })
+  );
+  el.innerHTML = opts.join('');
+  setVal('pNicho', valorAtual);
+}
+function setLoading(spinId, on) {
+  var sp = document.getElementById(spinId);
+  if (sp) sp.classList.toggle('on', on);
+}
+function esc(s) { return FIELDO.UI.esc(s); }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Avaliar serviço · Fieldo</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f5f2ec;--paper:#f5f2ec;--paper2:#ede9df;--paper3:#e4dfd2;--paper4:#d8d2c4;
+      --ink:#0e0e14;--text:#1a1a24;--text2:#4a4855;--muted:#7a7570;--subtle:#a09890;--ghost:#c4bdb0;
+      --border:rgba(14,14,20,.09);--border2:rgba(14,14,20,.16);
+      --gold:#9a7218;--gold-l:#b8880d;--gold-d:#7a5a10;
+      --gold-bg:rgba(154,114,24,.07);--gold-bd:rgba(154,114,24,.2);
+      --green:#1e5c38;--green-l:#2d7a4f;--green-bg:rgba(30,92,56,.07);--green-bd:rgba(30,92,56,.18);
+      --red:#8b1a1a;--red-bg:rgba(139,26,26,.07);--red-bd:rgba(139,26,26,.18);
+      --topbar-bg:#0e0e14;
+      --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono','Courier New',monospace;
+      --r:8px;--r-l:12px;--r-xl:18px;
+      --ez:cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-font-smoothing:antialiased}
+    body{
+      font-family:var(--sans);background:var(--bg);color:var(--text);
+      min-height:100dvh;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:1.5rem;
+      position:relative;overflow:hidden;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:180px;
+    }
+    body::after{
+      content:'';position:fixed;top:-100px;right:-100px;width:380px;height:380px;
+      border-radius:50%;pointer-events:none;z-index:0;
+      background:radial-gradient(circle,rgba(154,114,24,.07) 0%,transparent 70%);
+    }
+
+    .box{
+      width:100%;max-width:400px;position:relative;z-index:1;
+      animation:fadeUp .35s var(--ez) both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+    /* Marca Fieldo */
+    .brand{
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      margin-bottom:2rem;
+    }
+    .brand-icon{
+      width:28px;height:28px;background:var(--gold);border-radius:7px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .brand-name{font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--ink)}
+    .brand-name em{color:var(--gold);font-style:italic;font-weight:300}
+
+    /* Profissional */
+    .prof-row{
+      display:flex;flex-direction:column;align-items:center;
+      margin-bottom:1.75rem;text-align:center;
+    }
+    .prof-avatar{
+      width:60px;height:60px;border-radius:50%;
+      background:linear-gradient(135deg,var(--gold),var(--gold-d));
+      border:2px solid var(--gold-bd);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-size:1.4rem;font-style:italic;color:#fff;
+      margin-bottom:.85rem;overflow:hidden;
+    }
+    .prof-avatar img{width:100%;height:100%;object-fit:cover}
+    .prof-name{font-family:var(--serif);font-size:1.3rem;font-weight:300;font-style:italic;color:var(--ink)}
+    .prof-spec{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:.2rem;letter-spacing:.05em}
+    .service-badge{
+      display:inline-flex;align-items:center;gap:.35rem;
+      background:var(--paper2);border:1px solid var(--border2);
+      border-radius:2rem;padding:.28rem .75rem;
+      font-family:var(--mono);font-size:.62rem;color:var(--subtle);
+      margin-top:.65rem;
+    }
+
+    /* Título */
+    .question{
+      font-family:var(--serif);font-size:1.6rem;font-weight:300;
+      text-align:center;color:var(--ink);margin-bottom:.4rem;
+    }
+    .question em{font-style:italic;color:var(--gold)}
+    .question-sub{
+      font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;
+      color:var(--muted);text-align:center;margin-bottom:2rem;
+    }
+
+    /* Estrelas */
+    .stars-wrap{
+      display:flex;justify-content:center;gap:.6rem;
+      margin-bottom:1.75rem;
+    }
+    .star{
+      font-size:2.8rem;color:var(--paper4);cursor:pointer;
+      transition:color .15s,transform .2s var(--ez);
+      user-select:none;line-height:1;
+    }
+    .star:hover{transform:scale(1.15)}
+    .star.lit{color:var(--gold-l)}
+    .star.lit:hover{color:var(--gold)}
+
+    /* Labels das estrelas */
+    .star-label{
+      text-align:center;font-family:var(--mono);font-size:.68rem;
+      letter-spacing:.06em;color:var(--muted);height:1.2rem;
+      margin-bottom:1.25rem;transition:opacity .2s;
+    }
+
+    /* Comentário */
+    .comment-wrap{
+      margin-bottom:1.25rem;
+      max-height:0;overflow:hidden;transition:max-height .3s var(--ez);
+    }
+    .comment-wrap.open{max-height:200px}
+    .comment-input{
+      width:100%;background:var(--paper2);border:1px solid var(--border2);
+      border-radius:var(--r-l);padding:.85rem 1rem;color:var(--text);
+      font-family:var(--sans);font-size:.88rem;font-weight:300;
+      outline:none;resize:none;min-height:90px;line-height:1.65;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .comment-input:focus{
+      border-color:var(--gold-bd);
+      box-shadow:0 0 0 3px var(--gold-bg);
+    }
+    .comment-input::placeholder{color:var(--ghost)}
+
+    /* Botão enviar */
+    .send-btn{
+      width:100%;background:var(--gold);color:#fff;border:none;
+      border-radius:var(--r-l);padding:.85rem;cursor:pointer;
+      font-family:var(--sans);font-size:.95rem;font-weight:500;
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      transition:background .2s,transform .15s,opacity .2s;
+      margin-bottom:.85rem;
+    }
+    .send-btn:hover{background:var(--gold-d);transform:translateY(-1px)}
+    .send-btn:active{transform:translateY(0)}
+    .send-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+    .anon-note{
+      font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;
+      color:var(--ghost);text-align:center;line-height:1.7;
+    }
+
+    /* Estados */
+    .state{display:none;text-align:center}
+    .state.active{display:block;animation:fadeUp .3s ease both}
+
+    .state-icon{
+      width:70px;height:70px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 1.25rem;font-size:1.8rem;
+    }
+    .state-icon.success{background:var(--green-bg);border:2px solid var(--green-bd);animation:bounceIn .4s var(--ez) both}
+    .state-icon.error  {background:var(--red-bg);  border:2px solid var(--red-bd)}
+    .state-icon.used   {background:var(--paper2);  border:2px solid var(--border2)}
+    @keyframes bounceIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+    .state-title{font-family:var(--serif);font-size:1.5rem;font-weight:300;color:var(--ink);margin-bottom:.4rem}
+    .state-title em{font-style:italic;color:var(--gold)}
+    .state-sub{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:1.25rem}
+    .stars-display{font-size:1.5rem;color:var(--gold-l);letter-spacing:-.05em;margin:.5rem 0}
+
+    /* Loading skeleton */
+    .skel{
+      background:linear-gradient(90deg,var(--paper3) 25%,var(--paper4) 50%,var(--paper3) 75%);
+      background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    .spin{
+      width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;
+    }
+    .spin.on{display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:360px){.star{font-size:2.2rem}}
+  </style>
+</head>
+<body>
+
+<div class="box">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="brand-name"><em>Fieldo</em></div>
+  </div>
+
+  <!-- ══ FORM STATE ══ -->
+  <div class="state active" id="stateForm">
+
+    <!-- Profissional (carregado dinamicamente) -->
+    <div class="prof-row" id="profRow">
+      <div class="skel" style="width:60px;height:60px;border-radius:50%;margin-bottom:.85rem"></div>
+      <div class="skel" style="height:18px;width:55%;margin-bottom:.4rem"></div>
+      <div class="skel" style="height:11px;width:35%"></div>
+    </div>
+
+    <div class="question">Como foi o <em>serviço?</em></div>
+    <div class="question-sub">Anônimo · sem cadastro · menos de 30 segundos</div>
+
+    <!-- Estrelas -->
+    <div class="stars-wrap" id="starsWrap">
+      <div class="star" data-n="1" onclick="selecionarEstrela(1)">★</div>
+      <div class="star" data-n="2" onclick="selecionarEstrela(2)">★</div>
+      <div class="star" data-n="3" onclick="selecionarEstrela(3)">★</div>
+      <div class="star" data-n="4" onclick="selecionarEstrela(4)">★</div>
+      <div class="star" data-n="5" onclick="selecionarEstrela(5)">★</div>
+    </div>
+
+    <div class="star-label" id="starLabel">Toque para selecionar</div>
+
+    <!-- Comentário -->
+    <div class="comment-wrap" id="commentWrap">
+      <textarea class="comment-input" id="comentario" placeholder="Comentário opcional — o que você achou do serviço?" maxlength="500"></textarea>
+    </div>
+
+    <!-- Botão -->
+    <button class="send-btn" id="sendBtn" onclick="enviarAvaliacao()" disabled>
+      <span id="sendLabel">Selecione uma nota</span>
+      <span class="spin" id="sendSpin"></span>
+    </button>
+
+    <div class="anon-note">
+      Avaliação anônima · Não requer cadastro<br>
+      O profissional será notificado
+    </div>
+
+  </div>
+
+  <!-- ══ SUCCESS STATE ══ -->
+  <div class="state" id="stateSuccess">
+    <div class="state-icon success">✓</div>
+    <div class="state-title">Obrigado pela<br><em>avaliação!</em></div>
+    <div class="stars-display" id="successStars"></div>
+    <p class="state-sub">
+      Sua avaliação foi registrada e o profissional foi notificado.
+      Ela ajuda outros clientes a encontrar bons profissionais.
+    </p>
+    <a href="explorar.html" style="display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.72rem;color:var(--gold-d);text-decoration:underline">
+      Ver outros profissionais →
+    </a>
+  </div>
+
+  <!-- ══ JÁ AVALIADO ══ -->
+  <div class="state" id="stateUsed">
+    <div class="state-icon used">⬡</div>
+    <div class="state-title">Avaliação já<br>registrada</div>
+    <p class="state-sub">Este link de avaliação já foi utilizado.<br>Cada relatório permite uma avaliação.</p>
+  </div>
+
+  <!-- ══ ERRO ══ -->
+  <div class="state" id="stateError">
+    <div class="state-icon error">!</div>
+    <div class="state-title">Link inválido</div>
+    <p class="state-sub">Este link de avaliação não existe ou expirou.</p>
+  </div>
+
+</div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+var STAR_LABELS = { 1:'Ruim', 2:'Regular', 3:'Bom', 4:'Muito bom', 5:'Excelente!' };
+var _nota    = 0;
+var _report  = null;
+var _token   = null;
+
+var params = new URLSearchParams(window.location.search);
+_token = params.get('token');
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', function() {
+  if (!_token) { setEstado('stateError'); return; }
+  carregarRelatorio();
+});
+
+function carregarRelatorio() {
+  FIELDO.Reports.getByToken(_token)
+    .then(function(report) {
+      if (!report) { setEstado('stateError'); return; }
+      _report = report;
+
+      if (_report.rating_used) { setEstado('stateUsed'); return; }
+
+      /* Carrega profissional */
+      return FIELDO.Professionals.getById(_report.professional_id)
+        .then(function(prof) {
+          renderProfissional(prof || {}, _report);
+        });
+    }).catch(function() { setEstado('stateError'); });
+}
+
+function renderProfissional(prof, report) {
+  var inicial = (prof.name || prof.profissao || 'P').charAt(0).toUpperCase();
+  var avatarHTML = prof.logo_url
+    ? '<img src="' + esc(prof.logo_url) + '"/>'
+    : inicial;
+
+  var catLabel = report.category_label || report.niche || report.category_key || 'Serviço';
+  var dateStr  = report.service_date
+    ? new Date(report.service_date + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'long' })
+    : '';
+
+  document.getElementById('profRow').innerHTML =
+    '<div class="prof-avatar">' + avatarHTML + '</div>' +
+    '<div class="prof-name">' + esc(prof.name || prof.profissao || 'Profissional') + '</div>' +
+    '<div class="prof-spec">' + esc(prof.profissao || '') + (prof.city ? ' · ' + esc(prof.city) : '') + '</div>' +
+    '<div class="service-badge">' +
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' +
+      esc(catLabel) + (dateStr ? ' · ' + dateStr : '') +
+    '</div>';
+}
+
+/* ══ ESTRELAS ══ */
+function selecionarEstrela(n) {
+  _nota = n;
+  var stars = document.querySelectorAll('.star');
+  stars.forEach(function(s, i) { s.classList.toggle('lit', i < n); });
+
+  var lbl = document.getElementById('starLabel');
+  if (lbl) lbl.textContent = STAR_LABELS[n] || '';
+
+  /* Abre campo de comentário */
+  var cw = document.getElementById('commentWrap');
+  if (cw) cw.classList.add('open');
+
+  /* Ativa botão */
+  var btn = document.getElementById('sendBtn');
+  var lbl2 = document.getElementById('sendLabel');
+  if (btn) btn.disabled = false;
+  if (lbl2) lbl2.textContent = 'Enviar avaliação →';
+}
+
+/* ══ ENVIAR — submit atômico via FIELDO ══ */
+function enviarAvaliacao() {
+  if (!_nota || !_report) return;
+
+  var comentario = (document.getElementById('comentario').value || '').trim() || null;
+  var btn = document.getElementById('sendBtn');
+  var spin = document.getElementById('sendSpin');
+
+  if (btn) btn.disabled = true;
+  if (spin) spin.classList.add('on');
+
+  FIELDO.Avaliacoes.submit(_token, _nota, comentario, null)
+    .then(function() {
+      document.getElementById('successStars').textContent = '★'.repeat(_nota) + '☆'.repeat(5-_nota);
+      setEstado('stateSuccess');
+    })
+    .catch(function(err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Tentar novamente →'; }
+      if (spin) spin.classList.remove('on');
+      var lbl = document.getElementById('sendLabel');
+      if (lbl) {
+        if (err && /já foi enviada/.test(err.message)) {
+          lbl.textContent = 'Esta avaliação já foi registrada';
+          setTimeout(function(){ setEstado('stateUsed'); }, 1500);
+        } else {
+          lbl.textContent = 'Erro. Tente novamente →';
+        }
+      }
+      console.error('[Fieldo] avaliacao:', err);
+    });
+}
+
+/* ══ UTILS ══ */
+function setEstado(id) {
+  document.querySelectorAll('.state').forEach(function(el) { el.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+/* v6.4: delega para FIELDO.UI.esc.
+   A versão local escapava só & < > — faltavam ASPAS. Usada dentro
+   de um atributo (src="…", href="…"), um valor com aspa escapava do
+   atributo e abria caminho para injeção. Três implementações
+   diferentes no projeto significavam que a correta podia ser
+   contornada por acidente. Agora existe uma só. */
+function esc(s) { return FIELDO.UI.esc(s); }
+</script>
+</body>
+</html>

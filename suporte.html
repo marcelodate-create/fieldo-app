@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Suporte · Fieldo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    .sup-contact{background:var(--ink);border-radius:var(--r-l);padding:1.5rem;text-align:center;margin-bottom:2rem}
+    .sup-contact p{color:rgba(255,255,255,.6);font-size:.82rem;margin-bottom:1rem}
+    .sup-contact .btn{background:#25d366;color:#fff;border:none;border-radius:var(--r-l);padding:.8rem 1.5rem;font-size:.85rem;font-weight:500;display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;cursor:pointer}
+    .faq{display:flex;flex-direction:column;gap:.6rem}
+    .faq-item{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-l)}
+    .faq-q{padding:1rem 1.25rem;font-size:.86rem;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;list-style:none}
+    .faq-q::-webkit-details-marker{display:none}
+    .faq-q::after{content:'+';font-family:var(--mono);color:var(--gold);font-size:1.1rem;flex-shrink:0}
+    .faq-item[open] .faq-q::after{content:'–'}
+    .faq-a{padding:0 1.25rem 1.1rem;font-size:.8rem;color:var(--muted);line-height:1.7}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+    <div class="menu-divider"></div>
+    <a href="configuracoes.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/></svg></span><span>Configurações</span></a>
+    <a href="suporte.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg></span><span>Suporte</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--narrow">
+  <div class="page-eyebrow">Suporte</div>
+  <h1 class="page-title" style="margin-bottom:1.5rem">Como podemos <em>ajudar</em>?</h1>
+
+  <div class="sup-contact">
+    <p>Não achou a resposta? Fala direto com a gente.</p>
+    <a class="btn" href="https://wa.me/5512988406425?text=Preciso%20de%20ajuda%20com%20o%20Fieldo" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.98 9.98 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.114.552 4.1 1.522 5.832L0 24l6.337-1.51A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+      Falar no WhatsApp
+    </a>
+  </div>
+
+  <div class="card-title">Perguntas frequentes</div>
+  <div class="faq">
+    <details class="faq-item">
+      <summary class="faq-q">Como funciona o plano Pro?</summary>
+      <div class="faq-a">O Free já publica seu perfil no Google e cobre até 5 relatórios por mês. O Pro libera relatórios ilimitados, nichos e temas personalizados, e o módulo de Contratos. Ativa em "Ativar Pro" com uma chave — se você comprou de um revendedor, é a chave que ele te passou.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Recebi uma avaliação que acho injusta. Dá pra remover?</summary>
+      <div class="faq-a">Cada serviço só pode ser avaliado uma vez, pelo cliente que recebeu o link — isso é o que dá credibilidade ao seu score, então não temos um botão de "apagar avaliação" para o profissional. Se a nota parece claramente indevida (ex.: avaliação de serviço que não foi seu), chama no WhatsApp que analisamos caso a caso.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">O app funciona sem internet?</summary>
+      <div class="faq-a">Sim, para registrar serviços. Preenche mesmo sem sinal — sincroniza sozinho assim que a conexão voltar.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Por que meu perfil não aparece no Google ainda?</summary>
+      <div class="faq-a">Duas coisas precisam estar certas: o perfil marcado como público (em Configurações) e pelo menos 3 relatórios registrados. Depois disso o Google ainda leva um tempo pra indexar — não é instantâneo.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Um cliente não pagou pelo serviço. O Fieldo cobra por mim?</summary>
+      <div class="faq-a">Não — o Fieldo não intermedia pagamento nem faz cobrança. O relatório com hash serve como registro do serviço prestado, mas a cobrança em si é combinada diretamente entre vocês.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Quero revender o Fieldo pra outros profissionais.</summary>
+      <div class="faq-a">Existe um modelo de revenda com desconto por lote. <a href="revenda.html" style="color:var(--gold-d)">Veja como funciona →</a></div>
+    </details>
+  </div>
+</div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+if (!FIELDO.Auth.isLoggedIn()) window.location.href = 'entrar.html';
+</script>
+</body>
+</html>

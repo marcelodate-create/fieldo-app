@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Configurações · Fieldo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    .cfg-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-l);padding:1.1rem 1.25rem;margin-bottom:.9rem}
+    .cfg-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .cfg-title{font-size:.88rem;font-weight:500;color:var(--text)}
+    .cfg-sub{font-size:.76rem;color:var(--muted);margin-top:.2rem;line-height:1.6}
+    .cfg-switch{position:relative;width:42px;height:24px;flex-shrink:0;background:var(--paper3);border:1px solid var(--border2);border-radius:2rem;cursor:pointer;transition:background .2s}
+    .cfg-switch.on{background:var(--gold)}
+    .cfg-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(14,14,20,.25)}
+    .cfg-switch.on::after{transform:translateX(18px)}
+    .cfg-switch[disabled]{opacity:.5;cursor:default}
+    .cfg-plan-badge{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .6rem;border-radius:2rem}
+    .cfg-plan-badge.free{background:var(--paper3);color:var(--muted)}
+    .cfg-plan-badge.pro{background:var(--gold-bg);color:var(--gold-d);border:1px solid var(--gold-bd)}
+    .cfg-danger{border-color:rgba(200,60,50,.25)}
+    .cfg-danger .cfg-title{color:#a83a30}
+    .cfg-btn-danger{margin-top:.7rem;font-family:var(--mono);font-size:.7rem;color:#a83a30;background:none;border:1px solid rgba(200,60,50,.3);border-radius:var(--r);padding:.5rem .9rem;cursor:pointer}
+    .cfg-btn-danger:hover{background:rgba(200,60,50,.06)}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+    <div class="menu-divider"></div>
+    <a href="configuracoes.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/></svg></span><span>Configurações</span></a>
+    <a href="suporte.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg></span><span>Suporte</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--narrow">
+  <div class="page-eyebrow">Configurações</div>
+  <h1 class="page-title" style="margin-bottom:1.5rem">Sua <em>conta</em></h1>
+
+  <div class="cfg-card">
+    <div class="cfg-row">
+      <div>
+        <div class="cfg-title">Perfil público</div>
+        <div class="cfg-sub">Visível no Google e na busca do Explorar. Desligado, só você acessa seu perfil.</div>
+      </div>
+      <button class="cfg-switch" id="swPublico" disabled onclick="togglePublico()"></button>
+    </div>
+  </div>
+
+  <div class="cfg-card">
+    <div class="cfg-title">E-mail</div>
+    <div class="cfg-sub" style="margin-bottom:.7rem">Usamos só pra te avisar de coisas importantes na sua conta.</div>
+    <div style="display:flex;gap:.5rem">
+      <input class="field-input" id="inpEmail" type="email" placeholder="seu@email.com" style="flex:1"/>
+      <button class="btn btn--ghost" id="btnSalvarEmail" onclick="salvarEmail()" style="flex-shrink:0">Salvar</button>
+    </div>
+  </div>
+
+  <div class="cfg-card">
+    <div class="cfg-row">
+      <div>
+        <div class="cfg-title">Plano atual</div>
+        <div class="cfg-sub" id="planoSub">Carregando…</div>
+      </div>
+      <span class="cfg-plan-badge free" id="planoBadge">—</span>
+    </div>
+  </div>
+
+  <div class="cfg-card cfg-danger">
+    <div class="cfg-title">Excluir conta</div>
+    <div class="cfg-sub">
+      Apaga seu perfil, relatórios e avaliações permanentemente. Não existe
+      um botão automático pra isso ainda — processamos manualmente, pra
+      confirmar que é você pedindo e evitar exclusão por engano.
+    </div>
+    <button class="cfg-btn-danger" onclick="pedirExclusao()">Solicitar exclusão</button>
+  </div>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+if (!FIELDO.Auth.isLoggedIn()) window.location.href = 'entrar.html';
+
+var _prof = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+  FIELDO.Professionals.me().then(function (prof) {
+    _prof = prof || {};
+    renderEstado();
+  }).catch(function () {
+    FIELDO.UI.toast('Erro ao carregar configurações');
+  });
+});
+
+function renderEstado() {
+  var sw = document.getElementById('swPublico');
+  sw.classList.toggle('on', !!_prof.is_public);
+  sw.disabled = false;
+
+  document.getElementById('inpEmail').value = _prof.email || '';
+
+  var isPro = _prof.plan === 'pro';
+  var badge = document.getElementById('planoBadge');
+  badge.textContent = isPro ? 'Pro' : 'Free';
+  badge.className = 'cfg-plan-badge ' + (isPro ? 'pro' : 'free');
+  document.getElementById('planoSub').textContent = isPro
+    ? 'Relatórios ilimitados, nichos e temas personalizados.'
+    : 'Até 5 relatórios por mês. Quer mais? Ative o Pro.';
+}
+
+/* v7.6: e-mail é o único jeito de eventualmente notificar o
+   profissional — o login não pede telefone desde a v5.0 (anônimo +
+   código de recuperação). Sem e-mail, não existe canal nenhum. */
+function salvarEmail() {
+  var val = document.getElementById('inpEmail').value.trim();
+  if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    FIELDO.UI.toast('E-mail parece inválido');
+    return;
+  }
+  var btn = document.getElementById('btnSalvarEmail');
+  btn.disabled = true;
+  FIELDO.Professionals.update({ email: val || null }).then(function () {
+    _prof.email = val || null;
+    FIELDO.UI.toast('E-mail salvo ✓');
+  }).catch(function () {
+    FIELDO.UI.toast('Não foi possível salvar agora');
+  }).then(function () {
+    btn.disabled = false;
+  });
+}
+
+/* v7.5: is_public já existe na tabela desde sempre — só não tinha
+   nenhum botão no dashboard pra ligar/desligar. O aviso em perfil.html
+   pro dono ("seu perfil está privado") já existia, mas não dizia como
+   resolver isso. */
+function togglePublico() {
+  var sw = document.getElementById('swPublico');
+  var novo = !_prof.is_public;
+  sw.disabled = true;
+  FIELDO.Professionals.update({ is_public: novo }).then(function () {
+    _prof.is_public = novo;
+    renderEstado();
+    FIELDO.UI.toast(novo ? 'Perfil público ✓' : 'Perfil agora é privado');
+  }).catch(function () {
+    FIELDO.UI.toast('Não foi possível alterar agora');
+    sw.disabled = false;
+  });
+}
+
+/* v7.5: não existe exclusão automática (cascata de reports, avaliações,
+   hashes é coisa séria pra fazer sem revisão humana). Mesmo padrão
+   manual que já usamos pra licença Pro e revenda — WhatsApp direto. */
+function pedirExclusao() {
+  var nome = (_prof && _prof.name) || '';
+  var msg = 'Quero solicitar a exclusão da minha conta no Fieldo' + (nome ? ' (' + nome + ')' : '') + '.';
+  window.open('https://wa.me/5512988406425?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Fieldo · Novo Serviço</title>
+  <!-- v6.9 · Fora do índice. Formulário de registro de serviço.
+       Rastreio NÃO é bloqueado no robots.txt de propósito: o robô
+       precisa poder ler esta linha para respeitá-la. -->
+  <meta name="robots" content="noindex,follow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    .stepper{background:var(--topbar-bg);padding:.85rem 1.25rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid rgba(255,255,255,.07)}
+    .stepper-back{display:flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:.72rem;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;transition:color .2s;text-decoration:none}
+    .stepper-back:hover{color:rgba(255,255,255,.75)}
+    .stepper-steps{flex:1;display:flex;align-items:center}
+    .stepper-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+    .stepper-step::after{content:'';position:absolute;top:10px;left:calc(50% + 12px);right:calc(-50% + 12px);height:1px;background:rgba(255,255,255,.1)}
+    .stepper-step:last-child::after{display:none}
+    .stepper-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.58rem;color:rgba(255,255,255,.35);transition:background .3s,color .3s;position:relative;z-index:1}
+    .stepper-step.active .stepper-num{background:var(--gold);border-color:var(--gold);color:#fff}
+    .stepper-step.done .stepper-num{background:rgba(45,122,79,.3);border-color:rgba(45,122,79,.5);color:var(--green-l)}
+    .stepper-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-top:.3rem;white-space:nowrap}
+    .stepper-step.active .stepper-label{color:var(--gold-l)}
+    .stepper-step.done .stepper-label{color:rgba(255,255,255,.28)}
+
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.5rem}
+
+    /* v4.4 M5: banner de sugestão de vínculo de orçamento */
+    .orc-sug-banner{background:linear-gradient(135deg,rgba(154,114,24,.08) 0%,rgba(154,114,24,.04) 100%);border:1px solid var(--gold-bd);border-radius:var(--r);padding:.7rem .9rem;animation:fadeIn .3s ease}
+    .orc-sug-row{display:flex;align-items:center;gap:.7rem}
+    .orc-sug-icon{font-size:1.25rem;flex-shrink:0;line-height:1}
+    .orc-sug-body{flex:1;min-width:0}
+    .orc-sug-title{font-family:var(--serif);font-size:.92rem;font-style:italic;color:var(--gold-d);line-height:1.2}
+    .orc-sug-sub{font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.2rem;letter-spacing:.04em}
+    .orc-sug-btn{flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:7px;padding:.5rem .85rem;font-family:var(--mono);font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+    .orc-sug-btn:hover{background:var(--gold-d)}
+    .orc-sug-confirmed{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font-size:.78rem;color:var(--gold-d);font-weight:500}
+    .orc-sug-undo{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-decoration:underline}
+    .orc-sug-undo:hover{color:var(--text)}
+    .cat-btn{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.85rem .5rem;border-radius:var(--r-l);background:var(--paper2);border:1.5px solid var(--border2);cursor:pointer;transition:var(--t);text-align:center}
+    .cat-btn:hover{border-color:var(--border3);background:var(--paper3)}
+    .cat-btn.selected{background:var(--gold-bg);border-color:var(--gold-bd)}
+    .cat-emoji{font-size:1.4rem;line-height:1}
+    .cat-label{font-size:.72rem;font-weight:500;color:var(--text);line-height:1.2}
+    .cat-btn.selected .cat-label{color:var(--gold-d)}
+
+    /* Preview */
+    .prev-card{background:var(--paper);border:1px solid var(--border2);border-radius:var(--r-xl);overflow:hidden;box-shadow:0 4px 24px rgba(14,14,20,.08)}
+    .prev-hdr{background:var(--topbar-bg);padding:1.1rem 1.4rem;display:flex;align-items:center;gap:.85rem}
+    .prev-logo{width:38px;height:38px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+    .prev-logo img{width:100%;height:100%;object-fit:cover}
+    .prev-name{font-family:var(--serif);font-size:.92rem;font-style:italic;color:rgba(255,255,255,.9)}
+    .prev-spec{font-family:var(--mono);font-size:.6rem;color:rgba(255,255,255,.35);margin-top:.08rem}
+    .prev-body{padding:1.25rem 1.4rem}
+    .prev-lbl{font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+    .prev-client{font-family:var(--serif);font-size:1.4rem;font-weight:300;color:var(--ink);margin-bottom:1rem}
+    .prev-metas{display:flex;gap:1.25rem;flex-wrap:wrap;padding:.75rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:1rem}
+    .prev-m-lbl{font-family:var(--mono);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.15rem}
+    .prev-m-val{font-size:.82rem;color:var(--text)}
+    .prev-desc{font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:.85rem}
+    .prev-hash{background:var(--paper3);border-radius:var(--r);padding:.6rem .85rem;display:flex;align-items:center;gap:.55rem;margin-top:.85rem}
+    .prev-hash-val{font-family:var(--mono);font-size:.6rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .prev-pix{background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r);padding:.6rem .85rem;display:flex;align-items:center;justify-content:space-between;margin-top:.5rem}
+    .prev-pix-lbl{font-family:var(--mono);font-size:.58rem;color:var(--gold-d)}
+    .prev-pix-key{font-family:var(--mono);font-size:.7rem;color:var(--gold-d)}
+
+    .cta-bar{position:fixed;bottom:0;left:0;right:0;z-index:150;height:var(--cta-h);background:rgba(245,242,236,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border2);display:flex;align-items:center;padding:0 1.25rem;gap:.65rem}
+    .cta-hint{flex:1;font-family:var(--mono);font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Overlay resultado */
+    .res-ov{position:fixed;inset:0;z-index:800;background:rgba(14,14,20,.72);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:1.25rem;animation:fadeIn .25s ease}
+    .res-box{background:var(--paper);border:1px solid var(--border2);border-radius:var(--r-xl);width:100%;max-width:420px;position:relative;overflow:hidden;max-height:92dvh;overflow-y:auto}
+    .res-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 35%,var(--gold-l) 65%,transparent)}
+    .res-top{padding:1.5rem 1.75rem 1rem;text-align:center}
+    .res-seal{width:56px;height:56px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green-bd);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:1.4rem;animation:bounceIn .4s var(--ez) both}
+    @keyframes bounceIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+    .res-title{font-family:var(--serif);font-size:1.45rem;font-weight:300;color:var(--ink);margin-bottom:.25rem}
+    .res-title em{font-style:italic;color:var(--gold)}
+    .res-sub{font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:.5rem}
+    .res-hash{background:var(--paper3);border-radius:var(--r);padding:.5rem .85rem;margin:0 1.75rem .5rem;display:flex;align-items:center;gap:.5rem}
+    .res-hash-val{font-family:var(--mono);font-size:.58rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .res-actions{padding:.75rem 1.75rem 1.75rem;display:flex;flex-direction:column;gap:.4rem}
+    .ra{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.72rem 1rem;border-radius:var(--r-l);font-size:.85rem;font-weight:500;cursor:pointer;border:none;transition:background .2s;text-decoration:none;width:100%}
+    .ra-primary{background:var(--gold);color:#fff}.ra-primary:hover{background:var(--gold-d)}
+    .ra-wa{background:#25d366;color:#fff}.ra-wa:hover{background:#1fbb59}
+    .ra-dl{background:var(--paper2);border:1px solid var(--border2);color:var(--text2)}.ra-dl:hover{background:var(--paper3)}
+    .ra-aval{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold-d)}.ra-aval:hover{background:rgba(154,114,24,.14)}
+    .ra-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:.78rem}.ra-ghost:hover{color:var(--text)}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @media(max-width:400px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="locacao.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="12" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg></span><span>Locação</span></a>
+    <a href="servico.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="contratos.html" class="menu-nav-item" data-pro="1" style="display:none"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Contratos</span></a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="stepper">
+  <a href="index.html" class="stepper-back"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Dashboard</a>
+  <div class="stepper-steps">
+    <div class="stepper-step active" id="step-dot-1"><div class="stepper-num">1</div><div class="stepper-label">Dados</div></div>
+    <div class="stepper-step" id="step-dot-2"><div class="stepper-num">2</div><div class="stepper-label">Detalhes</div></div>
+    <div class="stepper-step" id="step-dot-3"><div class="stepper-num">3</div><div class="stepper-label">Revisão</div></div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="page page--narrow" id="step1">
+  <div class="page-eyebrow" style="margin-bottom:.5rem">Novo serviço</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Dados do <em>cliente</em></h1>
+  <p class="page-sub" style="margin-bottom:1.25rem">3 campos. 60 segundos. Tudo mais é opcional.</p>
+
+  <!-- Banner de quota (preenchido via JS) -->
+  <div id="quotaBanner" class="quota-banner" style="display:none" role="status" aria-live="polite"></div>
+
+  <div class="card" style="display:flex;flex-direction:column;gap:1rem">
+    <div class="field-group">
+      <label class="field-label">Nome do cliente <span class="required">*</span></label>
+      <input class="field-input" id="fCliente" type="text" placeholder="Ex: Maria Aparecida" autocomplete="off"/>
+      <!-- v4.4 M5: banner de sugestão de vínculo com orçamento existente.
+           Aparece quando há orçamento(s) do mesmo cliente sem report vinculado.
+           Profissional confirma com 1 clique → _linkedBudgetId fica preenchido. -->
+      <div id="orcSugestaoBanner" class="orc-sug-banner" style="display:none;margin-top:.6rem">
+        <div class="orc-sug-row">
+          <div class="orc-sug-icon">📋</div>
+          <div class="orc-sug-body">
+            <div class="orc-sug-title" id="orcSugestaoTitulo">Orçamento pendente</div>
+            <div class="orc-sug-sub" id="orcSugestaoSub"></div>
+          </div>
+          <button type="button" class="orc-sug-btn" id="orcSugestaoBtn" onclick="vincularOrcamento()">Vincular</button>
+        </div>
+        <div class="orc-sug-confirmed" id="orcSugestaoConfirmed" style="display:none">
+          <span>✓ Vinculado ao orçamento</span>
+          <button type="button" class="orc-sug-undo" onclick="desvincularOrcamento()">Desfazer</button>
+        </div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" style="margin-bottom:.5rem">Categoria <span class="required">*</span></label>
+      <!-- v4.3: grid populado dinamicamente via FIELDO.Niches.list() -->
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+    <div class="fields-row-2">
+      <div class="field-group">
+        <label class="field-label">Data <span class="required">*</span></label>
+        <input class="field-input" id="fData" type="date"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Cidade</label>
+        <input class="field-input" id="fCidade" type="text" placeholder="Ex: Campinas – SP"/>
+        <!-- v6.0: campo é livre; sem esta dica alguém digita rua e número,
+             e isso aparece no relatório que o cliente compartilha. -->
+        <div class="field-hint">Só a cidade — não escreva rua nem número.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="page page--narrow" id="step2" style="display:none">
+  <div class="page-eyebrow" style="margin-bottom:.5rem">Passo 2 de 3</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Descrição & <em>fotos</em></h1>
+  <p class="page-sub" style="margin-bottom:1.5rem">Quanto mais detalhe, mais credibilidade. Tudo opcional.</p>
+  <div class="card" style="display:flex;flex-direction:column;gap:1rem">
+    <div class="field-group">
+      <label class="field-label">Descrição do serviço</label>
+      <textarea class="field-textarea" id="fDesc" placeholder="O que foi feito, materiais usados, solução aplicada..." style="min-height:110px"></textarea>
+    </div>
+    <div class="field-group">
+      <label class="field-label" style="margin-bottom:.5rem">Fotos <span style="color:var(--ghost);font-weight:400">(até 10)</span></label>
+      <div class="capture-row" style="margin-bottom:.6rem">
+        <div class="capture-btn" onclick="document.getElementById('fotoCamera').click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <div class="capture-label">Câmera</div><div class="capture-sub">Fotografar agora</div>
+        </div>
+        <div class="capture-btn" onclick="document.getElementById('fotoGaleria').click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div class="capture-label">Galeria</div><div class="capture-sub">Escolher fotos</div>
+        </div>
+      </div>
+      <input type="file" id="fotoCamera" accept="image/*" capture="environment" multiple style="display:none" onchange="adicionarFotos(this)"/>
+      <input type="file" id="fotoGaleria" accept="image/*" multiple style="display:none" onchange="adicionarFotos(this)"/>
+      <div class="photo-meta" id="photoMeta" style="display:none">
+        <span id="photoCount">0 fotos</span>
+        <button onclick="limparFotos()" style="background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:.62rem;color:var(--muted)">Limpar</button>
+      </div>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="fValor">Valor cobrado (opcional)</label>
+      <input class="field-input" id="fValor" type="number" min="0" step="0.01"
+             placeholder="R$ 0,00" inputmode="decimal" oninput="atualizarPagto()"/>
+      <div class="field-hint" id="valorHint">Informe para o cliente poder pagar por Pix direto no relatório.</div>
+    </div>
+
+    <div class="field-group" id="grpPagto" style="display:none">
+      <label class="field-label">Situação do pagamento</label>
+      <div class="seg" id="segPagto">
+        <button type="button" class="seg-btn on" data-st="pendente" onclick="setPagto(this)">A receber</button>
+        <button type="button" class="seg-btn"    data-st="pago"     onclick="setPagto(this)">Já recebi</button>
+      </div>
+      <div class="field-hint" id="pagtoHint">O bloco de Pix só aparece no relatório se estiver "A receber".</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="page page--narrow" id="step3" style="display:none">
+  <div class="page-eyebrow" style="margin-bottom:.5rem">Passo 3 de 3</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Revisar & <em>gerar</em></h1>
+  <p class="page-sub" style="margin-bottom:1.5rem">Preview do relatório que o cliente vai receber.</p>
+  <div class="prev-card" id="previewCard"></div>
+</div>
+
+<div class="cta-bar">
+  <div class="cta-hint" id="ctaHint">Preencha os dados para continuar</div>
+  <button class="btn btn--ghost btn--sm" id="btnVoltar" style="display:none" onclick="voltarStep()">← Voltar</button>
+  <button class="btn btn--primary" id="btnAvancar" onclick="avancarStep()">
+    <span id="btnAvancarLabel">Continuar</span>
+    <span class="btn__spin" id="spinAvancar"></span>
+  </button>
+</div>
+
+<!-- RESULTADO -->
+<div class="res-ov" id="resOverlay" style="display:none">
+  <div class="res-box">
+    <div class="res-top">
+      <div class="res-seal">✦</div>
+      <div class="res-title">Relatório <em>gerado!</em></div>
+      <p class="res-sub" id="resSub">Pronto para entregar</p>
+    </div>
+    <div class="res-hash" id="resHash">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="res-hash-val" id="resHashVal">—</div>
+      <div style="font-family:var(--mono);font-size:.54rem;color:var(--green);flex-shrink:0">Selo ✓</div>
+    </div>
+    <div class="res-actions">
+      <button class="ra ra-primary" onclick="visualizarRelatorio()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Visualizar relatório
+      </button>
+      <button class="ra ra-wa" onclick="enviarWA()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.98 9.98 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.114.552 4.1 1.522 5.832L0 24l6.337-1.51A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Enviar pelo WhatsApp
+      </button>
+      <button class="ra ra-dl" onclick="baixarHTML()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar HTML (abre sem internet)
+      </button>
+      <button class="ra ra-aval" onclick="solicitarAvaliacao()">⭐ Solicitar avaliação</button>
+      <button class="ra ra-ghost" onclick="window.location.href='index.html'">Ver dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+if (!FIELDO.Auth.isLoggedIn()) window.location.href = 'entrar.html';
+
+var _step=1, _prof=null, _catKey='', _catLabel='', _fotos=[], _reportId=null, _hash=null, _token=null, _htmlDoc='';
+
+/* v4.4 M5: estado do vínculo automático com orçamento.
+   _linkedBudgetId fica preenchido quando o profissional confirma a sugestão.
+   Vai pro Reports.create como `linked_budget_id`. Backfill em budgets.linked_report_id
+   acontece após o report ser criado com sucesso. */
+var _linkedBudgetId = null;
+var _orcSugestoes = [];   /* cache da última busca por nome */
+var _orcSugTimer = null;
+
+/* v5.5: entrada direta a partir de um orçamento aprovado.
+   servico.html?orc={id} → preenche cliente, valor, local e descrição.
+   Antes o profissional redigitava tudo o que já estava no orçamento. */
+var _prefillOrcId = (function(){
+  try { return new URLSearchParams(window.location.search).get('orc'); }
+  catch (e) { return null; }
+})();
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('fData').value = new Date().toISOString().split('T')[0];
+  FIELDO.Professionals.me().then(function(p){ _prof=p; if (_prefillOrcId) atualizarPagto(); });
+  renderCatGrid(); /* v4.3: popula grid via FIELDO.Niches */
+  atualizarHint();
+  document.getElementById('fCliente').addEventListener('input', atualizarHint);
+  document.getElementById('fData').addEventListener('change', atualizarHint);
+  document.getElementById('fData').addEventListener('input', atualizarHint);
+  /* v4.4 M5: debounce na busca de orçamento por cliente */
+  document.getElementById('fCliente').addEventListener('input', _onClienteChange);
+
+  /* v4.2: Auto-save de rascunho a cada 600ms */
+  var formContainer = document.querySelector('main') || document.body;
+  if (FIELDO.LocalDB && FIELDO.LocalDB.isSupported()) {
+    FIELDO.Draft.attach('servico', formContainer, {
+      exclude: ['fData', 'fCliente_dummy']
+    });
+    /* Restaura rascunho anterior se houver.
+       v5.5: se o usuário veio de um orçamento (?orc=), pular. A intenção
+       é explícita, e restaurar o rascunho sobrescreveria o preenchimento
+       — bug silencioso clássico: o campo volta ao valor antigo sozinho. */
+    FIELDO.Draft.exists('servico').then(function (has) {
+      if (has && !_prefillOrcId) {
+        if (confirm('Você tem um rascunho não salvo. Continuar de onde parou?')) {
+          FIELDO.Draft.restore('servico', formContainer).then(function () {
+            atualizarHint();
+          });
+        } else {
+          FIELDO.Draft.clear('servico');
+        }
+      }
+    });
+  }
+
+  if (_prefillOrcId) _preencherDoOrcamento(_prefillOrcId);
+
+  /* Mostra status do plano e bloqueia formulário se limite excedido */
+  FIELDO.Reports.canCreate().then(function(quota){
+    _quota = quota;
+    renderQuotaBanner(quota);
+  }).catch(function(){ /* sem internet, segue sem bloqueio — RLS protege no DB */ });
+});
+
+var _quota = null;
+
+function renderQuotaBanner(q){
+  if (!q || q.limit === Infinity) return;
+  var el = document.getElementById('quotaBanner');
+  if (!el) return;
+  var pct = Math.min(100, Math.round((q.used / q.limit) * 100));
+  if (q.allowed) {
+    el.innerHTML =
+      '<div class="quota-row"><span class="quota-label">Plano '+FIELDO.UI.esc(q.plan)+'</span>'+
+      '<span class="quota-count">'+q.used+'/'+q.limit+' relatórios este mês</span></div>'+
+      '<div class="quota-track"><div class="quota-fill" style="width:'+pct+'%"></div></div>';
+    el.className = 'quota-banner';
+  } else {
+    el.innerHTML =
+      '<div class="quota-row"><strong>Limite atingido</strong>'+
+      '<span class="quota-count">'+q.used+'/'+q.limit+' este mês</span></div>'+
+      '<p class="quota-msg">Você atingiu o limite do plano grátis. Faça upgrade para continuar emitindo relatórios.</p>';
+    el.className = 'quota-banner is-blocked';
+  }
+  el.style.display = 'block';
+}
+
+/* ── Categorias (v4.3: grid dinâmico via FIELDO.Niches) ── */
+function renderCatGrid(){
+  var grid = document.getElementById('catGrid');
+  if (!grid) return;
+  var niches = FIELDO.Niches.list();
+  grid.innerHTML = niches.map(function(n){
+    return '<div class="cat-btn" data-key="'+FIELDO.UI.esc(n.key)+'" data-label="'+FIELDO.UI.esc(n.label)+'" onclick="selecionarCat(this)">'+
+      '<div class="cat-emoji">'+FIELDO.UI.esc(n.emoji)+'</div>'+
+      '<div class="cat-label">'+FIELDO.UI.esc(n.label)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function selecionarCat(el){
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('selected'); });
+  el.classList.add('selected');
+  _catKey=el.getAttribute('data-key');
+  setTimeout(atualizarHint, 0);
+  _catLabel=el.getAttribute('data-label');
+  atualizarHint();
+}
+
+/* ── Fotos (v4.3: pipeline FIELDO.Photos com resize 1600px/JPEG .82) ── */
+function adicionarFotos(input){
+  var files = Array.from(input.files);
+  input.value=''; /* limpa antes de processar */
+
+  /* Limite duro de 10 visual; gating de 5 via UsageGuard.photos_above_5 */
+  var freeSlots = 10 - _fotos.length;
+  files = files.slice(0, freeSlots);
+
+  /* Pipeline assíncrono: cada foto é redimensionada via canvas */
+  files.forEach(function(file){
+    /* Antes de passar do 5º, exige Pro */
+    var futureCount = _fotos.length + 1;
+    var doAdd = function() {
+      FIELDO.Photos.add(file).then(function(p){
+        _fotos.push(p);
+        renderFotos();
+      }).catch(function(err){
+        FIELDO.UI.toast(err.message || 'Falha ao processar imagem');
+      });
+    };
+
+    if (futureCount > 5) {
+      FIELDO.UsageGuard.enforce('photos_above_5', { ctx:{ count: futureCount } })
+        .then(function(ok){ if (ok) doAdd(); });
+    } else {
+      doAdd();
+    }
+  });
+}
+function renderFotos(){
+  var grid=document.getElementById('photoGrid');
+  var meta=document.getElementById('photoMeta');
+  var cnt=document.getElementById('photoCount');
+  meta.style.display=_fotos.length?'flex':'none';
+  cnt.textContent=_fotos.length+' foto'+(_fotos.length!==1?'s':'');
+  grid.innerHTML=_fotos.map(function(f,i){
+    return '<div class="photo-thumb'+(i===0?' cover':'')+'">' +
+      '<img src="'+f.dataURL+'" alt=""/>' +
+      (i===0?'<div class="cover-badge">capa</div>':'')+
+      '<button class="photo-remove" onclick="removerFoto('+i+')">✕</button></div>';
+  }).join('');
+}
+function removerFoto(i){ _fotos.splice(i,1); renderFotos(); }
+function limparFotos(){ _fotos=[]; renderFotos(); }
+
+/* ── Stepper ── */
+function atualizarStepper(n){
+  for(var i=1;i<=3;i++){
+    var d=document.getElementById('step-dot-'+i);
+    if(!d) continue;
+    d.classList.remove('active','done');
+    if(i<n) d.classList.add('done');
+    else if(i===n) d.classList.add('active');
+  }
+}
+/* ── v5.3: a dica agora diz EXATAMENTE o que falta ──────────────
+   Antes ela citava só "nome e categoria", mas validar1() também exige
+   a DATA. Resultado: com a data vazia, a dica dizia "Tudo pronto" e o
+   botão recusava — parecia que o botão não funcionava.
+
+   Também só atualizava ao digitar o nome: escolher categoria ou mudar
+   a data não refrescava nada. Agora escuta os três campos. */
+function faltando1(){
+  var falta = [];
+  if (!(document.getElementById('fCliente').value||'').trim()) falta.push('nome do cliente');
+  if (!_catKey)                                                falta.push('categoria');
+  if (!document.getElementById('fData').value)                 falta.push('data');
+  return falta;
+}
+
+function atualizarHint(){
+  var lbls={1:'Continuar →',2:'Revisar →',3:'✦ Gerar relatório'};
+  setText('btnAvancarLabel',lbls[_step]||'Continuar');
+
+  if (_step !== 1) {
+    setText('ctaHint', _step===2 ? 'Adicione fotos (opcional)' : 'Confira e gere o relatório');
+    var b2=document.getElementById('btnAvancar'); if(b2) b2.disabled=false;
+    return;
+  }
+
+  var falta = faltando1();
+  setText('ctaHint', falta.length
+    ? 'Falta: ' + falta.join(', ')
+    : 'Tudo pronto — continue');
+
+  /* Botão desabilitado quando falta algo: melhor que recusar em
+     silêncio depois do toque. */
+  var b=document.getElementById('btnAvancar');
+  if (b) b.disabled = falta.length > 0;
+}
+
+/* ── v4.4 M5: VÍNCULO AUTOMÁTICO COM ORÇAMENTO ───────────────
+   Quando o profissional digita o nome do cliente, busca orçamentos
+   pendentes (sem report vinculado) do mesmo cliente. Se achar, mostra
+   banner sugerindo o vínculo. Profissional clica "Vincular" e o ID
+   do orçamento fica em _linkedBudgetId — vai como linked_budget_id no
+   Reports.create + backfill em budgets.linked_report_id. */
+
+/* ── v5.5: preenchimento a partir do orçamento ──────────────────
+   Copia só o que o orçamento realmente sabe. NÃO chuta categoria:
+   um orçamento de "reforma" pode virar serviço de elétrica ou de
+   alvenaria, e adivinhar errado é pior que deixar em branco — o
+   profissional confirmaria sem ler.
+
+   Também não sobrescreve nada que o usuário já tenha digitado. */
+function _preencherDoOrcamento(orcId){
+  FIELDO.Budgets.getById(orcId).then(function(orc){
+    if (!orc) { FIELDO.UI.toast('Orçamento não encontrado'); return; }
+
+    /* Segurança: o orçamento tem que ser do próprio profissional.
+       getById é leitura pública (o cliente também abre o link), então
+       sem esta checagem daria para prefill com dado alheio. */
+    var meuId = FIELDO.Auth.getId();
+    if (meuId && orc.professional_id && orc.professional_id !== meuId) {
+      FIELDO.UI.toast('Este orçamento não é seu');
+      return;
+    }
+
+    function setSeVazio(id, valor){
+      var el = document.getElementById(id);
+      if (el && !String(el.value || '').trim() && valor != null && valor !== '') {
+        el.value = valor;
+        return true;
+      }
+      return false;
+    }
+
+    setSeVazio('fCliente', orc.client_name || '');
+    setSeVazio('fCidade',  orc.local || '');
+    setSeVazio('fDesc',    orc.descricao || orc.titulo || '');
+
+    if (orc.total > 0) {
+      var elV = document.getElementById('fValor');
+      if (elV && !String(elV.value || '').trim()) {
+        elV.value = orc.total;
+        _pagtoStatus = 'pendente';
+        atualizarPagto();
+      }
+    }
+
+    /* Vincula sem exigir que o profissional digite o nome primeiro */
+    _linkedBudgetId = orc.id;
+    _orcSugestoes = [orc];
+    _renderSugestao();
+
+    atualizarHint();
+    FIELDO.UI.toast('Dados do orçamento carregados');
+  }).catch(function(err){
+    console.error('[prefill]', err);
+    FIELDO.UI.toast('Não foi possível carregar o orçamento');
+  });
+}
+
+function _onClienteChange(){
+  if (_orcSugTimer) clearTimeout(_orcSugTimer);
+  /* Debounce 350ms — evita flood do REST enquanto digita */
+  _orcSugTimer = setTimeout(_buscarOrcamentosPendentes, 350);
+}
+
+function _buscarOrcamentosPendentes(){
+  var nome = (document.getElementById('fCliente').value||'').trim();
+  /* Limpa estado se o nome ficou curto demais (evita match fraco) */
+  if (nome.length < 3) {
+    if (_linkedBudgetId) return; /* já confirmado, não bagunça */
+    _esconderSugestao();
+    return;
+  }
+  /* Se já vinculou, não substitui silenciosamente — exige Desfazer */
+  if (_linkedBudgetId) return;
+
+  FIELDO.Budgets.list(50).then(function(list){
+    /* Filtra: mesmo cliente (case-insensitive, normalizado) E sem report vinculado.
+       Tolerância: prefix match ou substring; orçamentos antigos podem ter pequenas
+       variações de digitação. Não fazemos match silencioso — sempre exige
+       confirmação visual do profissional. */
+    var alvo = _normalizarNome(nome);
+    _orcSugestoes = (list||[]).filter(function(b){
+      if (b.linked_report_id) return false; /* já tem report — não sugere */
+      var bn = _normalizarNome(b.client_name||'');
+      return bn === alvo || bn.indexOf(alvo) === 0 || alvo.indexOf(bn) === 0;
+    });
+    _renderSugestao();
+  }).catch(function(){
+    /* Sem rede → silencioso. Banner some, profissional segue normal. */
+    _esconderSugestao();
+  });
+}
+
+function _normalizarNome(s){
+  return String(s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')  /* tira acentos */
+    .replace(/\s+/g,' ').trim();
+}
+
+function _renderSugestao(){
+  var box = document.getElementById('orcSugestaoBanner');
+  if (!box) return;
+  if (_linkedBudgetId) { _renderConfirmado(); return; }
+  if (!_orcSugestoes.length) { _esconderSugestao(); return; }
+
+  var top = _orcSugestoes[0];
+  var titulo = _orcSugestoes.length > 1
+    ? _orcSugestoes.length + ' orçamentos pendentes'
+    : 'Orçamento pendente';
+  var sub = (top.titulo || top.client_name || 'Sem título') +
+    (top.total ? ' · ' + FIELDO.UI.brl(top.total) : '') +
+    (top.number ? ' · Nº ' + top.number : '');
+
+  setText('orcSugestaoTitulo', titulo);
+  setText('orcSugestaoSub', sub);
+  document.getElementById('orcSugestaoBanner').style.display = '';
+  document.getElementById('orcSugestaoBtn').style.display = '';
+  document.getElementById('orcSugestaoBtn').textContent = _orcSugestoes.length > 1 ? 'Escolher' : 'Vincular';
+  document.getElementById('orcSugestaoConfirmed').style.display = 'none';
+}
+
+function _renderConfirmado(){
+  document.getElementById('orcSugestaoBanner').style.display = '';
+  document.getElementById('orcSugestaoBtn').style.display = 'none';
+  /* Lista colapsada (oculta título e sub) — mostra só "Vinculado" */
+  document.getElementById('orcSugestaoConfirmed').style.display = 'flex';
+  /* esconde o row de cima */
+  var rows = document.querySelectorAll('#orcSugestaoBanner .orc-sug-row');
+  if (rows[0]) rows[0].style.display = 'none';
+}
+
+function _esconderSugestao(){
+  document.getElementById('orcSugestaoBanner').style.display = 'none';
+  var rows = document.querySelectorAll('#orcSugestaoBanner .orc-sug-row');
+  if (rows[0]) rows[0].style.display = '';
+}
+
+function vincularOrcamento(){
+  if (!_orcSugestoes.length) return;
+  /* Se só 1 sugestão, vincula direto. Se > 1, mostra um picker simples. */
+  if (_orcSugestoes.length === 1) {
+    _linkedBudgetId = _orcSugestoes[0].id;
+    _renderConfirmado();
+    FIELDO.UI.toast('Orçamento vinculado ✓');
+    return;
+  }
+  /* Picker simples via prompt — versão inicial. UI mais rica pode vir
+     em v4.5 se você pedir. */
+  var opcoes = _orcSugestoes.map(function(b,i){
+    return (i+1)+'. '+(b.titulo||'Sem título')+
+      (b.total?' — '+FIELDO.UI.brl(b.total):'')+
+      (b.number?' — Nº '+b.number:'');
+  }).join('\n');
+  var escolha = prompt('Vincular a qual orçamento?\n\n'+opcoes+'\n\nDigite o número:');
+  if (!escolha) return;
+  var idx = parseInt(escolha,10)-1;
+  if (idx < 0 || idx >= _orcSugestoes.length) {
+    FIELDO.UI.toast('Opção inválida');
+    return;
+  }
+  _linkedBudgetId = _orcSugestoes[idx].id;
+  _renderConfirmado();
+  FIELDO.UI.toast('Orçamento vinculado ✓');
+}
+
+function desvincularOrcamento(){
+  _linkedBudgetId = null;
+  _renderSugestao();
+  FIELDO.UI.toast('Vínculo removido');
+}
+/* ── fim M5 ─────────────────────────────────────────── */
+
+function avancarStep(){
+  if(_step===1){ if(!validar1()) return; irStep(2); }
+  else if(_step===2){ irStep(3); renderPreview(); }
+  else if(_step===3){ gerarRelatorio(); }
+}
+function voltarStep(){ if(_step>1) irStep(_step-1); }
+function irStep(n){
+  document.getElementById('step'+_step).style.display='none';
+  _step=n;
+  document.getElementById('step'+_step).style.display='';
+  atualizarStepper(_step);
+  atualizarHint();
+  document.getElementById('btnVoltar').style.display=_step>1?'':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function validar1(){
+  var c=(document.getElementById('fCliente').value||'').trim();
+  var d=document.getElementById('fData').value;
+  if(!c){ FIELDO.UI.toast('Informe o nome do cliente'); return false; }
+  if(!_catKey){ FIELDO.UI.toast('Selecione uma categoria'); return false; }
+  if(!d){ FIELDO.UI.toast('Informe a data'); return false; }
+  return true;
+}
+
+/* ── Preview ── */
+function renderPreview(){
+  var c=document.getElementById('fCliente').value.trim();
+  var d=FIELDO.UI.fmtDateLong(document.getElementById('fData').value);
+  var cidade=document.getElementById('fCidade').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  var p=_prof||{};
+  var logo=p.logo_url?'<img src="'+esc(p.logo_url)+'"/>'
+    :'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  var fotos=_fotos.length?'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:1rem">'+
+    _fotos.slice(0,3).map(function(f){ return '<div style="aspect-ratio:1;border-radius:6px;overflow:hidden"><img src="'+f.dataURL+'" style="width:100%;height:100%;object-fit:cover"/></div>'; }).join('')+
+    '</div>':'' ;
+  var pix=p.pix_key?'<div class="prev-pix"><div class="prev-pix-lbl">PIX</div><div class="prev-pix-key">'+esc(p.pix_key)+'</div></div>':'';
+  document.getElementById('previewCard').innerHTML=
+    '<div class="prev-hdr"><div class="prev-logo">'+logo+'</div>'+
+    '<div><div class="prev-name">'+esc(p.name||p.profissao||'Profissional')+'</div>'+
+    '<div class="prev-spec">'+esc(p.profissao||'')+(p.city?' · '+esc(p.city):'')+'</div></div></div>'+
+    '<div class="prev-body">'+
+    '<div class="prev-lbl">Relatório de serviço</div>'+
+    '<div class="prev-client">'+esc(c)+'</div>'+
+    '<div class="prev-metas">'+
+      '<div><div class="prev-m-lbl">Categoria</div><div class="prev-m-val">'+esc(_catLabel)+'</div></div>'+
+      '<div><div class="prev-m-lbl">Data</div><div class="prev-m-val">'+esc(d)+'</div></div>'+
+      (cidade?'<div><div class="prev-m-lbl">Local</div><div class="prev-m-val">'+esc(cidade)+'</div></div>':'')+
+    '</div>'+
+    (desc?'<div class="prev-desc">'+esc(desc).replace(/\n/g,'<br>')+'</div>':'')+
+    fotos+pix+
+    '<div class="prev-hash"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>'+
+    '<div class="prev-hash-val">Selo gerado ao salvar</div><div style="font-family:var(--mono);font-size:.55rem;color:var(--green)">SHA-256</div></div>'+
+    '</div>';
+}
+
+
+/* ── v5.3: valor e situação de pagamento ─────────────────────────
+   O bloco de Pix só faz sentido quando há valor E ele está a receber.
+   Mostrar "pague por Pix" num serviço já pago confunde o cliente. */
+var _pagtoStatus = 'pendente';
+
+function atualizarPagto(){
+  var v = parseFloat(document.getElementById('fValor').value);
+  var tem = isFinite(v) && v > 0;
+  document.getElementById('grpPagto').style.display = tem ? '' : 'none';
+
+  var hint = document.getElementById('valorHint');
+  if (!tem) { hint.textContent = 'Informe para o cliente poder pagar por Pix direto no relatório.'; return; }
+
+  var p = _prof || {};
+  if (!p.pix_key) {
+    hint.textContent = 'Sem chave Pix: o relatório mostrará só o valor. Cadastre em Perfil → Pix.';
+    return;
+  }
+  if (p.include_pix === false) {
+    hint.textContent = 'Seu Pix está oculto nos relatórios. Reative em Perfil → Pix.';
+    return;
+  }
+  var t = FIELDO.Pix.validate(p.pix_key, p.pix_tipo);
+  hint.textContent = t.ok
+    ? 'O relatório vai trazer um Pix de ' + FIELDO.UI.brl(v) + ' já preenchido.'
+    : 'Sua chave Pix parece inválida (' + t.error + '). Corrija no perfil.';
+}
+
+function setPagto(btn){
+  Array.prototype.forEach.call(document.getElementById('segPagto').children, function(b){
+    b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  _pagtoStatus = btn.dataset.st;
+  document.getElementById('pagtoHint').textContent = (_pagtoStatus === 'pago')
+    ? 'O relatório vai mostrar "Pago" e não pedirá pagamento.'
+    : 'O bloco de Pix só aparece no relatório se estiver "A receber".';
+}
+
+/* Monta o BR Code do serviço atual. Devolve null quando não se aplica. */
+function pixDoServico(valor, status, cliente){
+  var p = _prof || {};
+  /* include_pix é opt-out. Antes só relatorio.html respeitava este campo:
+     os dois renderizadores do mesmo relatório discordavam entre si. */
+  if (!valor || status === 'pago' || !p.pix_key || p.include_pix === false) return null;
+  var r = FIELDO.Pix.brcode({
+    key: p.pix_key, tipo: p.pix_tipo,
+    name: p.name || p.profissao || 'Profissional',
+    city: p.city || 'Brasil',
+    amount: valor,
+    txid: (cliente || '').replace(/[^A-Za-z0-9]/g,'').slice(0,12) || '***'
+  });
+  return r.ok ? r.code : null;
+}
+
+/* ── Geração do HTML autossuficiente ── */
+function buildHTML(o){
+  var p=o.p||{};
+  /* v6.8: domínio público — link precisa abrir no aparelho do cliente */
+  var base=FIELDO.publicUrl('').replace(/\/$/,'');
+  var SURL=FIELDO.config.REST_URL;
+  var AKEY=FIELDO.config.ANON_KEY;
+
+  /* ── M2/M6 helpers: telefone do profissional p/ wa.me ───────────
+     Sanitiza: só dígitos. Adiciona 55 se não tiver prefixo de país.
+     Retorna '' se inválido (< 10 dígitos). */
+  /* v5.5.2: normalização única via FIELDO.UI. Devolve '' quando o número
+     não serve — e aí o botão simplesmente não é renderizado, em vez de
+     abrir o WhatsApp em branco. */
+  var waPhone  = FIELDO.UI.waNumero(p.whatsapp || p.phone);
+  var waMsg  = 'Olá '+(p.name?(p.name.split(' ')[0]):'')+', vi seu relatório do serviço para '+o.c+'.';
+  var waUrl  = waPhone ? 'https://wa.me/'+waPhone+'?text='+encodeURIComponent(waMsg) : '';
+
+  var logo=p.logo_url?'<img src="'+esc(p.logo_url)+'" style="width:100%;height:100%;object-fit:cover"/>'
+    :'<span style="font-family:Georgia,serif;font-size:1.4rem;font-style:italic;color:#fff">'+esc((p.name||'F').charAt(0))+'</span>';
+
+  /* ── M1: fotos clicáveis pro lightbox (data-fdr-i = índice) ──── */
+  var fotos=_fotos.slice(0,6).map(function(f,i){
+    return '<div class="fdr-foto" data-fdr-i="'+i+'" style="aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:zoom-in"><img src="'+esc(f.dataURL)+'" style="width:100%;height:100%;object-fit:cover;display:block" alt=""/></div>';
+  }).join('');
+
+  /* ── M1: array de URLs pro lightbox (até 6 fotos) ────────────── */
+  var fotosUrls = _fotos.slice(0,6).map(function(f){ return f.dataURL; });
+
+  /* ── v5.3: bloco de cobrança ───────────────────────────────────
+     Três estados possíveis, e só um aparece:
+
+       a) valor + a receber + Pix válido → BR Code com valor embutido.
+          O cliente cola no banco e o valor JÁ vem preenchido.
+       b) valor + já pago               → selo "Pago", sem cobrança.
+       c) sem valor                     → nada (comportamento antigo).
+
+     O BR Code é gerado aqui e vai EMBUTIDO no HTML: o relatório
+     precisa funcionar mesmo se o cliente abrir sem internet. */
+  var _valorSrv  = o.valor || null;
+  var _statusSrv = o.payment_status || 'nao_cobrado';
+  var _brcode    = _valorSrv && _statusSrv !== 'pago'
+                     ? pixDoServico(_valorSrv, _statusSrv, o.c) : null;
+  var _valorFmt  = _valorSrv ? FIELDO.UI.brl(_valorSrv) : '';
+
+  var pixBlock = '';
+
+  if (_valorSrv && _statusSrv === 'pago') {
+    pixBlock =
+      '<div style="background:rgba(45,125,70,.07);border:1px solid rgba(45,125,70,.22);border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem">'+
+        '<div><div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#2d7d46;margin-bottom:.2rem">Valor do serviço</div>'+
+        '<div style="font-family:Georgia,serif;font-size:1.15rem;color:#1f5c33">'+esc(_valorFmt)+'</div></div>'+
+        '<div style="background:#2d7d46;color:#fff;border-radius:20px;padding:.3rem .8rem;font-size:.72rem;font-weight:600;white-space:nowrap">✓ Pago</div>'+
+      '</div>';
+
+  } else if (_brcode) {
+    pixBlock =
+      '<div style="background:rgba(154,114,24,.08);border:1px solid rgba(154,114,24,.22);border-radius:10px;padding:1rem;margin-bottom:1rem">'+
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;margin-bottom:.85rem">'+
+          '<div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5a10">Valor a pagar</div>'+
+          '<div style="font-family:Georgia,serif;font-size:1.35rem;color:#7a5a10">'+esc(_valorFmt)+'</div>'+
+        '</div>'+
+        '<button onclick="copPix()" id="btnPix" style="width:100%;background:#9a7218;color:#fff;border:none;border-radius:9px;padding:.85rem 1rem;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:48px">'+
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'+
+          'Copiar código Pix'+
+        '</button>'+
+        '<div style="font-size:.7rem;color:#7a5a10;opacity:.8;text-align:center;margin-top:.6rem;line-height:1.5">'+
+          'Cole no app do seu banco em <strong>Pix Copia e Cola</strong>.<br>O valor já vai preenchido.'+
+        '</div>'+
+        /* v5.4: aviso de pagamento. NÃO marca como pago — Pix estático
+           não confirma recebimento, e o painel financeiro não pode
+           depender da palavra do cliente. */
+        '<button onclick="jaPaguei()" id="btnPago" style="width:100%;background:transparent;border:1px solid rgba(154,114,24,.35);color:#7a5a10;border-radius:9px;padding:.7rem 1rem;font-size:.8rem;font-weight:500;cursor:pointer;margin-top:.6rem;min-height:44px">'+
+          'Já fiz o pagamento'+
+        '</button>'+
+        '<div id="pagoOk" style="display:none;font-size:.74rem;color:#2d7d46;text-align:center;margin-top:.6rem;line-height:1.5">'+
+          '✓ Aviso enviado. O profissional vai confirmar o recebimento.'+
+        '</div>'+
+        '<details style="margin-top:.7rem">'+
+          '<summary style="font-size:.68rem;color:#7a5a10;opacity:.75;cursor:pointer">Prefiro usar a chave</summary>'+
+          '<div style="font-family:monospace;font-size:.76rem;color:#7a5a10;word-break:break-all;margin-top:.4rem">'+esc(p.pix_key||'')+'</div>'+
+        '</details>'+
+      '</div>';
+
+  } else if (_valorSrv) {
+    /* Tem valor mas não há Pix utilizável — mostra só o valor, para o
+       relatório não omitir a informação principal. */
+    pixBlock =
+      '<div style="background:rgba(154,114,24,.06);border:1px solid rgba(154,114,24,.18);border-radius:10px;padding:.9rem 1rem;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem">'+
+        '<div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5a10">Valor do serviço</div>'+
+        '<div style="font-family:Georgia,serif;font-size:1.2rem;color:#7a5a10">'+esc(_valorFmt)+'</div>'+
+      '</div>';
+  }
+
+  /* ── M2: botão WhatsApp compacto (entre fotos e Pix) ─────────── */
+  var waBtnMid = waPhone ? '<a href="'+esc(waUrl)+'" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:.5rem;background:#25d366;color:#fff;border-radius:10px;padding:.75rem 1rem;font-size:.85rem;font-weight:500;text-decoration:none;margin-bottom:1rem">'+
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.98 9.98 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.114.552 4.1 1.522 5.832L0 24l6.337-1.51A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>'+
+    'Falar com o profissional'+
+  '</a>' : '';
+
+  /* ── M6: card de contato estruturado (substitui o link antigo) ─ */
+  var contactInicial = esc((p.name||'F').charAt(0).toUpperCase());
+  var contactAvatar = p.logo_url
+    ? '<img src="'+esc(p.logo_url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>'
+    : contactInicial;
+  var contactRole = esc(p.profissao||'Profissional')+(p.city?' · '+esc(p.city):'');
+  var contactCard =
+    '<div style="border:1px solid rgba(14,14,20,.1);border-radius:12px;padding:1.1rem;margin-top:1.25rem;background:#fff">'+
+      '<div style="display:flex;align-items:center;gap:.85rem;margin-bottom:'+(waPhone?'1rem':'0')+'">'+
+        '<div style="width:44px;height:44px;border-radius:50%;background:#9a7218;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.1rem;font-style:italic;flex-shrink:0;overflow:hidden">'+contactAvatar+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-family:Georgia,serif;font-size:.95rem;color:#0e0e14;line-height:1.2">'+esc(p.name||'Profissional')+'</div>'+
+          '<div style="font-size:.7rem;color:#7a7570;margin-top:.15rem">'+contactRole+'</div>'+
+        '</div>'+
+      '</div>'+
+      (waPhone ? '<a href="'+esc(waUrl)+'" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:.5rem;background:#25d366;color:#fff;border-radius:9px;padding:.7rem 1rem;font-size:.82rem;font-weight:500;text-decoration:none">'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.98 9.98 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.114.552 4.1 1.522 5.832L0 24l6.337-1.51A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>'+
+        'Falar no WhatsApp'+
+      '</a>' : '')+
+    '</div>';
+
+  /* ── M8: OG tags pra preview rico no WhatsApp ─────────────────
+     og:image só se houver foto. Inline base64 é aceito pelo WhatsApp
+     até ~300KB. Acima disso, omite (preview vira só título+desc). */
+  var fotoCount = _fotos.length;
+  var ogTitle = 'Relatório · '+o.c+' · '+(p.name||'Fieldo');
+  var ogDesc  = o.cat+(fotoCount?' · '+fotoCount+' foto'+(fotoCount>1?'s':''):'');
+  var firstPhotoB64 = _fotos[0] ? _fotos[0].dataURL : '';
+  var ogImageTag = (firstPhotoB64 && firstPhotoB64.length < 300000)
+    ? '<meta property="og:image" content="'+esc(firstPhotoB64)+'"/><meta name="twitter:card" content="summary_large_image"/>'
+    : '';
+
+  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>'+
+    '<title>Relatório · '+esc(o.c)+' · Fieldo</title>'+
+    /* M8: OG tags */
+    '<meta name="description" content="'+esc(ogDesc)+'"/>'+
+    '<meta property="og:title" content="'+esc(ogTitle)+'"/>'+
+    '<meta property="og:description" content="'+esc(ogDesc)+'"/>'+
+    '<meta property="og:type" content="website"/>'+
+    ogImageTag+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f2ec;min-height:100vh;padding:1.5rem 1rem 4rem;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased}'+
+    '.card{background:#fff;border:1px solid rgba(14,14,20,.1);border-radius:18px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 8px 40px rgba(14,14,20,.1)}'+
+    '.hdr{background:#0e0e14;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:.85rem}'+
+    '.logo{width:42px;height:42px;border-radius:9px;background:#9a7218;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}'+
+    '.body{padding:1.5rem}'+
+    '.lbl{font-size:.58rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#7a7570;margin-bottom:.2rem}'+
+    '.cname{font-family:Georgia,serif;font-size:1.5rem;font-weight:300;color:#0e0e14;margin-bottom:1rem}'+
+    '.metas{display:flex;gap:1.25rem;flex-wrap:wrap;padding:.75rem 0;border-top:1px solid rgba(14,14,20,.08);border-bottom:1px solid rgba(14,14,20,.08);margin-bottom:1rem}'+
+    '.desc{font-size:.88rem;color:#4a4855;line-height:1.75;margin-bottom:1rem}'+
+    '.fotos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:8px;overflow:hidden;margin-bottom:1rem}'+
+    '.stars{display:flex;justify-content:center;gap:.4rem;margin-bottom:.75rem}'+
+    '.star{font-size:2rem;color:#d8d2c4;cursor:pointer;transition:color .15s;user-select:none}'+
+    '.star.lit,.star:hover{color:#b8880d}'+
+    '.btn-aval{background:#9a7218;color:#fff;border:none;border-radius:9px;padding:.7rem 1.5rem;font-size:.88rem;font-weight:500;cursor:pointer;display:none;width:100%}'+
+    '.btn-aval.vis{display:block}'+
+    '.done{font-size:.82rem;color:#2d7a4f;font-weight:500;text-align:center;display:none;padding:.5rem}'+
+    '.done.vis{display:block}'+
+    '.seal{background:rgba(14,14,20,.04);border-radius:9px;padding:.7rem 1rem;display:flex;align-items:center;gap:.65rem;margin-top:.75rem}'+
+    '.seal-hash{font-size:.62rem;font-family:monospace;color:#a09890;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;cursor:pointer;text-decoration:none;display:block}'+
+    '.badge{margin-left:auto;font-size:.52rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:rgba(154,114,24,.1);border:1px solid rgba(154,114,24,.25);border-radius:2rem;padding:.22rem .65rem;color:#b8880d;white-space:nowrap}'+
+    /* ── M1: estilos do lightbox (prefixo fdr- pra evitar colisão) ── */
+    '.fdr-lb{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.94);align-items:center;justify-content:center;padding:1rem;-webkit-tap-highlight-color:transparent}'+
+    '.fdr-lb.fdr-open{display:flex}'+
+    '.fdr-lb img{max-width:96vw;max-height:88vh;object-fit:contain;user-select:none;-webkit-user-drag:none}'+
+    '.fdr-lb-x{position:absolute;top:.85rem;right:.85rem;width:36px;height:36px;background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}'+
+    '.fdr-lb-x:hover{background:rgba(255,255,255,.22)}'+
+    '.fdr-lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center}'+
+    '.fdr-lb-nav:hover{background:rgba(255,255,255,.22)}'+
+    '.fdr-lb-p{left:1rem}.fdr-lb-n{right:1rem}'+
+    '.fdr-lb-ct{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:rgba(255,255,255,.6);font-family:monospace;letter-spacing:.08em}'+
+    '@media(max-width:480px){.fdr-lb-nav{width:36px;height:36px;font-size:1.2rem}.fdr-lb-p{left:.5rem}.fdr-lb-n{right:.5rem}}'+
+    '</style></head><body>'+
+    '<div class="card">'+
+      '<div class="hdr"><div class="logo">'+logo+'</div>'+
+      '<div><div style="font-family:Georgia,serif;font-size:.95rem;font-style:italic;color:rgba(255,255,255,.9)">'+esc(p.name||p.profissao||'Profissional')+'</div>'+
+      '<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-top:.08rem">'+esc(p.profissao||'')+(p.city?' · '+esc(p.city):'')+'</div></div>'+
+      '<div class="badge">✓ Fieldo</div></div>'+
+      '<div class="body">'+
+        '<div class="lbl">Relatório de serviço</div>'+
+        '<div class="cname">'+esc(o.c)+'</div>'+
+        '<div class="metas">'+
+          '<div><div style="font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:#7a7570;margin-bottom:.15rem">Categoria</div><div style="font-size:.82rem;color:#1a1a24">'+esc(o.cat)+'</div></div>'+
+          '<div><div style="font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:#7a7570;margin-bottom:.15rem">Data</div><div style="font-size:.82rem;color:#1a1a24">'+esc(FIELDO.UI.fmtDateLong(o.d))+'</div></div>'+
+          (o.cidade?'<div><div style="font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:#7a7570;margin-bottom:.15rem">Local</div><div style="font-size:.82rem;color:#1a1a24">'+esc(o.cidade)+'</div></div>':'')+
+        '</div>'+
+        (o.desc?'<p class="desc">'+esc(o.desc).replace(/\n/g,'<br>')+'</p>':'')+
+        (_fotos.length?'<div class="fotos">'+fotos+'</div>':'')+
+        /* M2: botão WhatsApp principal (compacto, alto na página) */
+        waBtnMid+
+        /* Avaliação inline */
+        '<div style="background:#f5f2ec;border-radius:12px;padding:1.1rem;text-align:center;margin-bottom:1rem" id="abox">'+
+          '<div style="font-family:Georgia,serif;font-size:1rem;color:#0e0e14;margin-bottom:.35rem">Como foi o serviço?</div>'+
+          '<div style="font-size:.78rem;color:#7a7570;margin-bottom:.75rem">Anônimo · leva 10 segundos</div>'+
+          '<div class="stars" id="srow">'+[1,2,3,4,5].map(function(n){ return '<div class="star" onclick="ss('+n+')">★</div>'; }).join('')+'</div>'+
+          '<button class="btn-aval" id="baval" onclick="envA()">Enviar avaliação →</button>'+
+          '<div class="done" id="adone">✓ Avaliação registrada! Obrigado.</div>'+
+        '</div>'+
+        pixBlock+
+        /* v6.3: linguagem do cliente primeiro.
+           Antes o selo dizia "SHA-256" e mostrava 48 caracteres de hash.
+           Para quem contratou um eletricista isso não significa nada — e
+           ocupava o espaço onde deveria estar a informação útil: que o
+           documento não pode ser alterado. O termo técnico continua ali,
+           discreto, para quem quiser conferir. */
+        '<div class="seal">'+
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a7218" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:.72rem;color:#2d7a4f;font-weight:600;margin-bottom:.15rem">Documento protegido contra alteração</div>'+
+            '<div style="font-size:.62rem;color:#7a7570;line-height:1.45">Registrado em '+esc(o.d||'')+'. Toque no código abaixo para conferir a autenticidade.</div>'+
+          '</div>'+
+          /* v5.6: virou <a>. Além de sair do onclick, ganha comportamento
+             nativo de link (abrir em nova aba, copiar endereço). */
+          /* v5.6: virou <a>. Além de sair do onclick, ganha comportamento
+             nativo de link (nova aba, copiar endereço, teclado). */
+          '<a class="seal-hash" href="'+base+'/verificar.html?hash='+encodeURIComponent(o.hash||'')+'" target="_blank" rel="noopener" title="Verificar autenticidade">'+esc((o.hash||'').slice(0,48))+'…</a>'+
+          '<div style="font-family:monospace;font-size:.55rem;color:#2d7a4f;font-weight:600;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">SHA-256</div>'+
+        '</div>'+
+        /* M6: card de contato estruturado (substitui o link "Sou técnico") */
+        contactCard+
+      '</div>'+
+    '</div>'+
+    /* ── M1: lightbox markup (fora do card, full-screen) ── */
+    '<div class="fdr-lb" id="fdrLb" role="dialog" aria-modal="true">'+
+      '<button class="fdr-lb-x" id="fdrLbX" aria-label="Fechar">✕</button>'+
+      '<button class="fdr-lb-nav fdr-lb-p" id="fdrLbP" aria-label="Anterior">‹</button>'+
+      '<img id="fdrLbI" src="" alt=""/>'+
+      '<button class="fdr-lb-nav fdr-lb-n" id="fdrLbN" aria-label="Próxima">›</button>'+
+      '<div class="fdr-lb-ct" id="fdrLbCt"></div>'+
+    '</div>'+
+    '<script>'+
+      'var _n=0,_tok='+JSON.stringify(o.token||'')+',_rid='+JSON.stringify(o.rid||'')+',_px='+JSON.stringify(p.pix_key||'')+',_brc='+JSON.stringify(_brcode||'')+';'+
+      /* guarda o HTML original do botão para restaurar após o feedback */
+      'var _btnHtml=(document.getElementById("btnPix")||{}).innerHTML||"Copiar codigo Pix";'+
+      'var SU='+JSON.stringify(SURL)+',AK='+JSON.stringify(AKEY)+';'+
+      'function ss(n){_n=n;document.querySelectorAll(".star").forEach(function(s,i){s.classList.toggle("lit",i<n)});var b=document.getElementById("baval");if(b)b.classList.add("vis");}'+
+      'function envA(){if(!_n||!_tok)return;var b=document.getElementById("baval");if(b){b.disabled=true;b.textContent="Enviando…";}'+
+        /* Padrão atômico: PATCH primeiro (lock), depois INSERT */
+        /* v5.0: RPC atômica. A RLS não permite mais que o cliente
+           final escreva direto em reports/avaliacoes — o que antes
+           deixava qualquer visitante forjar nota em qualquer
+           relatório. A função valida o rating_token no servidor. */
+        'fetch(SU+"/rpc/submit_rating",{method:"POST",headers:{"apikey":AK,"Authorization":"Bearer "+AK,"Content-Type":"application/json"},body:JSON.stringify({p_token:_tok,p_nota:_n})})'+
+        '.then(function(r){return r.json();}).then(function(res){var o=Array.isArray(res)?res[0]:res;if(!o||!o.ok)throw new Error((o&&o.error)||"fail");return o;})'+
+        '.then(function(){if(b)b.classList.remove("vis");var d=document.getElementById("adone");if(d)d.classList.add("vis");})'+
+        '.catch(function(e){if(b){b.disabled=false;b.textContent=String(e.message||"").indexOf("already rated")>-1?"Já avaliado":"Tentar novamente";}});'+
+      '}'+
+      /* v5.3: copPix copia o BR Code (valor embutido). cop() fica só
+         como fallback da chave crua, dentro do <details>. */
+      'function cop(){if(!_px)return;navigator.clipboard?navigator.clipboard.writeText(_px).then(function(){alert("Chave Pix copiada!")}):alert("Chave: "+_px);}'+
+      'function jaPaguei(){'+
+        'var b=document.getElementById("btnPago");if(!b||b.disabled)return;'+
+        'b.disabled=true;b.textContent="Enviando...";'+
+        'fetch(SU+"/rpc/claim_payment",{method:"POST",headers:{"apikey":AK,"Authorization":"Bearer "+AK,"Content-Type":"application/json"},body:JSON.stringify({p_token:_tok})})'+
+          '.then(function(r){return r.json();}).then(function(res){var o=Array.isArray(res)?res[0]:res;'+
+            'if(!o||!o.ok)throw new Error("fail");'+
+            'b.style.display="none";document.getElementById("pagoOk").style.display="block";})'+
+          '.catch(function(){b.disabled=false;b.textContent="Tentar novamente";});'+
+      '}'+
+      'function copPix(){'+
+        'if(!_brc){cop();return;}'+
+        'var b=document.getElementById("btnPix");'+
+        'function ok(){if(b){b.textContent="\\u2713 Copiado! Cole no seu banco";b.style.background="#2d7d46";'+
+          'setTimeout(function(){b.innerHTML=_btnHtml;b.style.background="#9a7218";},2600);}}'+
+        'if(navigator.clipboard&&navigator.clipboard.writeText){'+
+          'navigator.clipboard.writeText(_brc).then(ok).catch(function(){window.prompt("Copie o codigo Pix:",_brc);});'+
+        '}else{'+
+          /* iOS antigo e WebViews sem Clipboard API: textarea + execCommand.
+             Sem isso, o botão principal do relatório não funciona em parte
+             relevante dos aparelhos de campo. */
+          'var t=document.createElement("textarea");t.value=_brc;'+
+          't.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);'+
+          't.select();t.setSelectionRange(0,99999);'+
+          'try{document.execCommand("copy");ok();}catch(e){window.prompt("Copie o codigo Pix:",_brc);}'+
+          'document.body.removeChild(t);'+
+        '}'+
+      '}'+
+      /* ── M1: lightbox runtime ──
+         IIFE pra escopar; usa fdrImgs (data URLs do build).
+         Touchstart/touchend p/ swipe; ESC + setas; click backdrop. */
+      '(function(){'+
+        'var fdrImgs='+JSON.stringify(fotosUrls)+';'+
+        'if(!fdrImgs.length)return;'+
+        'var lb=document.getElementById("fdrLb"),li=document.getElementById("fdrLbI"),ct=document.getElementById("fdrLbCt");'+
+        'var cur=0,tx=null;'+
+        'function show(i){if(i<0||i>=fdrImgs.length)return;cur=i;li.src=fdrImgs[cur];ct.textContent=(cur+1)+" / "+fdrImgs.length;}'+
+        'function open(i){show(i);lb.classList.add("fdr-open");document.body.style.overflow="hidden";}'+
+        'function close(){lb.classList.remove("fdr-open");document.body.style.overflow="";}'+
+        'function nav(d){show((cur+d+fdrImgs.length)%fdrImgs.length);}'+
+        'document.querySelectorAll(".fdr-foto").forEach(function(el){el.addEventListener("click",function(){open(parseInt(el.getAttribute("data-fdr-i"),10)||0);});});'+
+        'document.getElementById("fdrLbX").addEventListener("click",close);'+
+        'document.getElementById("fdrLbP").addEventListener("click",function(e){e.stopPropagation();nav(-1);});'+
+        'document.getElementById("fdrLbN").addEventListener("click",function(e){e.stopPropagation();nav(1);});'+
+        'lb.addEventListener("click",function(e){if(e.target===lb)close();});'+
+        'document.addEventListener("keydown",function(e){if(!lb.classList.contains("fdr-open"))return;if(e.key==="Escape")close();else if(e.key==="ArrowLeft")nav(-1);else if(e.key==="ArrowRight")nav(1);});'+
+        'lb.addEventListener("touchstart",function(e){tx=e.touches[0].clientX;},{passive:true});'+
+        'lb.addEventListener("touchend",function(e){if(tx===null)return;var d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>45)nav(d>0?1:-1);tx=null;});'+
+      '})();'+
+    '<\/script>'+
+    '</body></html>';
+}
+
+/* ── Hash simples sem crypto.subtle ── */
+function hashSimples(str){
+  var h=0;
+  for(var i=0;i<str.length;i++) h=((h<<5)-h+str.charCodeAt(i))|0;
+  return Math.abs(h).toString(16)+Date.now().toString(16)+Math.random().toString(16).slice(2,10);
+}
+
+/* ── Gerar ──
+   v4.3: UsageGuard.enforce('create_report') substitui o check manual.
+   Mostra UpgradeUI quando bloqueado em vez de só um toast genérico.
+   Após Reports.create(), as fotos são enviadas via Photos.upload(). */
+function gerarRelatorio(){
+  FIELDO.UsageGuard.enforce('create_report').then(function(ok){
+    if (!ok) return; /* guard já mostrou UpgradeUI ou redirecionou */
+    _gerarRelatorioInternal();
+  });
+}
+
+function _gerarRelatorioInternal(){
+  setLoading(true);
+  var c=document.getElementById('fCliente').value.trim();
+  var d=document.getElementById('fData').value;
+  var cidade=document.getElementById('fCidade').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+
+  /* v4.4 M5: inclui linked_budget_id se profissional vinculou um orçamento.
+     Coluna existe e é nullable — se for null não causa efeito. */
+  /* v5.3 — o valor agora É salvo. Até aqui este campo era lido zero vezes:
+     o profissional digitava e o número era descartado, mesmo com a tela
+     prometendo "apenas nos seus registros". */
+  var vNum = parseFloat(document.getElementById('fValor').value);
+  var valor = (isFinite(vNum) && vNum > 0) ? Math.round(vNum * 100) / 100 : null;
+
+  var rd={client_name:c,category_key:_catKey,category_label:_catLabel,niche:_catKey,
+          service_date:d,service_location:cidade||null,service_description:desc||null,
+          photos:[],is_public:true,
+          valor: valor,
+          payment_status: valor ? _pagtoStatus : 'nao_cobrado',
+          /* constraint no banco: 'pago' exige data, os demais exigem NULL */
+          paid_at: (valor && _pagtoStatus === 'pago') ? new Date().toISOString() : null};
+  if (_linkedBudgetId) rd.linked_budget_id = _linkedBudgetId;
+
+  /* Cria primeiro o relatório → usa UUID estável como base do hash determinístico */
+  FIELDO.Reports.create(rd).then(function(rep){
+    _reportId=rep.id;
+    _token=rep.rating_token;
+
+    /* v7.3 Fase 2 do plano de nicho: auto-cura de professionals.niche.
+       Perfis criados antes desta versão (ou o backfill não ter pego
+       nenhum relatório ainda) ficam com niche NULL — aproveita a
+       categoria deste relatório pra preencher, só se ainda estiver
+       vazio. Nunca sobrescreve escolha existente. Fora do caminho
+       crítico: falha em silêncio, não atrapalha o relatório que já
+       foi salvo. */
+    FIELDO.Professionals.me().then(function(prof){
+      if (prof && !prof.niche && _catKey) {
+        return FIELDO.Professionals.update({ niche: _catKey });
+      }
+    }).catch(function(){});
+
+    /* v4.4 M5: backfill bidirecional — popula budgets.linked_report_id pra
+       o caminho reverso (saber, a partir do orçamento, qual é o report).
+       Tolerante a falha: se a rede cair, o linked_budget_id do report ainda
+       é suficiente pro resolver QR funcionar. Não bloqueia o fluxo. */
+    if (_linkedBudgetId && rep.id && !rep._pendingSync) {
+      FIELDO.Budgets.update(_linkedBudgetId, { linked_report_id: rep.id, status: 'concluido' })
+        .catch(function(){ /* silencioso — o vínculo do lado report já basta */ });
+    }
+
+    /* Upload das fotos em background — não bloqueia a geração do
+       relatório, que já está salvo.
+
+       v5.8.1: o `.catch(function(){})` daqui engolia TODA falha. O
+       bucket estava errado ('reports' em vez de 'photos'), então todo
+       upload retornava 404 — e ninguém percebeu por semanas, porque o
+       relatório era gerado normalmente com as fotos em base64 embutido.
+       O campo `photos` do banco ficava vazio e a galeria do perfil nunca
+       tinha nada para mostrar.
+
+       Agora a falha aparece. Silêncio aqui custou o recurso inteiro. */
+    if (_fotos.length && rep.id && !rep._pendingSync) {
+      FIELDO.Photos.upload(_fotos, { reportId: rep.id }).then(function(urls){
+        var ok = urls.filter(function(u){ return u; });
+        if (!ok.length) {
+          console.error('[fotos] nenhum upload concluiu');
+          FIELDO.UI.toast('As fotos não subiram. Elas estão no relatório, mas não no seu perfil.');
+          return;
+        }
+        return FIELDO.Reports.update(rep.id, { photos: ok })
+          .then(function(){
+            if (ok.length < _fotos.length) {
+              FIELDO.UI.toast(ok.length + ' de ' + _fotos.length + ' fotos enviadas');
+            }
+          })
+          .catch(function(err){
+            console.error('[fotos] falha ao gravar URLs', err);
+            FIELDO.UI.toast('Fotos enviadas, mas não vinculadas ao serviço.');
+          });
+      }).catch(function(err){
+        console.error('[fotos] upload falhou', err);
+        FIELDO.UI.toast(navigator.onLine === false
+          ? 'Sem conexão: as fotos subirão quando houver rede.'
+          : 'Falha ao enviar fotos: ' + (err && err.message ? err.message : 'erro'));
+      });
+    }
+
+    /* Hash determinístico: dados estruturais + UUID do relatório */
+    var hashInput = { c: c, k: _catKey, d: d, id: rep.id };
+    var hashP = (window.crypto && window.crypto.subtle)
+      ? FIELDO.Hashes.sha256(hashInput)
+      : Promise.resolve(hashSimples(c+_catKey+d+rep.id));
+
+    return hashP.then(function(hash){
+      _hash=hash;
+      /* v5.3: valor e status seguem para o relatório do cliente */
+      _htmlDoc=buildHTML({p:_prof||{},c:c,cat:_catLabel,d:d,cidade:cidade,desc:desc,hash:_hash,token:_token,rid:_reportId,valor:valor,payment_status:rd.payment_status});
+      return FIELDO.Hashes.register(_hash,'servico',_reportId,{client:c,category:_catLabel,date:d}).catch(function(){});
+    });
+  }).then(function(){
+    setLoading(false);
+    setText('resSub','Relatório para '+c+' — pronto para entregar');
+    setText('resHashVal',(_hash||'').slice(0,42)+'…');
+    document.getElementById('resOverlay').style.display='flex';
+
+    /* v4.2: limpa rascunho após sucesso */
+    if (FIELDO.Draft) FIELDO.Draft.clear('servico');
+  }).catch(function(err){
+    setLoading(false);
+    FIELDO.UI.handleError(err);
+  });
+}
+
+/* ── Ações ── */
+function visualizarRelatorio(){
+  if(!_htmlDoc){ FIELDO.UI.toast('Gere o relatório primeiro'); return; }
+  var blob=new Blob([_htmlDoc],{type:'text/html;charset=utf-8'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
+function baixarHTML(){
+  if(!_htmlDoc){ FIELDO.UI.toast('Gere o relatório primeiro'); return; }
+  var nome=document.getElementById('fCliente').value.trim().toLowerCase().replace(/\s+/g,'-');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([_htmlDoc],{type:'text/html;charset=utf-8'}));
+  a.download='relatorio-fieldo-'+nome+'.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  FIELDO.UI.toast('HTML baixado ✓');
+}
+function enviarWA(){
+  /* v6.9: avisa ANTES de enviar um link que o cliente não conseguirá
+     abrir. Rodando local, a URL aponta para o aparelho do profissional
+     — mandar assim gera confusão dos dois lados. */
+  if (!FIELDO.publicUrlConfigurado() &&
+      !window.confirm('Você está rodando o app localmente.\n\n' +
+        'O link gerado NÃO vai abrir no celular do cliente. ' +
+        'Publique o app ou configure PUBLIC_BASE_URL no db.js.\n\nEnviar mesmo assim?')) {
+    return;
+  }
+  var p=_prof||{};
+  var c=document.getElementById('fCliente').value.trim();
+  /* v6.8: domínio público — link precisa abrir no aparelho do cliente */
+  var base=FIELDO.publicUrl('').replace(/\/$/,'');
+  /* BUG-FIX: o link do cliente usava ?id=, que é a URL de visualização
+     do PROFISSIONAL — relatorio.html exige login nesse caminho e jogava
+     o cliente para entrar.html ("abre cadastro"). O caminho público é
+     ?token=<rating_token>, o mesmo que a avaliação usa (por isso ela
+     funcionava). A RPC report_por_token valida no servidor e devolve o
+     relatório SEM expor o token. */
+  var url=base+'/relatorio.html?token='+encodeURIComponent(_token||'');
+  /* v6.3: a mensagem diz o que É e o que FAZER.
+     "Documento verificável com Selo de Autenticidade" não informa nada
+     ao cliente — ele quer saber o que recebeu e o que precisa fazer. */
+  var msg='Olá, '+c+'!\n\nSegue o comprovante do serviço com as fotos:\n\n'+url+
+    '\n\nO link fica salvo — pode guardar ou compartilhar. Se puder avaliar o atendimento, ajuda bastante.';
+  /* v5.5.1: era `p.whatsapp` — o número do PRÓPRIO profissional. O
+     relatório é para o CLIENTE, então isso abria um chat consigo mesmo.
+     E prefixar '55' cegamente duplicava o DDI de quem já salvou o número
+     completo, gerando wa.me/5555... (link inválido, abre em branco).
+
+     O formulário não captura telefone do cliente, então o certo é o
+     seletor de contatos: o profissional escolhe para quem enviar. */
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+function solicitarAvaliacao(){
+  /* v6.9: avisa ANTES de enviar um link que o cliente não conseguirá
+     abrir. Rodando local, a URL aponta para o aparelho do profissional
+     — mandar assim gera confusão dos dois lados. */
+  if (!FIELDO.publicUrlConfigurado() &&
+      !window.confirm('Você está rodando o app localmente.\n\n' +
+        'O link gerado NÃO vai abrir no celular do cliente. ' +
+        'Publique o app ou configure PUBLIC_BASE_URL no db.js.\n\nEnviar mesmo assim?')) {
+    return;
+  }
+  if(!_token){ FIELDO.UI.toast('Token não encontrado'); return; }
+  /* v6.8: domínio público — link precisa abrir no aparelho do cliente */
+  var base=FIELDO.publicUrl('').replace(/\/$/,'');
+  var msg='⭐ *Avalie meu serviço*\n\nLeva 10 segundos:\n\n🔗 '+base+'/avaliar.html?token='+_token;
+  /* Mesmo caso: o pedido de avaliação vai para o cliente, não para você. */
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+/* ── Utils ── */
+function setLoading(on){var s=document.getElementById('spinAvancar');var b=document.getElementById('btnAvancar');if(s)s.classList.toggle('on',on);if(b)b.disabled=on;}
+function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function esc(s){return FIELDO.UI.esc(s);}
+</script>
+</body>
+</html>

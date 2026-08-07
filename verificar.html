@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Verificar autenticidade · Fieldo</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <meta name="description" content="Confira se um relatório ou orçamento do Fieldo é o original e não foi alterado."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f5f2ec;--paper:#f5f2ec;--paper2:#ede9df;--paper3:#e4dfd2;--paper4:#d8d2c4;
+      --ink:#0e0e14;--text:#1a1a24;--text2:#4a4855;--muted:#7a7570;--subtle:#a09890;--ghost:#c4bdb0;
+      --border:rgba(14,14,20,.09);--border2:rgba(14,14,20,.16);--border3:rgba(14,14,20,.26);
+      --gold:#9a7218;--gold-l:#b8880d;--gold-d:#7a5a10;
+      --gold-bg:rgba(154,114,24,.07);--gold-bd:rgba(154,114,24,.2);
+      --green:#1e5c38;--green-l:#2d7a4f;--green-bg:rgba(30,92,56,.07);--green-bd:rgba(30,92,56,.18);
+      --red:#8b1a1a;--red-l:#b02020;--red-bg:rgba(139,26,26,.07);--red-bd:rgba(139,26,26,.18);
+      --amber:#8a5e0a;--amber-bg:rgba(138,94,10,.07);--amber-bd:rgba(138,94,10,.2);
+      --topbar-bg:#0e0e14;
+      --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono','Courier New',monospace;
+      --r:8px;--r-l:12px;--r-xl:18px;
+      --ez:cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-font-smoothing:antialiased}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:180px;
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* TOPBAR */
+    .topbar{
+      background:var(--topbar-bg);height:50px;position:sticky;top:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .topbar-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+    .logo-icon{width:24px;height:24px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+    .topbar-brand{font-family:var(--sans);font-size:.88rem;font-weight:600;color:rgba(255,255,255,.9)}
+    .topbar-brand em{color:var(--gold-l);font-style:italic;font-weight:300}
+    .topbar-back{
+      display:flex;align-items:center;gap:.35rem;
+      font-family:var(--mono);font-size:.7rem;color:rgba(255,255,255,.4);
+      background:none;border:none;cursor:pointer;text-decoration:none;transition:color .2s;
+    }
+    .topbar-back:hover{color:rgba(255,255,255,.75)}
+
+    /* LAYOUT */
+    .page{max-width:580px;margin:0 auto;padding:2rem 1.25rem 4rem;position:relative;z-index:1}
+
+    /* EYEBROW */
+    .eyebrow{
+      font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--gold);display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem;
+    }
+    .eyebrow::before{content:'';display:inline-block;width:14px;height:1px;background:var(--gold)}
+    .page-title{
+      font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.4rem);font-weight:300;
+      line-height:1.08;color:var(--ink);margin-bottom:.4rem;letter-spacing:-.02em;
+    }
+    .page-title em{font-style:italic;color:var(--gold)}
+    .page-sub{font-size:.86rem;color:var(--muted);line-height:1.7;margin-bottom:1.75rem}
+
+    /* SEARCH FORM */
+    .search-form{
+      display:flex;gap:.5rem;margin-bottom:1.75rem;
+    }
+    .search-input{
+      flex:1;background:var(--paper2);border:1px solid var(--border2);
+      border-radius:var(--r-l);padding:.75rem 1rem;color:var(--text);
+      font-family:var(--mono);font-size:.8rem;outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .search-input:focus{
+      border-color:var(--gold-bd);box-shadow:0 0 0 3px var(--gold-bg);
+    }
+    .search-input::placeholder{color:var(--ghost)}
+    .search-btn{
+      background:var(--gold);color:#fff;border:none;cursor:pointer;
+      border-radius:var(--r-l);padding:.75rem 1.25rem;
+      font-family:var(--sans);font-size:.85rem;font-weight:500;
+      transition:background .2s;white-space:nowrap;flex-shrink:0;
+      display:flex;align-items:center;gap:.4rem;
+    }
+    .search-btn:hover{background:var(--gold-d)}
+    .search-btn:disabled{opacity:.55;cursor:not-allowed}
+
+    /* RESULT CARD */
+    .result-card{
+      border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--border2);
+      animation:fadeUp .3s var(--ez) both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* Topo colorido por status */
+    .rc-stripe{height:3px}
+    .rc-stripe.valid  {background:linear-gradient(90deg,transparent,var(--green-l) 35%,var(--green-l) 65%,transparent)}
+    .rc-stripe.invalid{background:linear-gradient(90deg,transparent,var(--red-l) 35%,var(--red-l) 65%,transparent)}
+    .rc-stripe.loading{background:linear-gradient(90deg,transparent,var(--gold) 35%,var(--gold-l) 65%,transparent);animation:shimmer 1.5s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    .rc-body{background:var(--paper);padding:1.5rem 1.75rem}
+
+    /* Status row */
+    .status-row{display:flex;align-items:center;gap:.85rem;margin-bottom:1.5rem}
+    .status-icon{
+      width:48px;height:48px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;
+    }
+    .status-icon.valid  {background:var(--green-bg);border:2px solid var(--green-bd)}
+    .status-icon.invalid{background:var(--red-bg);  border:2px solid var(--red-bd)}
+    .status-icon.loading{background:var(--gold-bg); border:2px solid var(--gold-bd);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+    .status-title{font-size:1.05rem;font-weight:500}
+    .status-title.valid  {color:var(--green-l)}
+    .status-title.invalid{color:var(--red-l)}
+    .status-title.loading{color:var(--gold)}
+    .status-sub{font-size:.8rem;color:var(--muted);margin-top:.18rem;line-height:1.55}
+
+    /* Data rows */
+    .data-rows{display:flex;flex-direction:column;gap:0;margin-bottom:1.25rem}
+    .data-row{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      gap:1rem;padding:.65rem 0;border-bottom:1px solid var(--border);
+    }
+    .data-row:last-child{border-bottom:none}
+    .data-lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+    .data-val{font-size:.85rem;color:var(--text);text-align:right;word-break:break-all;font-weight:400}
+    .data-val.green{color:var(--green-l);font-weight:500}
+    .data-val.gold {color:var(--gold-d); font-weight:500;font-family:var(--serif);font-size:.95rem}
+    .data-val.amber{color:var(--amber); font-weight:500}
+
+    /* Hash box */
+    .hash-box{
+      background:var(--paper3);border-radius:var(--r);padding:1rem;margin-bottom:1.25rem;
+    }
+    .hash-box-lbl{
+      font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;
+      text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;
+    }
+    .hash-val{
+      font-family:var(--mono);font-size:.72rem;color:var(--text);
+      word-break:break-all;line-height:1.7;user-select:all;
+    }
+
+    /* Nota de autenticidade */
+    .auth-note{font-size:.8rem;color:var(--muted);line-height:1.7}
+    .auth-note strong{color:var(--text);font-weight:500}
+
+    /* Ação para relatório */
+    .action-row{
+      margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);
+      display:flex;flex-direction:column;gap:.5rem;
+    }
+    .action-btn{
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      padding:.75rem;border-radius:var(--r-l);font-size:.88rem;font-weight:500;
+      cursor:pointer;border:none;transition:background .2s;text-decoration:none;
+    }
+    .action-btn.primary{background:var(--gold);color:#fff}
+    .action-btn.primary:hover{background:var(--gold-d)}
+    .action-btn.secondary{background:var(--paper3);border:1px solid var(--border2);color:var(--text2)}
+    .action-btn.secondary:hover{background:var(--paper4)}
+
+    /* Como funciona */
+    .how-section{
+      margin-top:2rem;background:var(--paper2);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:1.5rem;
+    }
+    .how-title{
+      font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:.45rem;
+    }
+    .how-title::before{content:'';display:inline-block;width:10px;height:1px;background:var(--gold)}
+    .how-steps{display:flex;flex-direction:column;gap:.75rem}
+    .how-step{display:flex;align-items:flex-start;gap:.85rem}
+    .how-num{
+      width:24px;height:24px;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold-bd);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      font-family:var(--mono);font-size:.62rem;color:var(--gold-d);
+    }
+    .how-text{font-size:.82rem;color:var(--text2);line-height:1.6}
+
+    /* Skeleton */
+    .skel{
+      background:linear-gradient(90deg,var(--paper3) 25%,var(--paper4) 50%,var(--paper3) 75%);
+      background-size:200% 100%;animation:sk 1.5s infinite;border-radius:4px;height:12px;
+    }
+    @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    .spin{
+      width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;
+    }
+    .spin.on{display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" class="topbar-logo">
+    <div class="logo-icon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <span class="topbar-brand"><em>Fieldo</em></span>
+  </a>
+  <a href="index.html" class="topbar-back">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Dashboard
+  </a>
+</header>
+
+<div class="page">
+
+  <div class="eyebrow">Autenticidade</div>
+  <h1 class="page-title">Verificar <em>documento</em></h1>
+  <p class="page-sub">Cole o código que aparece no rodapé do documento. Se ele estiver registrado, você tem a confirmação de que o documento é o original e não foi alterado.</p>
+
+  <!-- Campo de busca -->
+  <div class="search-form">
+    <input
+      class="search-input"
+      type="text"
+      id="hashInput"
+      placeholder="Cole aqui o código do documento…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="search-btn" id="searchBtn" onclick="verificar()">
+      Verificar
+      <span class="spin" id="spin"></span>
+    </button>
+  </div>
+
+  <!-- Resultado -->
+  <div id="result"></div>
+
+  <!-- Como funciona -->
+  <div class="how-section">
+    <div class="how-title">Como funciona</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-text">Ao criar um relatório, o Fieldo gera um código único a partir do conteúdo e guarda com data e hora. Mudar qualquer detalhe do documento produziria um código diferente.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-text">O código aparece no rodapé do relatório. Não é possível alterar o documento sem que o código deixe de bater.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-text">Qualquer pessoa pode conferir aqui — não precisa de conta nem de aplicativo.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+var SUPABASE_URL = FIELDO.config.REST_URL;
+var H = { 'apikey': FIELDO.config.ANON_KEY, 'Authorization': 'Bearer ' + FIELDO.config.ANON_KEY };
+
+/* ── Ler hash da URL ao carregar ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var params = new URLSearchParams(window.location.search);
+  var h = params.get('hash');
+  if (h) {
+    document.getElementById('hashInput').value = h;
+    verificar();
+  }
+
+  document.getElementById('hashInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') verificar();
+  });
+});
+
+function verificar() {
+  var hash = (document.getElementById('hashInput').value || '').trim();
+  if (!hash) {
+    document.getElementById('hashInput').focus();
+    return;
+  }
+
+  /* Atualiza URL sem recarregar */
+  history.replaceState(null, '', '?hash=' + encodeURIComponent(hash));
+
+  setLoading(true);
+  renderLoading(hash);
+
+  fetch(SUPABASE_URL + FIELDO.colunasPublicas('/document_hashes?hash=eq.' + encodeURIComponent(hash) + '&limit=1'), { headers: H })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(rows) {
+      setLoading(false);
+      if (!rows || !rows.length) {
+        renderNaoEncontrado(hash);
+      } else {
+        renderValido(rows[0]);
+      }
+    })
+    .catch(function(err) {
+      setLoading(false);
+      renderErro();
+    });
+}
+
+/* ══ RENDERS ══ */
+
+function renderLoading(hash) {
+  document.getElementById('result').innerHTML =
+    '<div class="result-card">' +
+      '<div class="rc-stripe loading"></div>' +
+      '<div class="rc-body">' +
+        '<div class="status-row">' +
+          '<div class="status-icon loading">🔍</div>' +
+          '<div>' +
+            '<div class="status-title loading">Verificando…</div>' +
+            '<div class="status-sub">Consultando o registro de prova</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="data-rows">' +
+          '<div class="data-row"><span class="data-lbl">Código do documento</span><div class="skel" style="width:55%;margin:0 0 0 auto"></div></div>' +
+          '<div class="data-row"><span class="data-lbl">Tipo</span><div class="skel" style="width:35%;margin:0 0 0 auto"></div></div>' +
+          '<div class="data-row"><span class="data-lbl">Data</span><div class="skel" style="width:45%;margin:0 0 0 auto"></div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function renderValido(doc) {
+  var resumo = doc.conteudo_resumo || {};
+  var tipo   = tipoLabel(doc.tipo);
+
+  var valorRow = resumo.valor
+    ? '<div class="data-row"><span class="data-lbl">Valor</span><span class="data-val gold">R$ ' + Number(resumo.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}) + '</span></div>'
+    : '';
+  var periodoRow = resumo.periodo
+    ? '<div class="data-row"><span class="data-lbl">Período</span><span class="data-val green">' + esc(resumo.periodo) + '</span></div>'
+    : '';
+  var statusRow = resumo.status
+    ? '<div class="data-row"><span class="data-lbl">Status</span><span class="data-val ' + (resumo.status === 'confirmado' ? 'green' : 'amber') + '">' + esc(resumo.status) + '</span></div>'
+    : '';
+  var clienteRow = resumo.client
+    ? '<div class="data-row"><span class="data-lbl">Cliente</span><span class="data-val">' + esc(resumo.client) + '</span></div>'
+    : '';
+  var catRow = resumo.category
+    ? '<div class="data-row"><span class="data-lbl">Categoria</span><span class="data-val">' + esc(resumo.category) + '</span></div>'
+    : '';
+
+  /* Botão de ação se for relatório de serviço */
+  var actionHTML = '';
+  if (doc.tipo === 'servico' && doc.ref_id) {
+    actionHTML =
+      '<div class="action-row">' +
+        '<a href="relatorio.html?id=' + encodeURIComponent(doc.ref_id) + '" class="action-btn primary">' +
+          '📋 Ver relatório completo' +
+        '</a>' +
+        '<a href="avaliar.html?token=' + encodeURIComponent(doc.ref_id) + '" class="action-btn secondary">' +
+          '⭐ Avaliar este serviço' +
+        '</a>' +
+      '</div>';
+  }
+
+  document.getElementById('result').innerHTML =
+    '<div class="result-card">' +
+      '<div class="rc-stripe valid"></div>' +
+      '<div class="rc-body">' +
+        '<div class="status-row">' +
+          '<div class="status-icon valid">✓</div>' +
+          '<div>' +
+            '<div class="status-title valid">Documento verificado</div>' +
+            '<div class="status-sub">Este documento é autêntico e não foi alterado</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="data-rows">' +
+          '<div class="data-row"><span class="data-lbl">Tipo</span><span class="data-val">' + esc(tipo) + '</span></div>' +
+          '<div class="data-row"><span class="data-lbl">Referência</span><span class="data-val" style="font-family:var(--mono);font-size:.7rem">' + esc(doc.ref_id || '—').slice(0,18) + '…</span></div>' +
+          clienteRow + catRow + valorRow + periodoRow + statusRow +
+          '<div class="data-row"><span class="data-lbl">Registrado em</span><span class="data-val">' + fmtDateLong(doc.created_at) + '</span></div>' +
+        '</div>' +
+        '<div class="hash-box">' +
+          '<div class="hash-box-lbl">Código conferido</div>' +
+          '<div class="hash-val" id="hashDisplay">' + esc(doc.hash) + '</div>' +
+        '</div>' +
+        '<p class="auth-note">Este código confirma que o documento foi <strong>registrado nesta data</strong> e <strong>não sofreu alterações</strong>. A verificação é pública e pode ser consultada a qualquer momento.</p>' +
+        actionHTML +
+      '</div>' +
+    '</div>';
+}
+
+function renderNaoEncontrado(hash) {
+  document.getElementById('result').innerHTML =
+    '<div class="result-card">' +
+      '<div class="rc-stripe invalid"></div>' +
+      '<div class="rc-body">' +
+        '<div class="status-row">' +
+          '<div class="status-icon invalid">✗</div>' +
+          '<div>' +
+            '<div class="status-title invalid">Documento não encontrado</div>' +
+            '<div class="status-sub">Este código não está registrado. Confira se copiou o código inteiro.</div>' +
+          '</div>' +
+        '</div>' +
+        '<p style="font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:1rem">' +
+          'Isso pode indicar que o documento não existe, foi gerado em outro sistema, ou o hash foi copiado incorretamente.' +
+        '</p>' +
+        '<div class="hash-box">' +
+          '<div class="hash-box-lbl">Código consultado</div>' +
+          '<div class="hash-val" style="color:var(--muted)">' + esc(hash) + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function renderErro() {
+  document.getElementById('result').innerHTML =
+    '<div class="result-card">' +
+      '<div class="rc-stripe" style="background:var(--amber-bd)"></div>' +
+      '<div class="rc-body">' +
+        '<div class="status-row">' +
+          '<div class="status-icon" style="background:var(--amber-bg);border:2px solid var(--amber-bd)">⚠</div>' +
+          '<div>' +
+            '<div class="status-title" style="color:var(--amber)">Erro de conexão</div>' +
+            '<div class="status-sub">Verifique sua conexão e tente novamente</div>' +
+          '</div>' +
+        '</div>' +
+        '<button onclick="verificar()" style="background:var(--gold);color:#fff;border:none;cursor:pointer;border-radius:var(--r);padding:.65rem 1.25rem;font-size:.85rem;font-weight:500">Tentar novamente</button>' +
+      '</div>' +
+    '</div>';
+}
+
+/* ══ UTILS ══ */
+function setLoading(on) {
+  var btn  = document.getElementById('searchBtn');
+  var spin = document.getElementById('spin');
+  if (btn)  btn.disabled = on;
+  if (spin) spin.classList.toggle('on', on);
+}
+
+function tipoLabel(t) {
+  var m = { servico:'Relatório de Serviço', orcamento:'Orçamento', contrato:'Contrato', work_entry:'Relatório de Empreitada' };
+  return m[t] || t || '—';
+}
+
+function fmtDateLong(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('pt-BR', {
+      day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+  } catch(e){ return iso; }
+}
+
+/* v6.4: delega para FIELDO.UI.esc — implementação única no projeto.
+   Esta versão escapava & < > " mas NÃO a aspa simples. Em atributo
+   delimitado por aspa simples, um valor com ' escaparia do atributo.
+   O teste de equivalência entre páginas foi o que revelou. */
+function esc(s) { return FIELDO.UI.esc(s); }
+</script>
+</body>
+</html>

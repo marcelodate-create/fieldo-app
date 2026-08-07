@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Fieldo · Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    /* ── Layout de onboarding ── */
+    body { background: var(--bg); }
+
+    .ob-wrap {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Detalhe decorativo de fundo */
+    .ob-wrap::after {
+      content: '';
+      position: fixed;
+      top: -120px; right: -120px;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(154,114,24,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ob-box {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Logo ── */
+    .ob-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .ob-logo-mark {
+      width: 56px; height: 56px;
+      background: var(--gold);
+      border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 32px rgba(154,114,24,.25);
+      animation: fadeUp .4s ease both;
+    }
+    .ob-logo-name {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--ink);
+      animation: fadeUp .4s .08s ease both;
+    }
+    .ob-logo-name em { font-style: italic; color: var(--gold); }
+
+    /* ── Steps container ── */
+    .ob-step {
+      display: none;
+      animation: fadeUp .3s ease both;
+    }
+    .ob-step.active { display: block; }
+
+    /* ── Step header ── */
+    .ob-eyebrow {
+      font-family: var(--mono);
+      font-size: .58rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      margin-bottom: .5rem;
+    }
+    .ob-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 14px; height: 1px;
+      background: var(--gold);
+    }
+    .ob-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      font-weight: 300;
+      line-height: 1.08;
+      color: var(--ink);
+      margin-bottom: .5rem;
+      letter-spacing: -.02em;
+    }
+    .ob-title em { font-style: italic; color: var(--gold); }
+    .ob-sub {
+      font-size: .86rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Campo Phone ── */
+    .phone-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .phone-prefix {
+      position: absolute;
+      left: .95rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--mono);
+      font-size: .88rem;
+      color: var(--muted);
+      pointer-events: none;
+      user-select: none;
+    }
+    #phoneInput {
+      padding-left: 3.2rem;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      letter-spacing: .05em;
+    }
+
+    /* ── OTP inputs ── */
+    .otp-row {
+      display: flex;
+      gap: .55rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .otp-digit {
+      width: 52px; height: 58px;
+      background: var(--paper2);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--r);
+      font-family: var(--mono);
+      font-size: 1.4rem;
+      font-weight: 500;
+      text-align: center;
+      color: var(--ink);
+      outline: none;
+      transition: border-color var(--t), box-shadow var(--t), background var(--t);
+      caret-color: var(--gold);
+    }
+    .otp-digit:focus {
+      border-color: var(--gold-bd);
+      background: var(--paper);
+      box-shadow: 0 0 0 3px var(--gold-bg);
+    }
+    .otp-digit.filled { border-color: var(--gold-bd); background: var(--gold-bg); }
+
+    .otp-phone-display {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .otp-phone-display strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .otp-resend {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: .75rem;
+    }
+    .otp-resend button {
+      color: var(--gold-d);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: .72rem;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .otp-resend button:disabled { color: var(--ghost); text-decoration: none; cursor: default; }
+
+    /* ── Step 2: Nicho + Cidade ── */
+    .nicho-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .5rem;
+      margin-bottom: 1.25rem;
+    }
+    .nicho-option {
+      padding: .85rem .75rem;
+      background: var(--paper2);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--r-l);
+      cursor: pointer;
+      transition: var(--t);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .25rem;
+      text-align: left;
+    }
+    .nicho-option:hover { border-color: var(--border3); background: var(--paper3); }
+    .nicho-option.selected {
+      background: var(--gold-bg);
+      border-color: var(--gold-bd);
+    }
+    .nicho-emoji { font-size: 1.3rem; line-height: 1; }
+    .nicho-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .nicho-option.selected .nicho-label { color: var(--gold-d); }
+
+    /* Outro nicho - input expandido */
+    #outroInput {
+      display: none;
+      margin-top: .5rem;
+      animation: fadeUp .2s ease;
+    }
+    #outroInput.visible { display: block; }
+
+    /* ── Step 3: Sucesso ── */
+    .ob-success {
+      text-align: center;
+      padding: 1rem 0;
+    }
+    .ob-success-seal {
+      width: 72px; height: 72px;
+      background: var(--green-bg);
+      border: 2px solid var(--green-bd);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 1.8rem;
+      animation: bounceIn .4s var(--ez) both;
+    }
+    @keyframes bounceIn {
+      0%   { transform: scale(.5); opacity: 0; }
+      70%  { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .ob-success-name {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--ink);
+      margin-bottom: .35rem;
+    }
+    .ob-success-sub {
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 1.5rem;
+    }
+    .ob-success-desc {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Progress dots ── */
+    .ob-progress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      margin-bottom: 2.5rem;
+    }
+    .ob-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--paper4);
+      transition: background .3s, transform .3s;
+    }
+    .ob-dot.active {
+      background: var(--gold);
+      transform: scale(1.4);
+    }
+    .ob-dot.done { background: var(--green-l); }
+
+    /* ── Footer legal ── */
+    .ob-legal {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--ghost);
+      text-align: center;
+      margin-top: 1.25rem;
+      line-height: 1.6;
+    }
+    .ob-legal a { color: var(--muted); text-decoration: underline; }
+
+    /* ── Back button ── */
+    .ob-back {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 1.5rem;
+      transition: color var(--t);
+    }
+    .ob-back:hover { color: var(--text); }
+
+    /* ── Error state ── */
+    .field-error {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--red);
+      margin-top: .35rem;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    @media(max-width:380px) {
+      .nicho-grid { grid-template-columns: 1fr; }
+      .otp-digit { width: 44px; height: 52px; font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ob-wrap">
+  <div class="ob-box">
+
+    <!-- Logo -->
+    <div class="ob-logo">
+      <div class="ob-logo-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="ob-logo-name"><em>Fieldo</em></div>
+    </div>
+
+
+    <!-- Progress dots -->
+    <div class="ob-progress">
+      <div class="ob-dot active" id="dot0"></div>
+      <div class="ob-dot" id="dot1"></div>
+      <div class="ob-dot" id="dot2"></div>
+    </div>
+
+
+    <!-- ════════════════════════════════
+         STEP 1 — WhatsApp (login principal em v4.0)
+    ════════════════════════════════ -->
+    <div class="ob-step active" id="step1">
+      <div class="ob-eyebrow">Bem-vindo</div>
+      <h1 class="ob-title">Comece a<br><em>registrar</em></h1>
+      <p class="ob-sub">
+        Sem cadastro, sem senha, sem e-mail. Um toque e seu espaço de
+        trabalho está pronto — e continua funcionando sem internet.
+      </p>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnComecar" onclick="comecar()">
+        Criar meu espaço
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+
+      <p class="ob-sub" style="margin:1.5rem 0 0;text-align:center;font-size:.78rem">
+        Já usa o Fieldo em outro aparelho?<br>
+        <a href="#" onclick="irStep(2);return false" style="color:var(--gold);text-decoration:underline">
+          Recuperar com meu código
+        </a>
+      </p>
+    </div>
+
+    <div class="ob-step" id="step2">
+      <button class="ob-back" onclick="irStep(1)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Voltar
+      </button>
+
+      <div class="ob-eyebrow">Recuperação</div>
+      <h1 class="ob-title">Seu código de<br><em>recuperação</em></h1>
+      <p class="ob-sub">
+        Os 16 caracteres que o Fieldo mostrou quando você criou seu espaço.
+        Ele traz de volta todos os seus relatórios e orçamentos.
+      </p>
+
+      <div class="field-group">
+        <label class="field-label" for="inpRecovery">Código</label>
+        <input class="field-input" id="inpRecovery" type="text" inputmode="text"
+               autocapitalize="characters" autocomplete="one-time-code" spellcheck="false"
+               maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX"
+               style="font-family:var(--mono);letter-spacing:.12em;text-align:center"/>
+        <div class="field-hint" id="recoveryHint">Letras e números, sem I, L, O ou U.</div>
+      </div>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnRecuperar" onclick="recuperar()">
+        Recuperar meu espaço
+      </button>
+    </div>
+
+    <div class="ob-step" id="step3">
+      <div class="ob-eyebrow">Perfil profissional</div>
+      <h1 class="ob-title">Qual é a sua<br><em>especialidade?</em></h1>
+      <p class="ob-sub">Usamos isso para indexar seu perfil no Google e conectar você com clientes na sua cidade.</p>
+
+      <div class="nicho-grid" id="nichoGrid">
+        <div class="nicho-option" data-nicho="eletrica" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">⚡</div>
+          <div class="nicho-label">Elétrica</div>
+        </div>
+        <div class="nicho-option" data-nicho="hidraulica" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">🔧</div>
+          <div class="nicho-label">Hidráulica</div>
+        </div>
+        <div class="nicho-option" data-nicho="pintura" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">🎨</div>
+          <div class="nicho-label">Pintura</div>
+        </div>
+        <div class="nicho-option" data-nicho="ar-condicionado" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">❄️</div>
+          <div class="nicho-label">Ar-condicionado</div>
+        </div>
+        <div class="nicho-option" data-nicho="alvenaria" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">🧱</div>
+          <div class="nicho-label">Alvenaria</div>
+        </div>
+        <div class="nicho-option" data-nicho="informatica" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">💻</div>
+          <div class="nicho-label">Informática</div>
+        </div>
+        <div class="nicho-option" data-nicho="serralheria" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">🔩</div>
+          <div class="nicho-label">Serralheria</div>
+        </div>
+        <div class="nicho-option" data-nicho="outro" onclick="selecionarNicho(this)">
+          <div class="nicho-emoji">⚙️</div>
+          <div class="nicho-label">Outro</div>
+        </div>
+      </div>
+
+      <div id="outroInput" class="field-group" style="margin-bottom:1rem">
+        <label class="field-label">Qual especialidade?</label>
+        <input class="field-input" id="nichoOutroVal" type="text" placeholder="Ex: Gesseiro, Jardineiro..."/>
+      </div>
+
+      <div class="field-group" style="margin-bottom:1.25rem">
+        <label class="field-label">Cidade principal <span class="required">*</span></label>
+        <input
+          class="field-input"
+          id="cidadeInput"
+          type="text"
+          placeholder="Ex: Campinas – SP"
+          autocomplete="address-level2"
+        />
+        <div class="field-hint">Aparece no Google quando clientes buscarem na sua cidade</div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:1.25rem">
+        <label class="field-label">E-mail <span style="color:var(--subtle)">(opcional)</span></label>
+        <input
+          class="field-input"
+          id="emailInput"
+          type="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          onblur="capturarLead()"
+        />
+        <div class="field-hint">Só usamos pra te mandar o link de volta se você sair antes de terminar.</div>
+      </div>
+
+      <div class="field-error" id="perfilError" style="margin-bottom:.75rem">
+        Selecione uma especialidade e informe sua cidade.
+      </div>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnCriarPerfil" onclick="criarPerfil()">
+        Criar meu perfil
+        <span class="btn__spin" id="spinPerfil"></span>
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════
+         STEP 4 — Sucesso
+    ════════════════════════════════ -->
+    <div class="ob-step" id="step4">
+      <div class="ob-success">
+        <div class="ob-success-seal">✓</div>
+        <div class="ob-success-name" id="successName">Bem-vindo!</div>
+        <div class="ob-success-sub">Perfil criado · Fieldo</div>
+
+        <!-- Código de recuperação: única chance de o usuário salvá-lo.
+             Sem servidor de e-mail, é o que permite trocar de aparelho. -->
+        <div class="callout" style="text-align:left;margin:1.25rem 0">
+          <div class="callout-label">Guarde este código</div>
+          <div id="recoveryCode" style="font-family:var(--mono);font-size:1.05rem;
+               letter-spacing:.14em;color:var(--ink);word-break:break-all;
+               margin:.6rem 0;font-weight:500">••••-••••-••••-••••</div>
+          <p style="font-size:.76rem;color:var(--muted);line-height:1.6;margin:0">
+            É a única forma de recuperar seus dados se você trocar de celular
+            ou limpar o navegador. O Fieldo não guarda cópia dele.
+          </p>
+          <div style="display:flex;gap:.5rem;margin-top:.75rem">
+            <button class="btn btn--ghost btn--sm" style="flex:1" onclick="copiarCodigo()">Copiar</button>
+            <button class="btn btn--ghost btn--sm" style="flex:1" onclick="baixarCodigo()">Baixar .txt</button>
+          </div>
+        </div>
+
+        <label style="display:flex;gap:.6rem;align-items:flex-start;text-align:left;
+                      font-size:.8rem;color:var(--muted);margin-bottom:1rem;cursor:pointer">
+          <input type="checkbox" id="chkSalvou" onchange="toggleSalvou()" style="margin-top:.2rem"/>
+          <span>Salvei meu código de recuperação em local seguro.</span>
+        </label>
+        <p class="ob-success-desc">
+          Seu perfil está pronto. Registre seu primeiro serviço agora e
+          comece a construir sua reputação verificável.
+        </p>
+        <button class="btn btn--primary btn--full btn--lg" id="btnPrimeiro" disabled
+                onclick="irParaServico()">
+          Registrar primeiro serviço
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <button class="btn btn--ghost btn--full" id="btnDash" disabled
+                style="margin-top:.6rem" onclick="irParaDashboard()">
+          Ver dashboard
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /ob-box -->
+</div><!-- /ob-wrap -->
+
+<!-- Toast -->
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   Fieldo v5.0 · Onboarding
+
+   Substitui o fluxo de telefone + OTP da v4. Não há mais login:
+   `signInAnonymously()` cria um usuário real em auth.users, com
+   uuid e JWT — sem e-mail, sem senha, sem espera por SMS.
+
+   Este é o ÚNICO ponto assíncrono de bootstrap do app. Todas as
+   outras páginas seguem usando `Auth.isLoggedIn()` síncrono.
+
+   Limitação assumida: o primeiro boot precisa de internet uma vez.
+   Não existe forma de emitir identidade verificável offline.
+════════════════════════════════════════════════════════════════ */
+/* v5.7.6: guarda contra falha de carregamento.
+
+   Se db.js não carregar (rede instável, load parcial, aba anônima com
+   restrição), `FIELDO` fica indefinido e a PRIMEIRA linha do IIFE lança
+   ReferenceError. Nenhuma função é definida, os botões viram no-op e a
+   tela continua com aparência perfeita — o usuário toca e nada acontece,
+   sem erro nenhum.
+
+   Falhar em silêncio numa tela de recuperação de conta é o pior caso
+   possível: a pessoa acha que perdeu os dados. */
+(function () {
+  'use strict';
+
+  function falhaCritica(msg, err) {
+    if (err) console.error('[onboarding]', err);
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
+      'background:#7a2020;color:#fff;padding:1rem 1.25rem;font-family:system-ui,sans-serif;' +
+      'font-size:.85rem;line-height:1.5';
+    var p = document.createElement('div');
+    p.textContent = msg;
+    var b = document.createElement('button');
+    b.textContent = 'Recarregar';
+    b.style.cssText = 'margin-top:.7rem;width:100%;padding:.7rem;border:0;border-radius:8px;' +
+      'background:#fff;color:#7a2020;font-weight:600;font-family:inherit;font-size:.85rem';
+    b.onclick = function () { location.reload(true); };
+    box.appendChild(p); box.appendChild(b);
+    document.body.appendChild(box);
+  }
+
+  if (typeof FIELDO === 'undefined' || !FIELDO.Auth || !FIELDO.Auth.Session) {
+    falhaCritica('O app não carregou por completo. Verifique a conexão e recarregue — seus dados continuam salvos.');
+    return;
+  }
+
+  /* Qualquer erro não tratado daqui pra frente também precisa aparecer,
+     em vez de deixar botão morto. */
+  window.addEventListener('error', function (ev) {
+    if (window.__fieldoErroMostrado) return;
+    window.__fieldoErroMostrado = true;
+    falhaCritica('Ocorreu um erro nesta tela. Recarregue para tentar de novo.', ev.error || ev.message);
+  });
+
+  var Session = FIELDO.Auth.Session;
+  var state   = { nicho: null, cidade: '', code: null, email: '' };
+
+  /* Se já existe sessão completa, não faz sentido reonboardar */
+  if (FIELDO.Auth.isLoggedIn()) {
+    window.location.replace('index.html');
+    return;
+  }
+
+  /* ── Navegação entre steps ─────────────────────────────────── */
+  function irStep(n) {
+    ['step1', 'step2', 'step3', 'step4'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.toggle('active', id === 'step' + n);
+    });
+    window.scrollTo(0, 0);
+  }
+  window.irStep = irStep;
+
+  function busy(btn, on, label) {
+    if (!btn) return;
+    btn.disabled = on;
+    btn.dataset.label = btn.dataset.label || btn.innerHTML;
+    btn.innerHTML = on ? (label || 'Aguarde…') : btn.dataset.label;
+  }
+
+  function toast(msg) {
+    if (FIELDO.UI && FIELDO.UI.toast) return FIELDO.UI.toast(msg);
+    alert(msg);
+  }
+
+
+  /* Mensagem genérica esconde a causa e trava o diagnóstico em campo,
+     onde não há DevTools. Cada falha aqui tem uma ação concreta. */
+  function explicarErro(err) {
+    if (navigator.onLine === false) {
+      return 'Sem conexão. O primeiro acesso precisa de internet.';
+    }
+    var code = (err && (err.code || err.message)) || '';
+
+    if (/anonymous_provider_disabled|anonymous sign-ins are disabled/i.test(code)) {
+      return 'Config: ative "Anonymous sign-ins" no painel do Supabase.';
+    }
+    if (/signup_disabled|signups not allowed/i.test(code)) {
+      return 'Config: cadastros desativados no painel do Supabase.';
+    }
+    if (/over_request_rate_limit|rate limit/i.test(code)) {
+      return 'Muitas tentativas. Aguarde um minuto.';
+    }
+    if (err && err.status === 401) {
+      return 'Config: anon key inválida em db.js.';
+    }
+    if (/Failed to fetch|NetworkError/i.test(code)) {
+      return 'Não alcançou o servidor. Verifique a URL do Supabase.';
+    }
+    return 'Falha ao criar espaço: ' + (code || 'erro desconhecido');
+  }
+
+  /* ── Passo 1: criar identidade anônima ─────────────────────── */
+  window.comecar = function () {
+    var btn = document.getElementById('btnComecar');
+    busy(btn, true, 'Criando…');
+
+    Session.ensure()
+      .then(function () { busy(btn, false); irStep(3); })
+      .catch(function (err) {
+        busy(btn, false);
+        toast(explicarErro(err));
+        console.error('[onboarding] signInAnonymously', err);
+      });
+  };
+
+  /* ── Passo 2: recuperação em outro aparelho ────────────────── */
+  var inpRec = document.getElementById('inpRecovery');
+  if (inpRec) {
+    /* Formata em blocos de 4 enquanto digita, sem atrapalhar backspace */
+    inpRec.addEventListener('input', function () {
+      var raw = this.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 16);
+      this.value = (raw.match(/.{1,4}/g) || []).join('-');
+    });
+  }
+
+  window.recuperar = function () {
+    var btn  = document.getElementById('btnRecuperar');
+    var code = (inpRec.value || '').replace(/[^0-9A-Z]/gi, '').toUpperCase();
+
+    if (code.length !== 16) return toast('O código tem 16 caracteres.');
+
+    busy(btn, true, 'Recuperando…');
+    Session.recoverWithCode(code)
+      .then(function () { return FIELDO.Professionals.me(); })
+      .then(function (prof) {
+        if (!prof) throw new Error('perfil_ausente');
+        FIELDO.Auth.setSession(prof);
+        window.location.replace('index.html');
+      })
+      .catch(function (err) {
+        busy(btn, false);
+        toast(err && err.message === 'perfil_ausente'
+          ? 'Código válido, mas sem perfil vinculado.'
+          : (/email_provider_disabled|Email logins are disabled/i.test(String(err && (err.code || err.message)))
+              ? 'Config: ative o provider Email no painel do Supabase.'
+              : 'Código não encontrado. Confira os caracteres.'));
+        console.error('[onboarding] recover', err);
+      });
+  };
+
+  /* ── Passo 3: perfil ───────────────────────────────────────── */
+  function atualizarBotao() {
+    var b = document.getElementById('btnCriarPerfil');
+    if (b) b.disabled = !(state.nicho && state.cidade.length >= 3);
+  }
+
+  window.selecionarNicho = function (el) {
+    var grid = document.getElementById('nichoGrid');
+    if (grid) Array.prototype.forEach.call(grid.children, function (c) {
+      c.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    state.nicho = el.dataset.nicho;
+    var extra = document.getElementById('outroInput');
+    if (extra) extra.style.display = (state.nicho === 'outro') ? 'block' : 'none';
+    atualizarBotao();
+  };
+
+  var inpCidade = document.getElementById('cidadeInput');
+  if (inpCidade) inpCidade.addEventListener('input', function () {
+    state.cidade = this.value.trim();
+    atualizarBotao();
+  });
+
+  var LABELS = {
+    eletrica: 'Elétrica', hidraulica: 'Hidráulica', pintura: 'Pintura',
+    'ar-condicionado': 'Ar-condicionado', alvenaria: 'Alvenaria',
+    informatica: 'Informática', serralheria: 'Serralheria',
+  };
+
+  var _leadCapturado = ''; /* v7.6: evita reinserir o mesmo e-mail a cada blur */
+  function capturarLead() {
+    var el = document.getElementById('emailInput');
+    var val = (el.value || '').trim();
+    state.email = val;
+    /* validação bem simples de propósito — não é a validação que vale,
+       é só filtrar "digitou alguma coisa que parece e-mail" antes de
+       gastar uma requisição */
+    if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return;
+    if (val === _leadCapturado) return;
+    _leadCapturado = val;
+    FIELDO.rest.postPublic('/signup_leads', {
+      email: val,
+      niche: state.nicho || null,
+      city:  state.cidade || null,
+    }).catch(function () { /* silencioso: não é crítico pro cadastro seguir */ });
+  }
+
+  function slugify(s) {
+    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  window.criarPerfil = function () {
+    var btn = document.getElementById('btnCriarPerfil');
+    if (!state.nicho || state.cidade.length < 3) return;
+
+    var custom    = (document.getElementById('nichoOutroVal') || {}).value || '';
+    var profissao = LABELS[state.nicho] || custom.trim() || 'Serviços gerais';
+    var cidadeCurta = state.cidade.split(/[–\-,]/)[0].trim();
+
+    /* Gerado no dispositivo. Desde a v6.5 o servidor realmente não vê
+       o código: guarda o SHA-256 dele no e-mail sintético e o bcrypt
+       como senha — nenhum dos dois reversível. Até a v6.4 o e-mail
+       era `fd-<codigo>@...`, ou seja, o código em texto claro no banco.
+       ele só recebe o e-mail sintético derivado e o hash da senha. */
+    var code = Session.generateRecoveryCode();
+    state.code = code;
+    /* v5.4: guarda localmente para o Perfil poder reexibir. Fica só
+       neste aparelho. O servidor só conhece o hash. */
+    try { localStorage.setItem('fieldo_recovery_code', code); } catch (e) {}
+
+    busy(btn, true, 'Criando perfil…');
+
+    Session.ensure()
+      .then(function () { return Session.attachRecoveryCode(code); })
+      .then(function () {
+        return FIELDO.Professionals.create({
+          name:      profissao + ' · ' + cidadeCurta,
+          profissao: profissao,
+          niche:     state.nicho || null, /* v7.3: chave estável do nicho — profissao é texto livre editável, isso não é */
+          city:      state.cidade,
+          email:     state.email || null, /* v7.6: mesmo campo que já capturamos como lead — reaproveitado aqui se ela terminar o cadastro */
+          slug:      slugify(profissao + '-' + cidadeCurta + '-' + Date.now().toString(36).slice(-4)),
+          is_public: false, /* entra no marketplace após 3 serviços */
+        });
+      })
+      .then(function (prof) {
+        FIELDO.Auth.setSession(prof);
+        document.getElementById('successName').textContent = prof.name || 'Bem-vindo!';
+        document.getElementById('recoveryCode').textContent =
+          (code.match(/.{1,4}/g) || []).join('-');
+        busy(btn, false);
+        irStep(4);
+      })
+      .catch(function (err) {
+        busy(btn, false);
+        var msg = String((err && (err.code || err.message)) || 'erro');
+        /* v6.5: o código de recuperação depende de crypto.subtle, que só
+           existe em contexto seguro (https ou localhost). Em http comum a
+           conta seria criada SEM recuperação possível — pior que falhar,
+           porque o usuário só descobriria ao trocar de celular. */
+        if (/crypto_indisponivel/.test(msg)) {
+          toast('Abra o app por HTTPS. Sem isso não dá para criar o código de recuperação.');
+          return;
+        }
+        toast(/email|confirm/i.test(msg)
+          ? 'Config: desative "Confirm email" no painel do Supabase.'
+          : 'Falha ao criar perfil: ' + msg);
+        console.error('[onboarding] criarPerfil', err);
+      });
+  };
+
+  /* ── Passo 4: código de recuperação ────────────────────────── */
+  function codigoFormatado() {
+    return (state.code || '').match(/.{1,4}/g).join('-');
+  }
+
+  window.copiarCodigo = function () {
+    var txt = codigoFormatado();
+    (navigator.clipboard
+      ? navigator.clipboard.writeText(txt)
+      : Promise.reject()
+    ).then(function () { toast('Código copiado.'); })
+     .catch(function () { toast('Copie manualmente: ' + txt); });
+  };
+
+  window.baixarCodigo = function () {
+    var conteudo =
+      'FIELDO — CÓDIGO DE RECUPERAÇÃO\n\n' + codigoFormatado() +
+      '\n\nGuarde este arquivo. É a única forma de recuperar seus dados\n' +
+      'em outro aparelho. O Fieldo não mantém cópia deste código.\n\n' +
+      'Gerado em ' + new Date().toLocaleString('pt-BR') + '\n';
+    var blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fieldo-codigo-recuperacao.txt';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  };
+
+  /* Libera os CTAs só depois da confirmação explícita. Fricção
+     deliberada: perder este código é perder a conta. */
+  window.toggleSalvou = function () {
+    var ok = document.getElementById('chkSalvou').checked;
+    ['btnPrimeiro', 'btnDash'].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) b.disabled = !ok;
+    });
+  };
+
+  window.irParaServico   = function () { window.location.href = 'servico.html'; };
+  window.irParaDashboard = function () { window.location.href = 'index.html'; };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#0e0e14"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Explorar profissionais · Fieldo</title>
+  <meta name="description" content="Encontre técnicos e autônomos verificados com histórico real de serviços e avaliações de clientes."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    /* Search */
+    .search-wrap{position:relative;margin-bottom:1rem}
+    .s-icon{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .s-field{width:100%;background:var(--paper2);border:1px solid var(--border2);border-radius:var(--r-l);padding:.78rem 1rem .78rem 2.75rem;color:var(--text);font-family:var(--sans);font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
+    .s-field:focus{border-color:var(--gold-bd);box-shadow:0 0 0 3px var(--gold-bg)}
+    .s-field::placeholder{color:var(--ghost)}
+
+    /* Chips de categoria */
+    .cat-chips{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.35rem;-webkit-overflow-scrolling:touch;margin-bottom:.75rem;scrollbar-width:none}
+    .cat-chips::-webkit-scrollbar{display:none}
+    .chip{display:flex;align-items:center;gap:.3rem;padding:.38rem .85rem;border-radius:2rem;font-size:.75rem;font-weight:500;background:var(--paper2);border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap;flex-shrink:0}
+    .chip.active{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold-d)}
+    .chip:hover:not(.active){background:var(--paper3);color:var(--text)}
+
+    /* Filtros de ordenação */
+    .sort-row{display:flex;gap:.4rem;margin-bottom:1.25rem;flex-wrap:wrap}
+    .sort-btn{padding:.32rem .75rem;border-radius:2rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;background:var(--paper2);border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap}
+    .sort-btn.active{background:var(--ink);border-color:var(--ink);color:rgba(255,255,255,.9)}
+    .sort-btn:hover:not(.active){background:var(--paper3);color:var(--text)}
+
+    /* Contador de resultados */
+    .results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
+    .results-count{font-family:var(--mono);font-size:.65rem;color:var(--muted)}
+
+    /* Grid */
+    .pros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
+
+    /* Card */
+    .pro-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+    .pro-card:hover{border-color:var(--gold-bd);transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,14,20,.07)}
+
+    /* Card header */
+    .pro-card-hdr{background:var(--topbar-bg);padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;position:relative;overflow:hidden}
+    .pro-card-hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(154,114,24,.1) 0%,transparent 65%);pointer-events:none}
+    .pro-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-d));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:1rem;font-style:italic;color:#fff;flex-shrink:0;overflow:hidden;border:2px solid rgba(154,114,24,.35)}
+    .pro-av img{width:100%;height:100%;object-fit:cover}
+    .pro-name{font-family:var(--serif);font-size:.92rem;font-style:italic;color:rgba(255,255,255,.9);line-height:1.2}
+    .pro-role{font-family:var(--mono);font-size:.6rem;color:rgba(255,255,255,.38);margin-top:.1rem}
+    .pro-city{font-family:var(--mono);font-size:.58rem;color:rgba(255,255,255,.28);margin-top:.08rem;display:flex;align-items:center;gap:.2rem}
+    .pro-plan-badge{margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(154,114,24,.1);border:1px solid rgba(154,114,24,.25);border-radius:2rem;padding:.18rem .55rem;color:rgba(154,114,24,.85)}
+
+    /* Card body */
+    .pro-card-body{padding:.85rem 1rem;flex:1;display:flex;flex-direction:column;gap:.6rem}
+
+    /* Score row */
+    .pro-score-row{display:flex;align-items:center;gap:.5rem}
+    .pro-stars{color:var(--gold-l);font-size:.82rem;letter-spacing:-.04em}
+    .pro-score-val{font-family:var(--mono);font-size:.75rem;font-weight:500;color:var(--gold-d)}
+    .pro-score-none{font-family:var(--mono);font-size:.72rem;color:var(--ghost)}
+
+    /* Stats mini */
+    .pro-stats{display:flex;gap:.75rem}
+    .pro-stat{}
+    .pro-stat-val{font-family:var(--mono);font-size:.82rem;font-weight:500;color:var(--text);line-height:1}
+    .pro-stat-lbl{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.1rem}
+
+    /* Card footer */
+    .pro-card-foot{padding:.6rem 1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .pro-cta{font-family:var(--mono);font-size:.65rem;color:var(--gold-d);display:flex;align-items:center;gap:.25rem}
+    .pro-verified{font-family:var(--mono);font-size:.58rem;color:var(--green-l);display:flex;align-items:center;gap:.25rem}
+    .verified-dot{width:5px;height:5px;border-radius:50%;background:var(--green-l)}
+
+    /* Skeleton */
+    .skel-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+    .skel-hdr{height:66px;background:var(--topbar-bg)}
+    .skel-body{padding:.85rem 1rem;display:flex;flex-direction:column;gap:.5rem}
+
+    /* Empty */
+    .empty-grid{text-align:center;padding:3rem 1.5rem;grid-column:1/-1;color:var(--muted)}
+    .empty-glyph{font-family:var(--serif);font-size:2.5rem;font-style:italic;color:var(--paper4);margin-bottom:.65rem}
+
+    /* CTA bottom */
+    .join-cta{background:var(--paper2);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;text-align:center;margin-top:2rem}
+    .join-title{font-family:var(--serif);font-size:1.2rem;font-weight:300;color:var(--ink);margin-bottom:.3rem}
+    .join-title em{font-style:italic;color:var(--gold)}
+    .join-sub{font-size:.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.65}
+
+    @media(max-width:500px){.pros-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="contratos.html" class="menu-nav-item" data-pro="1" style="display:none"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Contratos</span></a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--mid">
+  <div class="page-eyebrow">Plataforma</div>
+  <h1 class="page-title" style="margin-bottom:.35rem">Explorar <em>profissionais</em></h1>
+  <p class="page-sub" style="margin-bottom:1.25rem">Técnicos verificados com histórico real de serviços</p>
+
+  <!-- Busca -->
+  <div class="search-wrap">
+    <svg class="s-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="s-field" type="text" id="searchInput" placeholder="Nome, profissão ou cidade…" oninput="filtrar()"/>
+  </div>
+
+  <!-- Chips de categoria -->
+  <div class="cat-chips" id="catChips">
+    <div class="chip active" data-cat="" onclick="setCategoria(this)">🌐 Todos</div>
+    <div class="chip" data-cat="eletrica" onclick="setCategoria(this)">⚡ Elétrica</div>
+    <div class="chip" data-cat="hidraulica" onclick="setCategoria(this)">🔧 Hidráulica</div>
+    <div class="chip" data-cat="pintura" onclick="setCategoria(this)">🎨 Pintura</div>
+    <div class="chip" data-cat="ar-condicionado" onclick="setCategoria(this)">❄️ Ar-cond.</div>
+    <div class="chip" data-cat="alvenaria" onclick="setCategoria(this)">🧱 Alvenaria</div>
+    <div class="chip" data-cat="informatica" onclick="setCategoria(this)">💻 Informática</div>
+    <div class="chip" data-cat="serralheria" onclick="setCategoria(this)">🔩 Serralheria</div>
+  </div>
+
+  <!-- Ordenação -->
+  <div class="sort-row">
+    <button class="sort-btn active" data-order="media_geral.desc.nullslast" onclick="ordenar(this)">⭐ Melhor nota</button>
+    <button class="sort-btn" data-order="total_geral.desc.nullslast" onclick="ordenar(this)">💬 Mais avaliados</button>
+    <button class="sort-btn" data-order="total_servicos_confirmados.desc.nullslast" onclick="ordenar(this)">🔧 Mais serviços</button>
+    <button class="sort-btn" data-order="created_at.desc" onclick="ordenar(this)">🆕 Recentes</button>
+  </div>
+
+  <!-- Contador -->
+  <div class="results-bar">
+    <div class="results-count" id="resultsCount">Carregando…</div>
+  </div>
+
+  <!-- Grid -->
+  <div class="pros-grid" id="prosGrid">
+    <div class="skel-card"><div class="skel-hdr"></div><div class="skel-body"><div class="skel" style="height:12px;width:70%"></div><div class="skel" style="height:10px;width:45%"></div></div></div>
+    <div class="skel-card"><div class="skel-hdr"></div><div class="skel-body"><div class="skel" style="height:12px;width:60%"></div><div class="skel" style="height:10px;width:40%"></div></div></div>
+    <div class="skel-card"><div class="skel-hdr"></div><div class="skel-body"><div class="skel" style="height:12px;width:75%"></div><div class="skel" style="height:10px;width:50%"></div></div></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="join-cta">
+    <div class="join-title">Você é profissional? <em>Apareça aqui.</em></div>
+    <p class="join-sub">Crie seu perfil grátis, registre seus serviços e receba avaliações verificadas que aparecem no Google.</p>
+    <a href="entrar.html" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--gold);color:#fff;border-radius:var(--r);padding:.65rem 1.3rem;font-size:.85rem;font-weight:500">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Criar perfil grátis →
+    </a>
+  </div>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+/* Guard: explorar requer sessão ativa */
+if (!FIELDO.Auth.isLoggedIn()) { window.location.href = 'entrar.html'; }
+
+var _todos   = [];
+var _order   = 'media_geral.desc.nullslast';
+var _catFilt = '';
+
+/* v6.4: delega para FIELDO.UI.esc.
+   A versão local escapava só & < > — faltavam ASPAS. Usada dentro
+   de um atributo (src="…", href="…"), um valor com aspa escapava do
+   atributo e abria caminho para injeção. Três implementações
+   diferentes no projeto significavam que a correta podia ser
+   contornada por acidente. Agora existe uma só. */
+function esc(s) { return FIELDO.UI.esc(s); }
+function stars(n){ n=Math.round(parseFloat(n)||0); return '★'.repeat(n)+'☆'.repeat(Math.max(0,5-n)); }
+
+/* Carrega do Supabase */
+function carregar(order){
+  order = order||_order;
+  renderSkeletons();
+  FIELDO.Marketplace.list(order, 60)
+    .then(function(rows){ _todos=rows||[]; aplicarFiltros(); })
+    .catch(function(){
+      document.getElementById('prosGrid').innerHTML =
+        '<div class="empty-grid"><div class="empty-glyph">!</div><p>Erro ao carregar. Verifique sua conexão.</p></div>';
+      document.getElementById('resultsCount').textContent='Erro';
+    });
+}
+
+function renderSkeletons(){
+  document.getElementById('prosGrid').innerHTML = [1,2,3].map(function(){
+    return '<div class="skel-card"><div class="skel-hdr"></div>'+
+      '<div class="skel-body"><div class="skel" style="height:12px;width:65%;margin-bottom:.5rem"></div>'+
+      '<div class="skel" style="height:10px;width:40%"></div></div></div>';
+  }).join('');
+  document.getElementById('resultsCount').textContent='Carregando…';
+}
+
+/* Filtros combinados: texto + categoria */
+
+/* v6.11: o filtro comparava o texto digitado no cadastro (livre —
+   "Elétricista profissional.", não necessariamente a palavra da
+   categoria) contra a chave da categoria ("eletrica") por substring
+   puro. Duas falhas: acento (Elétrica × eletrica) e morfologia
+   (eletricista não contém "eletrica" como substring, mesmo sem
+   acento — são palavras diferentes). Corrige as duas com raiz de
+   palavra por categoria, sobre texto sem acento.
+
+   Isso é um remendo heurístico, não a correção definitiva: o cadastro
+   não grava a CHAVE da categoria em lugar nenhum, só o texto livre
+   que a pessoa digitou. Um profissional que escrever algo totalmente
+   fora do padrão (ex.: "Faço de tudo um pouco") continua invisível
+   pra qualquer filtro de categoria — isso só se resolve gravando a
+   chave do nicho como coluna própria no cadastro. */
+function normalizar(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+var CATEGORIA_RAIZES = {
+  eletrica:          ['eletric'],
+  hidraulica:        ['hidraulic', 'encanad', 'bombeiro hidraulic'],
+  pintura:           ['pintur'],
+  'ar-condicionado': ['ar condicionad', 'ar-condicionad', 'climatizac', 'refrigeraca'],
+  alvenaria:         ['alvenaria', 'pedreir', 'construcao civil'],
+  informatica:       ['informatic', 'tecnico de ti', 'suporte tecnic'],
+  serralheria:       ['serralher']
+};
+function aplicarFiltros(){
+  var q = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+  var filtered = _todos.filter(function(p){
+    /* Filtro de categoria */
+    if(_catFilt){
+      /* v7.3: agora que professionals.niche existe, comparação exata
+         é preferida — é a chave certa, sem ambiguidade de texto. O
+         remendo por raiz de palavra continua como rede de segurança
+         só pra quem ainda está com niche NULL (perfil antigo sem
+         relatório, ainda não migrado — ver plano de arquitetura). */
+      if (p.niche) {
+        if (p.niche !== _catFilt) return false;
+      } else {
+        var prof = normalizar(p.profissao);
+        var nome = normalizar(p.name);
+        var raizes = CATEGORIA_RAIZES[_catFilt] || [normalizar(_catFilt)];
+        var bate = raizes.some(function(r){ return prof.indexOf(r) !== -1 || nome.indexOf(r) !== -1; });
+        if(!bate) return false;
+      }
+    }
+    /* Filtro de texto */
+    if(q){
+      return (p.name||'').toLowerCase().includes(q)||
+             (p.profissao||'').toLowerCase().includes(q)||
+             (p.city||'').toLowerCase().includes(q);
+    }
+    return true;
+  });
+  renderGrid(filtered);
+}
+
+function filtrar(){ aplicarFiltros(); }
+
+function setCategoria(el){
+  document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  _catFilt = el.getAttribute('data-cat')||'';
+  aplicarFiltros();
+}
+
+function ordenar(btn){
+  document.querySelectorAll('.sort-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _order = btn.getAttribute('data-order');
+  carregar(_order);
+}
+
+function renderGrid(pros){
+  var countEl = document.getElementById('resultsCount');
+  countEl.textContent = pros.length + ' profissional' + (pros.length!==1?'is':'') + ' encontrado' + (pros.length!==1?'s':'');
+
+  if(!pros.length){
+    document.getElementById('prosGrid').innerHTML =
+      '<div class="empty-grid"><div class="empty-glyph">🔍</div><p>Nenhum profissional encontrado.<br>Tente outro filtro.</p></div>';
+    return;
+  }
+
+  document.getElementById('prosGrid').innerHTML = pros.map(function(p){
+    var inicial = (p.name||'?').charAt(0).toUpperCase();
+    var avg  = parseFloat(p.media_geral||0);
+    var href = p.slug ? 'perfil.html?slug='+encodeURIComponent(p.slug) : 'perfil.html?id='+encodeURIComponent(p.id);
+    var temServicos = (p.total_servicos_confirmados||0) > 0;
+
+    /* v6.0: UMA foto de capa, quando houver consentimento.
+       Uma só, de propósito — na vitrine o cliente escolhe entre pessoas,
+       não olha obra. Grade de fotos é assunto do perfil.
+       Sem capa, o card mantém o formato antigo: sem buraco, sem
+       placeholder cinza. */
+    var capa = p.foto_capa
+      ? '<div class="pro-capa"><img src="'+esc(p.foto_capa)+'" loading="lazy" decoding="async" alt="" onerror="this.parentNode.remove()"/></div>'
+      : '';
+
+    return '<a href="'+href+'" class="pro-card">'+
+      capa +
+      /* Header escuro */
+      '<div class="pro-card-hdr">'+
+        '<div class="pro-av">'+(p.logo_url?'<img src="'+esc(p.logo_url)+'" loading="lazy"/>':inicial)+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="pro-name">'+esc(p.name||'Profissional')+'</div>'+
+          '<div class="pro-role">'+esc(p.profissao||'Técnico')+'</div>'+
+          (p.city?'<div class="pro-city"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+esc(p.city)+'</div>':'')+
+        '</div>'+
+        '<div class="pro-plan-badge">'+esc(p.plan||'free')+'</div>'+
+      '</div>'+
+      /* Body */
+      '<div class="pro-card-body">'+
+        '<div class="pro-score-row">'+
+          (avg>0
+            ? '<span class="pro-stars">'+stars(Math.round(avg))+'</span><span class="pro-score-val">'+avg.toFixed(1)+'</span>'
+            : '<span class="pro-score-none">Sem avaliações ainda</span>')+
+        '</div>'+
+        '<div class="pro-stats">'+
+          '<div class="pro-stat"><div class="pro-stat-val">'+(p.total_geral||0)+'</div><div class="pro-stat-lbl">Avals.</div></div>'+
+          '<div class="pro-stat"><div class="pro-stat-val">'+(p.total_servicos_confirmados||0)+'</div><div class="pro-stat-lbl">Serviços</div></div>'+
+        '</div>'+
+      '</div>'+
+      /* Footer */
+      '<div class="pro-card-foot">'+
+        (temServicos
+          ? '<div class="pro-verified"><span class="verified-dot"></span>Portfólio verificado</div>'
+          : '<div style="font-family:var(--mono);font-size:.58rem;color:var(--ghost)">Novo no Fieldo</div>')+
+        '<div class="pro-cta">Ver perfil <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+      '</div>'+
+    '</a>';
+  }).join('');
+}
+
+carregar();
+</script>
+</body>
+</html>

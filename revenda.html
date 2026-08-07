@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Revenda Fieldo — ganhe revendendo acesso Pro</title>
+<meta name="description" content="Compre lotes de acesso Pro com desconto e revenda pra profissionais da sua região."/>
+<meta name="robots" content="noindex,nofollow"/>
+<!-- v7.4: noindex de propósito — esta página não é destino de busca
+     orgânica nem de tráfego de cliente final, só de quem já foi
+     convidado a revender (link direto, WhatsApp, indicação). -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="fieldo.css"/>
+<style>
+  .hero-cta { padding: 3.5rem 0 2.5rem; text-align: center; position: relative; }
+  .hero-cta::before {
+    content: ''; position: absolute; z-index: -1;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 680px; height: 520px; max-width: 140vw;
+    background: radial-gradient(ellipse at center, rgba(154,114,24,.12) 0%, rgba(154,114,24,.04) 45%, rgba(154,114,24,0) 72%);
+    pointer-events: none;
+  }
+  .hero-cta .page-eyebrow { justify-content: center; }
+  .hero-cta .page-eyebrow::before { display: none; }
+  .hero-cta .page-title { text-align: center; }
+  .hero-cta .page-sub { max-width: 480px; margin-left: auto; margin-right: auto; text-align: center; }
+  .hero-actions { display: flex; flex-direction: column; gap: .7rem; align-items: center; margin-top: 1.75rem; }
+  .hero-actions .btn { min-width: 260px; }
+  .hero-note { font-family: var(--mono); font-size: .64rem; color: var(--subtle); letter-spacing: .04em; margin-top: .4rem; }
+
+  .steps { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+  .step-item { display: flex; gap: 1rem; align-items: flex-start; background: var(--paper); border: 1px solid var(--border); border-radius: var(--r-l); padding: 1.1rem 1.25rem; }
+  .step-n { font-family: var(--serif); font-style: italic; font-size: 1.5rem; color: var(--gold); flex-shrink: 0; width: 1.6rem; }
+  .step-body-title { font-size: .9rem; font-weight: 500; color: var(--text); }
+  .step-body-sub { font-size: .78rem; color: var(--muted); margin-top: .2rem; line-height: 1.6; }
+
+  .pacotes { display: flex; flex-direction: column; gap: .9rem; margin: 2rem 0; }
+  .pacote-card { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r-l); padding: 1.35rem; }
+  .pacote-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .pacote-dias { font-family: var(--serif); font-style: italic; font-size: 1.3rem; color: var(--text); }
+  .pacote-preco { font-family: var(--mono); font-size: .72rem; color: var(--muted); text-align: right; }
+  .pacote-preco strong { font-family: var(--serif); font-style: italic; font-size: 1.1rem; color: var(--gold); display: block; }
+  .pacote-margem { font-size: .78rem; color: var(--muted); margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--border); }
+  .pacote-margem strong { color: var(--text); }
+
+  .faq { display: flex; flex-direction: column; gap: .6rem; margin: 2rem 0; }
+  .faq-item { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r-l); }
+  .faq-q { padding: 1rem 1.25rem; font-size: .86rem; font-weight: 500; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; list-style: none; }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after { content: '+'; font-family: var(--mono); color: var(--gold); font-size: 1.1rem; flex-shrink: 0; }
+  .faq-item[open] .faq-q::after { content: '–'; }
+  .faq-a { padding: 0 1.25rem 1.1rem; font-size: .8rem; color: var(--muted); line-height: 1.7; }
+
+  .final-cta { text-align: center; padding: 3rem 1.5rem; margin: 2.5rem 0 0; background: var(--ink); border-radius: var(--r-l); position: relative; overflow: hidden; }
+  .final-cta::before {
+    content: ''; position: absolute; z-index: 0; top: -40%; left: 50%; transform: translateX(-50%);
+    width: 520px; height: 420px; max-width: 160vw;
+    background: radial-gradient(ellipse at center, rgba(184,136,13,.22) 0%, rgba(184,136,13,0) 70%);
+    pointer-events: none;
+  }
+  .final-cta > * { position: relative; z-index: 1; }
+  .final-cta .page-title { color: var(--paper); text-align: center; }
+  .final-cta .page-sub { color: rgba(255,255,255,.55); text-align: center; margin-left: auto; margin-right: auto; max-width: 420px; }
+
+  .topbar-back {
+    display: flex; align-items: center; gap: .35rem;
+    font-family: var(--mono); font-size: .7rem; color: rgba(255,255,255,.55);
+    background: none; border: none; cursor: pointer; text-decoration: none;
+    transition: color .2s;
+  }
+  .topbar-back:hover { color: rgba(255,255,255,.9); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="comece.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <a href="comece.html" class="topbar-back">
+      Sou profissional
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+</header>
+
+<div class="page page--mid">
+
+  <!-- ── HERO ── -->
+  <section class="hero-cta">
+    <div class="page-eyebrow">Revenda Fieldo</div>
+    <h1 class="page-title">Venda acesso,<br>fique com a <em>margem</em></h1>
+    <p class="page-sub">
+      Compre lotes de acesso Pro com desconto e revenda pros profissionais
+      que você já conhece — eletricista, encanador, pintor, qualquer
+      prestador de serviço autônomo.
+    </p>
+    <div class="hero-actions">
+      <a href="https://wa.me/5512988406425?text=Quero%20saber%20mais%20sobre%20revender%20o%20Fieldo" class="btn btn--primary btn--lg">
+        Falar sobre virar revendedor
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <span class="hero-note">Sem taxa de entrada · você só paga pelo que for revender</span>
+    </div>
+  </section>
+
+  <!-- ── COMO FUNCIONA ── -->
+  <div class="card-title">Como funciona</div>
+  <div class="steps">
+    <div class="step-item">
+      <span class="step-n">1</span>
+      <div>
+        <div class="step-body-title">Escolha um pacote</div>
+        <div class="step-body-sub">Todos vêm em lote de 5 acessos, na duração que você quiser revender.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-n">2</span>
+      <div>
+        <div class="step-body-title">Você paga o atacado</div>
+        <div class="step-body-sub">60% do valor cheio do plano — a diferença é sua margem em cada venda.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-n">3</span>
+      <div>
+        <div class="step-body-title">Revenda pelo preço que quiser</div>
+        <div class="step-body-sub">Cada acesso é um código único. O profissional cola em "Ativar Pro" no app e já libera na hora.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PACOTES ── -->
+  <div class="card-title">Pacotes disponíveis</div>
+  <div class="pacotes">
+    <div class="pacote-card">
+      <div class="pacote-head">
+        <span class="pacote-dias">5× acesso de 7 dias</span>
+        <span class="pacote-preco">valor cheio R$15<strong>R$9,00</strong></span>
+      </div>
+      <div class="pacote-margem">Lote sai por <strong>R$45</strong> · revenda até <strong>R$75</strong></div>
+    </div>
+    <div class="pacote-card">
+      <div class="pacote-head">
+        <span class="pacote-dias">5× acesso de 30 dias</span>
+        <span class="pacote-preco">valor cheio R$35<strong>R$21,00</strong></span>
+      </div>
+      <div class="pacote-margem">Lote sai por <strong>R$105</strong> · revenda até <strong>R$175</strong></div>
+    </div>
+    <div class="pacote-card">
+      <div class="pacote-head">
+        <span class="pacote-dias">5× acesso de 90 dias</span>
+        <span class="pacote-preco">valor cheio R$90<strong>R$54,00</strong></span>
+      </div>
+      <div class="pacote-margem">Lote sai por <strong>R$270</strong> · revenda até <strong>R$450</strong></div>
+    </div>
+  </div>
+
+  <!-- ── FAQ ── -->
+  <div class="card-title">Perguntas comuns</div>
+  <div class="faq">
+    <details class="faq-item">
+      <summary class="faq-q">Como eu recebo os códigos?</summary>
+      <div class="faq-a">Depois de combinar o pagamento, você recebe os 5 códigos do lote direto — não existe painel de revendedor dentro do app, é tudo combinado por fora.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Posso revender por qualquer preço?</summary>
+      <div class="faq-a">Sim. Você paga o valor de atacado e decide o preço final com quem for vender — a margem é sua.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">O código expira se eu não vender na hora?</summary>
+      <div class="faq-a">A contagem dos dias de acesso só começa quando o profissional ativa o código, não quando ele foi gerado. Combine o prazo diretamente ao fechar a conversa.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Preciso comprar sempre 5?</summary>
+      <div class="faq-a">Hoje os lotes são fechados em 5. Se seu volume crescer bastante, fala com a gente pra combinar outra escala.</div>
+    </details>
+  </div>
+
+  <!-- ── CTA FINAL ── -->
+  <div class="final-cta">
+    <h2 class="page-title">Quer começar<br>a <em>revender</em>?</h2>
+    <p class="page-sub">Manda uma mensagem e a gente combina o primeiro lote.</p>
+    <div class="hero-actions">
+      <a href="https://wa.me/5512988406425?text=Quero%20saber%20mais%20sobre%20revender%20o%20Fieldo" class="btn btn--primary btn--lg">
+        Falar no WhatsApp
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

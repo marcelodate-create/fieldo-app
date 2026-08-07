@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <title>Fieldo · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+<style>
+  .adm-gate      { max-width: 26rem; margin: 3.5rem auto; padding: 0 1.25rem; }
+  .adm-token     { font-family: var(--mono); font-size: .8rem; line-height: 1.7;
+                   word-break: break-all; background: var(--paper3);
+                   border: 1px solid var(--border2); border-radius: .5rem;
+                   padding: .85rem; color: var(--ink); margin: .75rem 0; }
+  .adm-row       { display: flex; gap: .5rem; }
+  .adm-row .btn  { flex: 1; }
+  .adm-hist-item { border-bottom: 1px solid var(--border); padding: .8rem 0;
+                   display: flex; justify-content: space-between; gap: 1rem;
+                   align-items: flex-start; }
+  .adm-hist-item:last-child { border-bottom: 0; }
+  .adm-hist-meta { font-size: .74rem; color: var(--muted); margin-top: .15rem; }
+  .adm-hist-name { font-size: .88rem; color: var(--text); font-weight: 500; }
+  .adm-exp       { font-family: var(--mono); font-size: .74rem; color: var(--gold-text);
+                   white-space: nowrap; }
+  .adm-warn      { background: var(--red-bg); border: 1px solid var(--red-bd);
+                   border-radius: .5rem; padding: .8rem; font-size: .78rem;
+                   color: var(--red); line-height: 1.6; margin-bottom: 1.25rem; }
+  .adm-preset    { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+  .adm-preset button { flex: 1; min-width: 4rem; font-size: .76rem; padding: .5rem .3rem;
+                   border: 1px solid var(--border2); background: var(--paper2);
+                   border-radius: .4rem; color: var(--text2); cursor: pointer;
+                   font-family: inherit; }
+  .adm-preset button.on { background: var(--gold-bg); border-color: var(--gold-bd);
+                   color: var(--gold-text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PORTÃO ═══════════════ -->
+<div id="gate" class="adm-gate">
+  <div class="page-eyebrow">Fieldo</div>
+  <h1 class="page-title">Área <em>administrativa</em></h1>
+  <p class="page-sub">Emissão de licenças Pro.</p>
+
+  <div class="adm-warn">
+    Esta chave não fica salva neste arquivo. Ela é enviada ao servidor a cada
+    emissão e descartada quando você fecha a aba.
+  </div>
+
+  <div class="field-group">
+    <label class="field-label" for="inpKey">Chave de administrador</label>
+    <input class="field-input" id="inpKey" type="password" autocomplete="off"
+           spellcheck="false" autocapitalize="none" autocorrect="off"
+           placeholder="Cole a chave aqui"/>
+    <div class="field-hint" id="gateHint">Definida em Edge Functions → Secrets.</div>
+  </div>
+
+  <label class="toggle-wrap" style="margin:.75rem 0 1.1rem">
+    <input type="checkbox" id="chkLembrar"/>
+    <span class="toggle-label">Manter nesta aba até eu fechá-la</span>
+  </label>
+
+  <button class="btn btn--primary btn--full btn--lg" id="btnEntrar">Entrar</button>
+</div>
+
+<!-- ═══════════════ PAINEL ═══════════════ -->
+<div id="painel" class="page page--narrow" style="display:none">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">Fieldo <span class="topbar-badge">admin</span></div>
+      <button class="btn btn--ghost btn--sm" id="btnSair">Sair</button>
+    </div>
+  </div>
+
+  <h1 class="page-title" style="margin-top:1.5rem">Emitir <em>licença</em></h1>
+
+  <!-- v7.4: lote de revenda — 3 pacotes fixos, sempre 5 tokens de uma vez.
+       O revendedor NUNCA acessa isto; ele recebe os 5 tokens prontos de
+       você, por fora (WhatsApp, o que for). Ver plano de arquitetura de
+       revenda — o segredo continua só na Edge Function. -->
+  <div class="card">
+    <div class="card-title">Lote de revenda <span style="color:var(--subtle);font-weight:400">(5 tokens de uma vez)</span></div>
+
+    <div class="field-group">
+      <label class="field-label" for="inpRevNome">Revendedor <span style="color:var(--subtle)">(referência)</span></label>
+      <input class="field-input" id="inpRevNome" type="text" maxlength="40" placeholder="Ex: Carlos - São Sebastião"/>
+      <div class="field-hint">Fica gravado em cada token do lote — depois dá pra ver no banco quantos cada revendedor já vendeu.</div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Pacote</label>
+      <div class="adm-preset" id="pacotesRevenda">
+        <button data-d="7"  data-preco="15">7 dias · R$15</button>
+        <button data-d="30" data-preco="35" class="on">30 dias · R$35</button>
+        <button data-d="90" data-preco="90">90 dias · R$90</button>
+      </div>
+      <div class="field-hint" id="hintRevenda"></div>
+    </div>
+
+    <button class="btn btn--primary btn--full btn--lg" id="btnGerarLote">Gerar lote de 5</button>
+  </div>
+
+  <div class="card" id="boxLote" style="display:none">
+    <div class="card-title">Lote gerado <span style="color:var(--subtle);font-weight:400" id="loteResumo"></span></div>
+    <div id="outLote"></div>
+    <button class="btn btn--ghost btn--sm btn--full" id="btnCopiarLote" style="margin-top:.75rem">Copiar os 5 (um por linha)</button>
+    <p class="field-hint" style="margin-top:.75rem">
+      Entregue estes 5 tokens ao revendedor por fora do app. Cada profissional cola o dele em <strong>Ativar Pro</strong>.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Emissão avulsa (venda direta)</div>
+    <div class="field-group">
+      <label class="field-label" for="inpNome">Para quem <span style="color:var(--subtle)">(opcional)</span></label>
+      <input class="field-input" id="inpNome" type="text" maxlength="60"
+             placeholder="Nome do profissional ou referência"/>
+      <div class="field-hint">Só para você identificar depois. Fica dentro do token.</div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="inpDias">Duração</label>
+      <div class="adm-preset" id="presets">
+        <button data-d="30">30 dias</button>
+        <button data-d="90">3 meses</button>
+        <button data-d="365" class="on">1 ano</button>
+        <button data-d="1095">3 anos</button>
+      </div>
+      <input class="field-input" id="inpDias" type="number" min="1" max="3650"
+             value="365" style="margin-top:.5rem"/>
+      <div class="field-hint" id="hintExp"></div>
+    </div>
+
+    <button class="btn btn--primary btn--full btn--lg" id="btnGerar">Gerar chave</button>
+  </div>
+
+  <div class="card" id="boxResultado" style="display:none">
+    <div class="card-title">Chave gerada</div>
+    <div class="adm-token" id="outToken"></div>
+    <div class="adm-row">
+      <button class="btn btn--ghost btn--sm" id="btnCopiar">Copiar</button>
+      <button class="btn btn--ghost btn--sm" id="btnWhats">WhatsApp</button>
+    </div>
+    <p class="field-hint" style="margin-top:.75rem">
+      O profissional cola isto em <strong>Ativar Pro</strong> dentro do app.
+      A chave só vale uma vez por conta e exige internet na ativação.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Emitidas neste aparelho</div>
+    <div id="hist"></div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   Fieldo v5.1 · Admin
+
+   Substitui o codes.html, que carregava o segredo HMAC e a senha de
+   admin em texto claro num arquivo publicado no Netlify — qualquer
+   um que achasse a URL emitia licenças vitalícias.
+
+   Aqui NÃO existe segredo. A chave é digitada, vive em memória (ou
+   em sessionStorage, que morre com a aba) e serve só para autenticar
+   a chamada. Quem assina o token é a Edge Function license-issue,
+   com o segredo que nunca sai do servidor.
+
+   Consequência: este arquivo é inofensivo se vazar.
+════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://jrsctnncoljdcvdofxsg.supabase.co';
+  var FN_URL       = SUPABASE_URL + '/functions/v1/license-issue';
+  var SS_KEY       = 'fieldo_admin_key';   /* sessionStorage, não localStorage */
+  var LS_HIST      = 'fieldo_admin_hist';
+
+  var _key  = null;   /* só em memória por padrão */
+  var _last = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ── Portão ─────────────────────────────────────────────────── */
+  function abrirPainel() {
+    $('gate').style.display   = 'none';
+    $('painel').style.display = '';
+    renderHist();
+    atualizarExp();
+  }
+
+  /* v7.1: o portão VALIDA a chave antes de abrir.
+
+     Antes ele aceitava qualquer coisa — só guardava o texto — e a
+     recusa aparecia três passos depois, ao gerar. O usuário preenchia
+     nome e duração para só então descobrir que errou a senha.
+
+     Falhar na porta é mais honesto e economiza o trabalho. */
+  function entrar() {
+    var k = $('inpKey').value.replace(/\s+/g, '');   /* espaço colado junto é comum */
+    var btn = $('btnEntrar');
+    if (!k) { $('gateHint').textContent = 'Informe a chave.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Verificando…';
+    $('gateHint').textContent = 'Conferindo com o servidor…';
+
+    /* Requisição deliberadamente inválida (dias fora do intervalo):
+       se a chave estiver certa, o servidor responde 400 (dias_invalido);
+       se estiver errada, responde 403. Assim validamos sem emitir
+       licença nenhuma. */
+    fetch(FN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': k },
+      body: JSON.stringify({ dias: 0 }),
+    }).then(function (r) {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+
+      if (r.status === 403) {
+        $('gateHint').textContent = 'Chave incorreta. Confira maiúsculas e minúsculas.';
+        $('inpKey').select();
+        return;
+      }
+      if (r.status === 500) {
+        $('gateHint').textContent = 'Servidor sem os segredos configurados.';
+        return;
+      }
+      /* 400 = chave aceita, só os dias inválidos (esperado) */
+      _key = k;
+      if ($('chkLembrar').checked) {
+        try { sessionStorage.setItem(SS_KEY, k); } catch (e) {}
+      }
+      abrirPainel();
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      $('gateHint').textContent = 'Sem conexão com o servidor.';
+    });
+  }
+
+  function sair() {
+    _key = null;
+    try { sessionStorage.removeItem(SS_KEY); } catch (e) {}
+    $('inpKey').value = '';
+    $('painel').style.display = 'none';
+    $('gate').style.display   = '';
+  }
+
+  /* ── Lote de revenda ────────────────────────────────────────── */
+  var _pacoteAtual = { dias: 30, preco: 20 };
+  var _lote = [];
+
+  Array.prototype.forEach.call($('pacotesRevenda').children, function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call($('pacotesRevenda').children, function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      _pacoteAtual = { dias: parseInt(b.dataset.d, 10), preco: parseInt(b.dataset.preco, 10) };
+      atualizarHintRevenda();
+    });
+  });
+
+  function atualizarHintRevenda() {
+    var total60 = (_pacoteAtual.preco * 5 * 0.6).toFixed(2).replace('.', ',');
+    var totalCheio = (_pacoteAtual.preco * 5);
+    $('hintRevenda').textContent =
+      '5× ' + _pacoteAtual.dias + ' dias · revendedor paga R$' + total60 +
+      ' (60% de R$' + totalCheio + ') · repassa como quiser';
+  }
+  atualizarHintRevenda();
+
+  /* Emite as 5 sequencialmente (não em paralelo) — se uma falhar no meio
+     (ex.: rede caiu), sabemos exatamente quantas já saíram, em vez de uma
+     corrida de 5 requisições simultâneas com resultado incerto. */
+  function gerarLote() {
+    var btn = $('btnGerarLote');
+    var revenda = $('inpRevNome').value.trim();
+    if (!revenda) return alerta('Informe uma referência do revendedor — é o que liga esses 5 tokens a ele depois.');
+
+    btn.disabled = true;
+    btn.textContent = 'Gerando 1 de 5…';
+    _lote = [];
+
+    function proxima(i) {
+      if (i >= 5) {
+        btn.disabled = false;
+        btn.textContent = 'Gerar lote de 5';
+        mostrarLote(revenda);
+        return;
+      }
+      btn.textContent = 'Gerando ' + (i + 1) + ' de 5…';
+      fetch(FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': _key },
+        body: JSON.stringify({ dias: _pacoteAtual.dias, nome: null, revenda: revenda }),
+      })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (!res.body.ok) {
+            btn.disabled = false;
+            btn.textContent = 'Gerar lote de 5';
+            return alerta('Parou no token ' + (i + 1) + ' de 5: ' + (res.body.error || res.status) + '. Os ' + i + ' anteriores já foram emitidos e continuam válidos.');
+          }
+          _lote.push(res.body.token);
+          proxima(i + 1);
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = 'Gerar lote de 5';
+          alerta('Sem conexão — parou no token ' + (i + 1) + ' de 5. Os ' + i + ' anteriores já foram emitidos e continuam válidos.');
+        });
+    }
+    proxima(0);
+  }
+
+  function mostrarLote(revenda) {
+    $('loteResumo').textContent = '· ' + revenda + ' · ' + _pacoteAtual.dias + ' dias';
+    $('outLote').innerHTML = _lote.map(function (tok, i) {
+      return '<div class="adm-token" style="margin-bottom:.5rem">' + (i + 1) + '. ' + tok + '</div>';
+    }).join('');
+    $('boxLote').style.display = '';
+    $('boxLote').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  $('btnGerarLote').addEventListener('click', gerarLote);
+  $('btnCopiarLote').addEventListener('click', function () {
+    var texto = _lote.join('\n');
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(texto).then(function () {
+        $('btnCopiarLote').textContent = 'Copiado ✓';
+        setTimeout(function () { $('btnCopiarLote').textContent = 'Copiar os 5 (um por linha)'; }, 1800);
+      });
+    }
+  });
+
+  /* ── Duração ────────────────────────────────────────────────── */
+  function atualizarExp() {
+    var d = parseInt($('inpDias').value, 10);
+    if (!d || d < 1) { $('hintExp').textContent = 'Informe de 1 a 3650 dias.'; return; }
+    var exp = new Date(Date.now() + d * 86400000);
+    $('hintExp').textContent = 'Expira em ' + exp.toLocaleDateString('pt-BR') + '.';
+  }
+
+  Array.prototype.forEach.call($('presets').children, function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call($('presets').children, function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      $('inpDias').value = b.dataset.d;
+      atualizarExp();
+    });
+  });
+  $('inpDias').addEventListener('input', function () {
+    Array.prototype.forEach.call($('presets').children, function (x) { x.classList.remove('on'); });
+    atualizarExp();
+  });
+
+  /* ── Emissão ────────────────────────────────────────────────── */
+  function gerar() {
+    var btn  = $('btnGerar');
+    var dias = parseInt($('inpDias').value, 10);
+    var nome = $('inpNome').value.trim();
+
+    if (!dias || dias < 1 || dias > 3650) return alerta('Duração inválida (1 a 3650 dias).');
+
+    btn.disabled = true;
+    btn.textContent = 'Gerando…';
+
+    fetch(FN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': _key },
+      body: JSON.stringify({ dias: dias, nome: nome || null }),
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; })
+          .then(function (j) { return { status: r.status, body: j }; });
+      })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = 'Gerar chave';
+
+        if (res.status === 403)  return alerta('Chave de administrador incorreta.');
+        if (res.status === 500 && res.body.error === 'not_configured')
+          return alerta('Servidor sem FIELDO_LICENSE_SECRET ou FIELDO_ADMIN_KEY.');
+        if (!res.body.ok) return alerta('Falha: ' + (res.body.error || res.status));
+
+        mostrar(res.body, nome);
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = 'Gerar chave';
+        alerta('Sem conexão com o servidor.');
+        console.error(err);
+      });
+  }
+
+  function mostrar(body, nome) {
+    _last = { token: body.token, nome: nome, expires: body.expires, dias: body.dias, at: Date.now() };
+    $('outToken').textContent   = body.token;
+    $('boxResultado').style.display = '';
+    $('boxResultado').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    salvarHist(_last);
+    renderHist();
+  }
+
+  function alerta(msg) {
+    $('boxResultado').style.display = 'none';
+    window.alert(msg);
+  }
+
+  /* ── Compartilhar ───────────────────────────────────────────── */
+  function textoEnvio() {
+    return 'Sua chave Fieldo Pro:\n\n' + _last.token +
+           '\n\nAbra o Fieldo → menu → Ativar Pro → cole a chave.' +
+           '\nVálida até ' + new Date(_last.expires + 'T12:00:00').toLocaleDateString('pt-BR') + '.';
+  }
+
+  $('btnCopiar').addEventListener('click', function () {
+    var t = _last.token;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+      .then(function () { $('btnCopiar').textContent = 'Copiado!';
+                          setTimeout(function () { $('btnCopiar').textContent = 'Copiar'; }, 1600); })
+      .catch(function () { window.prompt('Copie a chave:', t); });
+  });
+
+  $('btnWhats').addEventListener('click', function () {
+    window.open('https://wa.me/?text=' + encodeURIComponent(textoEnvio()), '_blank');
+  });
+
+  /* ── Histórico (local, só neste aparelho) ───────────────────── */
+  function lerHist() {
+    try { return JSON.parse(localStorage.getItem(LS_HIST)) || []; } catch (e) { return []; }
+  }
+  function salvarHist(item) {
+    var h = lerHist();
+    h.unshift({ nome: item.nome, expires: item.expires, dias: item.dias,
+                at: item.at, token: item.token });
+    try { localStorage.setItem(LS_HIST, JSON.stringify(h.slice(0, 100))); } catch (e) {}
+  }
+
+  function renderHist() {
+    var h  = lerHist();
+    var el = $('hist');
+    el.textContent = '';
+
+    if (!h.length) {
+      var vazio = document.createElement('p');
+      vazio.className = 'field-hint';
+      vazio.textContent = 'Nenhuma chave emitida ainda.';
+      el.appendChild(vazio);
+      return;
+    }
+
+    h.forEach(function (it) {
+      /* textContent em vez de innerHTML: o nome é entrada livre e
+         seria refletido direto no DOM. */
+      var row  = document.createElement('div');
+      row.className = 'adm-hist-item';
+
+      var esq  = document.createElement('div');
+      var nome = document.createElement('div');
+      nome.className = 'adm-hist-name';
+      nome.textContent = it.nome || 'Sem identificação';
+      var meta = document.createElement('div');
+      meta.className = 'adm-hist-meta';
+      meta.textContent = it.dias + ' dias · emitida em ' +
+        new Date(it.at).toLocaleDateString('pt-BR');
+      esq.appendChild(nome); esq.appendChild(meta);
+
+      var dir = document.createElement('div');
+      dir.style.textAlign = 'right';
+      var exp = document.createElement('div');
+      exp.className = 'adm-exp';
+      exp.textContent = 'até ' + new Date(it.expires + 'T12:00:00').toLocaleDateString('pt-BR');
+      var recopy = document.createElement('button');
+      recopy.className = 'btn btn--ghost btn--sm';
+      recopy.style.marginTop = '.35rem';
+      recopy.textContent = 'Copiar';
+      recopy.addEventListener('click', function () {
+        (navigator.clipboard ? navigator.clipboard.writeText(it.token) : Promise.reject())
+          .catch(function () { window.prompt('Copie a chave:', it.token); });
+      });
+      dir.appendChild(exp); dir.appendChild(recopy);
+
+      row.appendChild(esq); row.appendChild(dir);
+      el.appendChild(row);
+    });
+  }
+
+  /* ── Boot ───────────────────────────────────────────────────── */
+  $('btnEntrar').addEventListener('click', entrar);
+  $('btnSair').addEventListener('click', sair);
+  $('btnGerar').addEventListener('click', gerar);
+  $('inpKey').addEventListener('keydown', function (e) { if (e.key === 'Enter') entrar(); });
+
+  try {
+    var saved = sessionStorage.getItem(SS_KEY);
+    if (saved) { _key = saved; abrirPainel(); }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Contratos · Fieldo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    /* Tabs */
+    .ctabs{display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:1.25rem}
+    .ctab{padding:.7rem 1rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:.15s;margin-bottom:-1px}
+    .ctab.active{color:var(--gold-d);border-bottom-color:var(--gold)}
+    .ctab:hover:not(.active){color:var(--text2)}
+
+    /* Métricas */
+    .c-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border2);border-radius:var(--r-l);overflow:hidden;margin-bottom:1.25rem}
+    .c-metric{background:var(--paper2);padding:.9rem 1rem}
+    .c-metric-val{font-family:var(--serif);font-size:1.5rem;font-weight:300;color:var(--ink);line-height:1;margin-bottom:.15rem}
+    .c-metric-val em{font-style:italic;color:var(--gold-d)}
+    .c-metric-lbl{font-family:var(--mono);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+    /* Sec head */
+    .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+    .sec-title{font-family:var(--mono);font-size:.58rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.45rem}
+    .sec-title::before{content:'';display:inline-block;width:10px;height:1px;background:var(--gold)}
+
+    /* Empreiteiro card */
+    .emp-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-l);padding:1rem 1.1rem;margin-bottom:.5rem;cursor:pointer;transition:background .15s,border-color .15s}
+    .emp-card:hover{background:var(--paper2);border-color:var(--border2)}
+    .emp-card.selected{border-color:var(--gold-bd);background:var(--gold-bg)}
+    .emp-card-head{display:flex;align-items:center;justify-content:space-between}
+    .emp-name{font-size:.9rem;font-weight:500;color:var(--text)}
+    .emp-phone{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-top:.1rem}
+    .emp-del{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+    .emp-del:hover{border-color:var(--red-bd);color:var(--red);background:var(--red-bg)}
+
+    /* Empreitada card */
+    .obra-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r-l);padding:1rem 1.1rem;margin-bottom:.5rem;transition:background .15s}
+    .obra-card-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+    .obra-desc{font-size:.88rem;font-weight:500;color:var(--text);flex:1;min-width:0}
+    .obra-valor{font-family:var(--mono);font-size:.78rem;color:var(--gold-d);flex-shrink:0}
+    .obra-meta{display:flex;align-items:center;gap:.5rem;margin-top:.3rem;flex-wrap:wrap}
+    .obra-status{font-family:var(--mono);font-size:.6rem;padding:.1rem .5rem;border-radius:2rem;border:1px solid}
+    .obra-status.ativa{color:var(--green-l);border-color:var(--green-bd);background:var(--green-bg)}
+    .obra-status.pausada{color:var(--amber);border-color:var(--amber-bd);background:var(--amber-bg)}
+    .obra-status.encerrada{color:var(--muted);border-color:var(--border2);background:var(--paper3)}
+    .obra-empreiteiro{font-family:var(--mono);font-size:.62rem;color:var(--muted)}
+
+    /* Entry card */
+    .entry-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.4rem}
+    .entry-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem}
+    .entry-periodo{font-size:.82rem;font-weight:500;color:var(--text)}
+    .entry-valor{font-family:var(--mono);font-size:.82rem;color:var(--gold-d);font-weight:500}
+    .entry-meta{font-family:var(--mono);font-size:.62rem;color:var(--muted)}
+    .entry-status{font-family:var(--mono);font-size:.58rem;padding:.1rem .45rem;border-radius:2rem}
+    .entry-status.pendente{color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bd)}
+    .entry-status.confirmado{color:var(--green-l);background:var(--green-bg);border:1px solid var(--green-bd)}
+
+    /* Empty */
+    .empty-sm{text-align:center;padding:1.75rem 1rem;font-family:var(--mono);font-size:.72rem;color:var(--ghost)}
+
+    /* Modal compacto */
+    .modal-sm .modal-box{max-width:380px}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="contratos.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Contratos</span></a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--narrow">
+  <div class="page-eyebrow">Módulo avançado</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Gestão de <em>Contratos</em></h1>
+  <p class="page-sub" style="margin-bottom:1.25rem">Controle financeiro por empreiteiro e obra</p>
+
+  <!-- Métricas -->
+  <div class="c-metrics">
+    <div class="c-metric">
+      <div class="c-metric-val" id="mReceber">—</div>
+      <div class="c-metric-lbl">A receber (confirmado)</div>
+    </div>
+    <div class="c-metric">
+      <div class="c-metric-val" id="mPendente">—</div>
+      <div class="c-metric-lbl">Pendente de confirmação</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ctabs">
+    <button class="ctab active" onclick="setTab('empreiteiros',this)">Empreiteiros</button>
+    <button class="ctab" onclick="setTab('obras',this)">Obras</button>
+    <button class="ctab" onclick="setTab('relatorios',this)">Relatórios</button>
+  </div>
+
+  <!-- ── TAB: EMPREITEIROS ── -->
+  <div id="tab-empreiteiros">
+    <div class="sec-head">
+      <div class="sec-title">Empreiteiros</div>
+      <button class="btn btn--gold btn--sm" onclick="abrirModalEmpreiteiro()">+ Novo</button>
+    </div>
+    <div id="empList">
+      <div class="empty-sm">Carregando…</div>
+    </div>
+  </div>
+
+  <!-- ── TAB: OBRAS ── -->
+  <div id="tab-obras" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title">Empreitadas</div>
+      <button class="btn btn--gold btn--sm" onclick="abrirModalObra()">+ Nova</button>
+    </div>
+    <div id="obraList">
+      <div class="empty-sm">Carregando…</div>
+    </div>
+  </div>
+
+  <!-- ── TAB: RELATÓRIOS DE PERÍODO ── -->
+  <div id="tab-relatorios" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title">Relatórios de período</div>
+      <button class="btn btn--gold btn--sm" onclick="abrirModalEntry()">+ Novo</button>
+    </div>
+    <div id="entryList">
+      <div class="empty-sm">Carregando…</div>
+    </div>
+  </div>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ══ MODAL EMPREITEIRO ══ -->
+<div class="modal-backdrop modal-sm" role="dialog" aria-modal="true" id="modalEmpreiteiro" style="display:none" onclick="fecharModal('modalEmpreiteiro',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-eyebrow">Cadastro</div>
+        <div class="modal-title">Novo <em>Empreiteiro</em></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal('modalEmpreiteiro')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-fields">
+      <div class="field-group">
+        <label class="field-label">Nome <span class="required">*</span></label>
+        <input class="field-input" id="eNome" type="text" placeholder="Nome do empreiteiro"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">WhatsApp</label>
+        <input class="field-input" id="eTel" type="tel" placeholder="(11) 99999-9999"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn--primary" onclick="salvarEmpreiteiro()">Salvar</button>
+      <button class="btn btn--ghost" onclick="fecharModal('modalEmpreiteiro')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL EMPREITADA ══ -->
+<div class="modal-backdrop modal-sm" role="dialog" aria-modal="true" id="modalObra" style="display:none" onclick="fecharModal('modalObra',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-eyebrow">Cadastro</div>
+        <div class="modal-title">Nova <em>Empreitada</em></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal('modalObra')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-fields">
+      <div class="field-group">
+        <label class="field-label">Empreiteiro <span class="required">*</span></label>
+        <select class="field-select" id="oEmpId"></select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descrição da obra <span class="required">*</span></label>
+        <input class="field-input" id="oDesc" type="text" placeholder="Ex: Reforma bloco A"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Valor total contratado (R$) <span class="required">*</span></label>
+        <input class="field-input" id="oValor" type="number" min="0" step="0.01" placeholder="0,00"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Status</label>
+        <select class="field-select" id="oStatus">
+          <option value="ativa">Ativa</option>
+          <option value="pausada">Pausada</option>
+          <option value="encerrada">Encerrada</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn--primary" onclick="salvarObra()">Salvar Empreitada</button>
+      <button class="btn btn--ghost" onclick="fecharModal('modalObra')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ENTRY ══ -->
+<div class="modal-backdrop" role="dialog" aria-modal="true" id="modalEntry" style="display:none" onclick="fecharModal('modalEntry',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-eyebrow">Relatório de Período</div>
+        <div class="modal-title">Novo <em>Relatório</em></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal('modalEntry')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-fields">
+      <div class="field-group">
+        <label class="field-label">Empreiteiro <span class="required">*</span></label>
+        <select class="field-select" id="rEmpId" onchange="carregarObrasDoEmpreiteiro()"></select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Empreitada <span class="required">*</span></label>
+        <select class="field-select" id="rObraId"><option value="">— Selecionar —</option></select>
+      </div>
+      <div class="fields-row-2">
+        <div class="field-group">
+          <label class="field-label">Tipo de período</label>
+          <select class="field-select" id="rPeriodoTipo">
+            <option value="semanal">Semanal</option>
+            <option value="quinzenal">Quinzenal</option>
+            <option value="mensal">Mensal</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Número</label>
+          <input class="field-input" id="rPeriodoNum" type="number" min="1" placeholder="1"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Valor executado neste período (R$) <span class="required">*</span></label>
+        <input class="field-input" id="rValor" type="number" min="0" step="0.01" placeholder="0,00" oninput="calcSaldo()"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descrição do trabalho <span class="required">*</span></label>
+        <textarea class="field-textarea" id="rDesc" placeholder="Descreva o que foi executado…" style="min-height:70px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn--primary" onclick="salvarEntry()">
+        Salvar e Enviar
+        <span class="btn__spin" id="spinEntry"></span>
+      </button>
+      <button class="btn btn--ghost" onclick="fecharModal('modalEntry')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+if(!FIELDO.Auth.isLoggedIn()) window.location.href='entrar.html';
+
+/* Guard Pro: contratos requer entitlement ativo. v4.3: usa UsageGuard.enforce,
+   que abre o UpgradeUI (modal). Se o usuário fechar sem ativar, volta pra
+   index. Mantém o fail-open em caso de erro de rede (RLS protege no banco). */
+function checarProGate() {
+  return FIELDO.UsageGuard.guard('access_contratos').then(function (r) {
+    if (r.allowed) return true;
+    if (r.reason === 'auth_required') {
+      window.location.href = 'entrar.html';
+      return false;
+    }
+    FIELDO.UpgradeUI.show({
+      reason:  'pro_required',
+      action:  'access_contratos',
+      onClose: function(){ window.location.href = 'index.html'; },
+    });
+    return false;
+  }).catch(function () {
+    /* Em caso de erro de rede, NÃO bloqueia — deixa as RLS policies decidirem.
+       Isso evita falsos negativos durante mudanças de rede. */
+    return true;
+  });
+}
+
+var _empreiteiros = [];
+var _obras        = [];
+var _entries      = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+  checarProGate().then(function (allowed) {
+    if (allowed) carregarTudo();
+  });
+});
+
+/* ══ TABS ══ */
+function setTab(id, btn){
+  ['empreiteiros','obras','relatorios'].forEach(function(t){
+    document.getElementById('tab-'+t).style.display = t===id?'':'none';
+  });
+  document.querySelectorAll('.ctab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+/* ══ CARREGAR ══ */
+function carregarTudo(){
+  Promise.all([
+    FIELDO.Contratos.listEmpreiteiros(),
+    FIELDO.Contratos.listEmpreitadas(),
+    FIELDO.Contratos.listEntries(),
+  ]).then(function(res){
+    _empreiteiros = res[0]||[];
+    _obras        = res[1]||[];
+    _entries      = res[2]||[];
+    renderAll();
+    calcMetricas();
+  }).catch(function(){ FIELDO.UI.toast('Erro ao carregar dados'); });
+}
+
+function renderAll(){
+  renderEmpreiteiros();
+  renderObras();
+  renderEntries();
+}
+
+/* ══ MÉTRICAS ══ */
+function calcMetricas(){
+  var confirmados = _entries.filter(function(e){ return e.status==='confirmado'; });
+  var pendentes   = _entries.filter(function(e){ return e.status==='pendente'; });
+  var receber  = confirmados.reduce(function(s,e){ return s+(parseFloat(e.valor_executado)||parseFloat(e.valor_total_diaria)||0); },0);
+  var pendente = pendentes.reduce(function(s,e){ return s+(parseFloat(e.valor_executado)||parseFloat(e.valor_total_diaria)||0); },0);
+  setHTML('mReceber', '<em>'+FIELDO.UI.brl(receber)+'</em>');
+  setHTML('mPendente', '<em>'+FIELDO.UI.brl(pendente)+'</em>');
+}
+
+/* ══ EMPREITEIROS ══ */
+function renderEmpreiteiros(){
+  var el = document.getElementById('empList');
+  if(!_empreiteiros.length){
+    el.innerHTML='<div class="empty-sm">Nenhum empreiteiro cadastrado.<br>Comece cadastrando o primeiro.</div>';
+    return;
+  }
+  el.innerHTML = _empreiteiros.map(function(e){
+    return '<div class="emp-card">'+
+      '<div class="emp-card-head">'+
+        '<div>'+
+          '<div class="emp-name">'+esc(e.nome)+'</div>'+
+          (e.telefone?'<div class="emp-phone">'+esc(e.telefone)+'</div>':'')+
+        '</div>'+
+        /* v5.6: id sai do onclick. É uuid do banco, mas manter o padrão
+           evita que alguém copie a linha para um campo de texto livre. */
+        '<button class="emp-del" data-delemp="'+esc(e.id)+'" title="Remover">'+
+          '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'+
+        '</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function abrirModalEmpreiteiro(){
+  document.getElementById('eNome').value='';
+  document.getElementById('eTel').value='';
+  document.getElementById('modalEmpreiteiro').style.display='flex';
+  setTimeout(function(){ document.getElementById('eNome').focus(); },100);
+}
+
+function salvarEmpreiteiro(){
+  var nome = (document.getElementById('eNome').value||'').trim();
+  if(!nome){ FIELDO.UI.toast('Informe o nome do empreiteiro'); return; }
+  FIELDO.Contratos.createEmpreiteiro({
+    nome:    nome,
+    telefone: document.getElementById('eTel').value.trim()||null,
+  }).then(function(e){
+    _empreiteiros.push(e);
+    renderEmpreiteiros();
+    fecharModal('modalEmpreiteiro');
+    FIELDO.UI.toast('Empreiteiro cadastrado ✓');
+  }).catch(function(){ FIELDO.UI.toast('Erro ao cadastrar'); });
+}
+
+function deletarEmpreiteiro(id, e){
+  e.stopPropagation();
+  if(!confirm('Remover este empreiteiro?')) return;
+  FIELDO.Contratos.deleteEmpreiteiro(id).then(function(){
+    _empreiteiros = _empreiteiros.filter(function(x){ return x.id!==id; });
+    renderEmpreiteiros();
+    FIELDO.UI.toast('Empreiteiro removido');
+  }).catch(function(){ FIELDO.UI.toast('Erro ao remover'); });
+}
+
+/* ══ OBRAS ══ */
+function renderObras(){
+  var el = document.getElementById('obraList');
+  if(!_obras.length){
+    el.innerHTML='<div class="empty-sm">Nenhuma empreitada cadastrada ainda.</div>';
+    return;
+  }
+  el.innerHTML = _obras.map(function(o){
+    var emp = _empreiteiros.find(function(e){ return e.id===o.empreiteiro_id; });
+    var status = o.status||'ativa';
+    return '<div class="obra-card">'+
+      '<div class="obra-card-head">'+
+        '<div class="obra-desc">'+esc(o.descricao)+'</div>'+
+        '<div class="obra-valor">'+FIELDO.UI.brl(o.valor_total)+'</div>'+
+      '</div>'+
+      '<div class="obra-meta">'+
+        '<span class="obra-status '+status+'">'+status+'</span>'+
+        (emp?'<span class="obra-empreiteiro">'+esc(emp.nome)+'</span>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function abrirModalObra(){
+  if(!_empreiteiros.length){ FIELDO.UI.toast('Cadastre um empreiteiro primeiro'); return; }
+  var sel = document.getElementById('oEmpId');
+  sel.innerHTML = _empreiteiros.map(function(e){
+    return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';
+  }).join('');
+  document.getElementById('oDesc').value='';
+  document.getElementById('oValor').value='';
+  document.getElementById('oStatus').value='ativa';
+  document.getElementById('modalObra').style.display='flex';
+}
+
+function salvarObra(){
+  var empId = document.getElementById('oEmpId').value;
+  var desc  = (document.getElementById('oDesc').value||'').trim();
+  var valor = parseFloat(document.getElementById('oValor').value)||0;
+  if(!desc||!valor){ FIELDO.UI.toast('Preencha descrição e valor'); return; }
+  FIELDO.Contratos.createEmpreitada({
+    empreiteiro_id: empId,
+    descricao:      desc,
+    valor_total:    valor,
+    status:         document.getElementById('oStatus').value,
+  }).then(function(o){
+    _obras.push(o);
+    renderObras();
+    fecharModal('modalObra');
+    FIELDO.UI.toast('Empreitada cadastrada ✓');
+  }).catch(function(){ FIELDO.UI.toast('Erro ao cadastrar'); });
+}
+
+/* ══ ENTRIES ══ */
+function renderEntries(){
+  var el = document.getElementById('entryList');
+  if(!_entries.length){
+    el.innerHTML='<div class="empty-sm">Nenhum relatório de período ainda.<br>Clique em "+ Novo" para criar.</div>';
+    return;
+  }
+  el.innerHTML = _entries.map(function(e, idx){
+    var emp  = _empreiteiros.find(function(x){ return x.id===e.empreiteiro_id; });
+    var obra = _obras.find(function(x){ return x.id===e.empreitada_id; });
+    var valor = parseFloat(e.valor_executado)||parseFloat(e.valor_total_diaria)||0;
+    var periodoTipo = (e.periodo_tipo||'').charAt(0).toUpperCase()+(e.periodo_tipo||'').slice(1);
+    var periodoLabel = [periodoTipo, e.periodo_numero, e.periodo_ano].filter(Boolean).join(' ');
+    var st = e.status||'pendente';
+    return '<div class="entry-card">'+
+      '<div class="entry-head">'+
+        '<div>'+
+          '<div class="entry-periodo">'+(periodoLabel||'Período')+(obra?' · '+esc(obra.descricao):'')+'</div>'+
+          '<div class="entry-meta" style="margin-top:.15rem">'+(emp?esc(emp.nome):'—')+(e.descricao?' · '+esc(e.descricao.slice(0,55)):'')+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0">'+
+          '<span class="entry-status '+st+'">'+st+'</span>'+
+          '<div class="entry-valor">'+FIELDO.UI.brl(valor)+'</div>'+
+        '</div>'+
+      '</div>'+
+      /* Botões de ação */
+      '<div style="display:flex;gap:.4rem;margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--border)">'+
+        '<button onclick="verRelatorioEntry('+idx+')" style="flex:1;padding:.48rem .75rem;border-radius:var(--r);background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold-d);font-family:var(--mono);font-size:.65rem;cursor:pointer;transition:.15s">'+
+          '📋 Abrir relatório'+
+        '</button>'+
+        '<button onclick="waRelatorioEntry('+idx+')" style="padding:.48rem .75rem;border-radius:var(--r);background:#25d366;border:none;color:#fff;font-family:var(--mono);font-size:.65rem;cursor:pointer">'+
+          'WA'+
+        '</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function abrirModalEntry(){
+  if(!_empreiteiros.length){ FIELDO.UI.toast('Cadastre um empreiteiro primeiro'); return; }
+  var sel = document.getElementById('rEmpId');
+  sel.innerHTML = _empreiteiros.map(function(e){
+    return '<option value="'+e.id+'">'+esc(e.nome)+'</option>';
+  }).join('');
+  document.getElementById('rObraId').innerHTML='<option value="">— Selecionar —</option>';
+  document.getElementById('rValor').value='';
+  document.getElementById('rDesc').value='';
+  document.getElementById('rPeriodoNum').value='1';
+  carregarObrasDoEmpreiteiro();
+  document.getElementById('modalEntry').style.display='flex';
+}
+
+function carregarObrasDoEmpreiteiro(){
+  var empId = document.getElementById('rEmpId').value;
+  var obrasEmp = _obras.filter(function(o){ return o.empreiteiro_id===empId && o.status==='ativa'; });
+  var sel = document.getElementById('rObraId');
+  sel.innerHTML = '<option value="">— Selecionar —</option>' +
+    obrasEmp.map(function(o){ return '<option value="'+o.id+'">'+esc(o.descricao)+'</option>'; }).join('');
+}
+
+function calcSaldo(){ /* placeholder para saldo futuro */ }
+
+function salvarEntry(){
+  var empId = document.getElementById('rEmpId').value;
+  var obraId= document.getElementById('rObraId').value;
+  var valor = parseFloat(document.getElementById('rValor').value)||0;
+  var desc  = (document.getElementById('rDesc').value||'').trim();
+  if(!obraId){ FIELDO.UI.toast('Selecione uma empreitada'); return; }
+  if(!valor){ FIELDO.UI.toast('Informe o valor executado'); return; }
+  if(!desc){ FIELDO.UI.toast('Descreva o trabalho realizado'); return; }
+
+  setLoading('spinEntry',true);
+
+  FIELDO.Contratos.createEntry({
+    empreiteiro_id:  empId,
+    empreitada_id:   obraId,
+    billing_type:    'empreitada',
+    periodo_tipo:    document.getElementById('rPeriodoTipo').value,
+    periodo_numero:  parseInt(document.getElementById('rPeriodoNum').value)||1,
+    periodo_ano:     new Date().getFullYear(),
+    valor_executado: valor,
+    descricao:       desc,
+    status:          'pendente',
+  }).then(function(entry){
+    _entries.unshift(entry);
+    renderEntries();
+    calcMetricas();
+    fecharModal('modalEntry');
+    setLoading('spinEntry',false);
+    FIELDO.UI.toast('Relatório gerado ✓');
+  }).catch(function(){
+    setLoading('spinEntry',false);
+    FIELDO.UI.toast('Erro ao gerar relatório');
+  });
+}
+
+/* ══ VISUALIZAR RELATÓRIO DE EMPREITADA ══ */
+function buildEntryHTML(entry, emp, obra){
+  var prof = null;
+  try{ prof=JSON.parse(localStorage.getItem('fieldo_session_data')); }catch(e){}
+  prof = prof||{};
+  var valor = parseFloat(entry.valor_executado)||parseFloat(entry.valor_total_diaria)||0;
+  var periodoTipo = (entry.periodo_tipo||'').charAt(0).toUpperCase()+(entry.periodo_tipo||'').slice(1);
+  var periodo = [periodoTipo, entry.periodo_numero, entry.periodo_ano].filter(Boolean).join(' ');
+  var logo = prof.logo_url
+    ? '<img src="'+prof.logo_url+'" style="width:100%;height:100%;object-fit:cover"/>'
+    : '<span style="font-family:Georgia,serif;font-size:1.4rem;font-style:italic;color:#fff">'+(prof.name||'F').charAt(0)+'</span>';
+  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>'+
+    '<title>Relatório Empreitada · Fieldo</title>'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f2ec;min-height:100vh;padding:1.5rem 1rem 4rem;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased}'+
+    '.card{background:#fff;border:1px solid rgba(14,14,20,.1);border-radius:18px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 8px 40px rgba(14,14,20,.1)}'+
+    '.hdr{background:#0e0e14;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:.85rem}'+
+    '.logo{width:42px;height:42px;border-radius:9px;background:#9a7218;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}'+
+    '.body{padding:1.5rem}'+
+    '.badge-st{display:inline-flex;align-items:center;gap:.35rem;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .7rem;border-radius:2rem}'+
+    '.pendente{background:rgba(138,94,10,.08);border:1px solid rgba(138,94,10,.2);color:#8a5e0a}'+
+    '.confirmado{background:rgba(30,92,56,.07);border:1px solid rgba(30,92,56,.18);color:#2d7a4f}'+
+    '.row{display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid rgba(14,14,20,.08)}'+
+    '.row:last-child{border:none}'+
+    '.lbl{font-size:.6rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7a7570}'+
+    '.val{font-size:.85rem;color:#1a1a24;text-align:right}'+
+    '.total{font-family:Georgia,serif;font-size:1.3rem;font-weight:300;color:#9a7218}'+
+    '</style></head><body>'+
+    '<div class="card">'+
+      '<div class="hdr"><div class="logo">'+logo+'</div>'+
+        '<div><div style="font-family:Georgia,serif;font-size:.95rem;font-style:italic;color:rgba(255,255,255,.9)">'+esc(prof.name||prof.profissao||'Profissional')+'</div>'+
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-top:.08rem">'+esc(prof.profissao||'')+(prof.city?' · '+esc(prof.city):'')+'</div></div>'+
+        '<div style="margin-left:auto;font-size:.52rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:rgba(154,114,24,.1);border:1px solid rgba(154,114,24,.25);border-radius:2rem;padding:.22rem .65rem;color:#b8880d;white-space:nowrap">✓ Fieldo</div>'+
+      '</div>'+
+      '<div class="body">'+
+        '<div style="font-size:.6rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#7a7570;margin-bottom:.25rem">Relatório de Empreitada</div>'+
+        '<div style="font-family:Georgia,serif;font-size:1.4rem;font-weight:300;color:#0e0e14;margin-bottom:.25rem">'+esc((obra&&obra.descricao)||'Empreitada')+'</div>'+
+        '<div style="margin-bottom:1rem"><span class="badge-st '+(entry.status||'pendente')+'">'+esc(entry.status||'pendente')+'</span></div>'+
+        '<div style="background:#f5f2ec;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem">'+
+          '<div class="row"><span class="lbl">Empreiteiro</span><span class="val">'+esc((emp&&emp.nome)||'—')+'</span></div>'+
+          '<div class="row"><span class="lbl">Período</span><span class="val">'+esc(periodo||'—')+'</span></div>'+
+          (entry.descricao?'<div class="row"><span class="lbl">Trabalho realizado</span><span class="val" style="max-width:65%;text-align:right">'+esc(entry.descricao)+'</span></div>':'')+
+          '<div class="row"><span class="lbl">Valor executado</span><span class="val total">'+FIELDO.UI.brl(valor)+'</span></div>'+
+        '</div>'+
+        (prof.pix_key?'<div style="background:rgba(154,114,24,.08);border:1px solid rgba(154,114,24,.22);border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem">'+
+          '<div><div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5a10;margin-bottom:.18rem">Pagamento via Pix</div>'+
+          '<div style="font-family:monospace;font-size:.82rem;color:#7a5a10;word-break:break-all">'+esc(prof.pix_key)+'</div></div>'+
+          /* v5.6: a chave saiu do onclick — e-mail com apóstrofo
+             quebrava o atributo. Handler registrado depois. */
+          '<button data-copypix="' + esc(prof.pix_key) + '" style="background:#9a7218;color:#fff;border:none;border-radius:7px;padding:.42rem .85rem;font-size:.75rem;font-weight:600;cursor:pointer">Copiar</button>'+
+        '</div>':'') +
+        '<div style="text-align:center;margin-top:.85rem"><a href="https://fieldo.netlify.app/entrar.html" style="font-size:.72rem;color:#9a7218;text-decoration:none;font-family:monospace">Emitido pelo Fieldo — fieldo.netlify.app</a></div>'+
+      '</div>'+
+    '</div>'+
+    '</body></html>';
+}
+
+function verRelatorioEntry(idx){
+  var entry = _entries[idx];
+  if(!entry){ FIELDO.UI.toast('Relatório não encontrado'); return; }
+  var emp  = _empreiteiros.find(function(x){ return x.id===entry.empreiteiro_id; });
+  var obra = _obras.find(function(x){ return x.id===entry.empreitada_id; });
+  var html = buildEntryHTML(entry, emp, obra);
+  var blob = new Blob([html],{type:'text/html;charset=utf-8'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
+
+function waRelatorioEntry(idx){
+  var entry = _entries[idx];
+  if(!entry) return;
+  var emp  = _empreiteiros.find(function(x){ return x.id===entry.empreiteiro_id; });
+  var obra = _obras.find(function(x){ return x.id===entry.empreitada_id; });
+  var valor = parseFloat(entry.valor_executado)||parseFloat(entry.valor_total_diaria)||0;
+  var periodoTipo = (entry.periodo_tipo||'').charAt(0).toUpperCase()+(entry.periodo_tipo||'').slice(1);
+  var periodo = [periodoTipo, entry.periodo_numero, entry.periodo_ano].filter(Boolean).join(' ');
+  var msg = '📋 *Relatório de Empreitada* — Fieldo\n\n'+
+    '🏗️ Obra: '+(obra&&obra.descricao?obra.descricao:'—')+'\n'+
+    '👷 Empreiteiro: '+(emp&&emp.nome?emp.nome:'—')+'\n'+
+    '📅 Período: '+(periodo||'—')+'\n'+
+    '💰 Valor executado: '+FIELDO.UI.brl(valor)+'\n'+
+    '📌 Status: '+(entry.status||'pendente')+'\n\n'+
+    (entry.descricao?'✅ Trabalho realizado: '+entry.descricao+'\n\n':'')+
+    '_Emitido pelo Fieldo_';
+  var wpp = emp&&emp.telefone
+    /* v5.5.2: prefixo '55' cego duplicava o DDI de quem salvou o
+         número completo, gerando URL inválida. */
+    ? FIELDO.UI.waLink(emp.telefone, msg)
+    : 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(wpp,'_blank');
+}
+function fecharModal(id, e){
+  if(e && e.target !== document.getElementById(id)) return;
+  document.getElementById(id).style.display='none';
+}
+function setLoading(spinId, on){
+  var sp = document.getElementById(spinId);
+  if(sp) sp.classList.toggle('on', on);
+}
+function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
+/* v6.4: delega para FIELDO.UI.esc.
+   A versão local escapava só & < > — faltavam ASPAS. Usada dentro
+   de um atributo (src="…", href="…"), um valor com aspa escapava do
+   atributo e abria caminho para injeção. Três implementações
+   diferentes no projeto significavam que a correta podia ser
+   contornada por acidente. Agora existe uma só. */
+function esc(s) { return FIELDO.UI.esc(s); }
+/* ── v5.6: delegação para copiar chave Pix ─────────────────────
+   Registrado uma vez no documento: o bloco de recibo é remontado em
+   vários pontos, e listener por botão vazaria a cada render. */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest && ev.target.closest('[data-copypix]');
+  if (!b) return;
+  ev.preventDefault();
+  var chave = b.dataset.copypix || '';
+  function ok() {
+    var t = b.textContent;
+    b.textContent = 'Copiado!';
+    setTimeout(function () { b.textContent = t; }, 1800);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(chave).then(ok)
+      .catch(function () { window.prompt('Copie a chave:', chave); });
+    return;
+  }
+  window.prompt('Copie a chave:', chave);
+});
+/* Delegação do remover-empreiteiro (v5.6) */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest && ev.target.closest('[data-delemp]');
+  if (!b) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  deletarEmpreiteiro(b.dataset.delemp, ev);
+});
+</script>
+</body>
+</html>

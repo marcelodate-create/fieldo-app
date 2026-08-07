@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#0e0e14"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+
+  <!-- SEO dinâmico — preenchido por JS -->
+  <title id="pageTitle">Profissional · Fieldo</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <meta name="description" id="metaDesc" content="Perfil de profissional verificado no Fieldo"/>
+  <meta property="og:title" id="ogTitle" content="Profissional · Fieldo"/>
+  <meta property="og:description" id="ogDesc" content="Veja o histórico e avaliações verificadas"/>
+  <meta property="og:type" content="profile"/>
+  <meta name="robots" content="noindex"/> <!-- removido via JS quando tem 3+ serviços -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f5f2ec;--paper:#f5f2ec;--paper2:#ede9df;--paper3:#e4dfd2;--paper4:#d8d2c4;
+      --ink:#0e0e14;--text:#1a1a24;--text2:#4a4855;--muted:#7a7570;--subtle:#a09890;--ghost:#c4bdb0;
+      --border:rgba(14,14,20,.09);--border2:rgba(14,14,20,.16);--border3:rgba(14,14,20,.26);
+      --gold:#9a7218;--gold-l:#b8880d;--gold-d:#7a5a10;
+      --gold-bg:rgba(154,114,24,.07);--gold-bd:rgba(154,114,24,.2);
+      --green:#1e5c38;--green-l:#2d7a4f;--green-bg:rgba(30,92,56,.07);--green-bd:rgba(30,92,56,.18);
+      --topbar-bg:#0e0e14;
+      --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono','Courier New',monospace;
+      --r:8px;--r-l:12px;--r-xl:18px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-font-smoothing:antialiased}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:180px;
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* ── TOPBAR ── */
+    .topbar{
+      background:var(--topbar-bg);height:50px;position:sticky;top:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .topbar-logo{display:flex;align-items:center;gap:.5rem}
+    .logo-icon{width:24px;height:24px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+    .topbar-brand{font-family:var(--sans);font-size:.88rem;font-weight:600;color:rgba(255,255,255,.9)}
+    .topbar-brand em{color:var(--gold-l);font-style:italic;font-weight:300}
+    .topbar-back{
+      display:flex;align-items:center;gap:.35rem;
+      font-family:var(--mono);font-size:.7rem;color:rgba(255,255,255,.4);
+      background:none;border:none;cursor:pointer;text-decoration:none;
+      transition:color .2s;
+    }
+    .topbar-back:hover{color:rgba(255,255,255,.75)}
+
+    /* ── HERO ── */
+    .hero{
+      background:var(--topbar-bg);padding:2.5rem 1.25rem 2rem;
+      text-align:center;position:relative;overflow:hidden;
+    }
+    .hero::before{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse at 80% 0%,rgba(154,114,24,.12) 0%,transparent 55%),
+        radial-gradient(ellipse at 15% 100%,rgba(154,114,24,.06) 0%,transparent 50%);
+    }
+    .hero-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+
+    .hero-avatar{
+      width:80px;height:80px;border-radius:50%;
+      background:linear-gradient(135deg,var(--gold),var(--gold-d));
+      border:3px solid rgba(154,114,24,.4);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-size:2rem;font-style:italic;color:#fff;
+      margin:0 auto 1.25rem;overflow:hidden;
+    }
+    .hero-avatar img{width:100%;height:100%;object-fit:cover}
+
+    .hero-name{
+      font-family:var(--serif);font-size:clamp(1.6rem,5vw,2.2rem);font-weight:300;
+      font-style:italic;color:rgba(255,255,255,.95);margin-bottom:.35rem;
+    }
+    .hero-spec{
+      font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+      color:rgba(255,255,255,.4);margin-bottom:.75rem;
+    }
+    .hero-city{
+      display:inline-flex;align-items:center;gap:.35rem;
+      font-family:var(--mono);font-size:.65rem;color:rgba(255,255,255,.3);
+      margin-bottom:1.5rem;
+    }
+
+    /* Score grande */
+    .hero-score-row{
+      display:flex;justify-content:center;gap:2.5rem;
+      padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.07);
+    }
+    .hero-stat{}
+    .hero-stat-val{
+      font-family:var(--serif);font-size:1.75rem;font-weight:300;
+      color:rgba(255,255,255,.9);letter-spacing:-.02em;line-height:1;
+    }
+    .hero-stat-val em{font-style:italic;color:var(--gold-l)}
+    .hero-stat-stars{color:var(--gold-l);font-size:.78rem;margin-top:.18rem}
+    .hero-stat-lbl{
+      font-family:var(--mono);font-size:.52rem;letter-spacing:.12em;
+      text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:.15rem;
+    }
+
+    /* Verified badge */
+    .hero-verified{
+      display:inline-flex;align-items:center;gap:.4rem;
+      background:var(--green-bg);border:1px solid var(--green-bd);
+      border-radius:2rem;padding:.28rem .75rem;margin-bottom:1.5rem;
+      font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;
+      text-transform:uppercase;color:var(--green-l);
+    }
+    .hero-verified-dot{width:5px;height:5px;border-radius:50%;background:var(--green-l)}
+
+    /* ── CONTEÚDO ── */
+    .page{max-width:680px;margin:0 auto;padding:1.75rem 1.25rem 5.75rem;position:relative;z-index:1}
+
+    /* Ação de contato */
+    .contact-bar{
+      position:fixed;left:0;right:0;bottom:0;z-index:50;
+      background:var(--paper);border-top:1px solid var(--border);
+      padding:.65rem 1.1rem calc(.65rem + env(safe-area-inset-bottom));
+      max-width:680px;margin:0 auto;
+    }
+    .contact-activity{
+      font-family:var(--mono);font-size:.62rem;color:var(--subtle);
+      text-align:center;margin-bottom:.5rem;
+    }
+    .contact-row{display:flex;gap:.5rem}
+    .contact-btn{
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      padding:.75rem;border-radius:var(--r-l);font-size:.85rem;font-weight:500;
+      cursor:pointer;border:none;transition:background .2s,transform .15s;text-decoration:none;
+    }
+    .contact-btn.wa{flex:1}
+    .contact-btn.share{flex:none;width:2.7rem;padding:.75rem}
+    .contact-btn.share span{display:none} /* ícone só, sem texto — ação secundária não disputa espaço com a primária */
+    .contact-btn:hover{transform:translateY(-1px)}
+    .contact-btn.wa{background:#25d366;color:#fff}
+    .contact-btn.wa:hover{background:#1fbb59}
+    .contact-btn.share{background:var(--paper2);border:1px solid var(--border2);color:var(--text2)}
+    .contact-btn.share:hover{background:var(--paper3)}
+
+
+
+    /* Bio */
+    .bio-text{
+      font-size:.88rem;color:var(--text2);line-height:1.75;
+      padding:1rem 1.1rem;background:var(--paper2);border-radius:var(--r-l);
+      border:1px solid var(--border);margin-bottom:1.5rem;
+    }
+
+    /* Sec header */
+    .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
+    .sec-title{
+      font-family:var(--mono);font-size:.58rem;font-weight:500;
+      letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+      display:flex;align-items:center;gap:.45rem;
+    }
+    .sec-title::before{content:'';display:inline-block;width:10px;height:1px;background:var(--gold)}
+    .sec-count{font-family:var(--mono);font-size:.62rem;color:var(--ghost)}
+
+    /* Stats mini */
+    .mini-stats{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:1px;background:var(--border2);border-radius:var(--r-l);
+      overflow:hidden;margin-bottom:1.5rem;
+    }
+    .mini-stat{background:var(--paper2);padding:.9rem 1rem}
+    .mini-stat-val{
+      font-family:var(--serif);font-size:1.4rem;font-weight:300;
+      color:var(--ink);line-height:1;margin-bottom:.15rem;
+    }
+    .mini-stat-val em{font-style:italic;color:var(--gold-d)}
+    .mini-stat-lbl{font-family:var(--mono);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+    /* Serviços */
+    .service-card{
+      display:flex;align-items:center;gap:.85rem;padding:.8rem 1rem;
+      border-radius:var(--r);border:1px solid var(--border);
+      background:var(--paper);margin-bottom:.4rem;cursor:pointer;
+      transition:background .2s;text-decoration:none;color:inherit;
+    }
+    .service-card:hover{background:var(--paper2);border-color:var(--border2)}
+    .service-thumb{width:42px;height:42px;border-radius:8px;overflow:hidden;background:var(--paper3);flex-shrink:0;border:1px solid var(--border)}
+    .service-thumb img{width:100%;height:100%;object-fit:cover}
+    .service-thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+    .service-info{flex:1;min-width:0}
+    .service-client{font-size:.85rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .service-meta{display:flex;align-items:center;gap:.4rem;margin-top:.12rem;flex-wrap:wrap}
+    .service-niche{font-family:var(--mono);font-size:.62rem;color:var(--muted)}
+    .service-dot{width:3px;height:3px;border-radius:50%;background:var(--ghost);flex-shrink:0}
+    .service-date{font-family:var(--mono);font-size:.62rem;color:var(--subtle)}
+    .service-score{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--gold-d);flex-shrink:0}
+
+    /* Avaliações */
+    .review-card{
+      padding:.9rem 1rem;border-radius:var(--r);border:1px solid var(--border);
+      background:var(--paper);margin-bottom:.4rem;
+    }
+    .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+    .review-stars{color:var(--gold-l);font-size:.85rem;letter-spacing:-.04em}
+    .review-date{font-family:var(--mono);font-size:.6rem;color:var(--ghost)}
+    .review-author{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-bottom:.3rem}
+    .review-comment{font-size:.82rem;color:var(--text2);line-height:1.65}
+
+    /* Skeleton */
+    .skel{
+      background:linear-gradient(90deg,var(--paper3) 25%,var(--paper4) 50%,var(--paper3) 75%);
+      background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* Empty */
+    .empty-sm{text-align:center;padding:1.5rem;font-family:var(--mono);font-size:.72rem;color:var(--ghost)}
+
+    /* CTA Fieldo */
+    .fieldo-cta{
+      background:var(--paper2);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:1.5rem;text-align:center;margin-top:2rem;
+    }
+    .fieldo-cta-title{font-family:var(--serif);font-size:1.2rem;font-weight:300;color:var(--ink);margin-bottom:.3rem}
+    .fieldo-cta-title em{font-style:italic;color:var(--gold)}
+    .fieldo-cta-sub{font-size:.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.65}
+    .fieldo-cta-btn{
+      display:inline-flex;align-items:center;gap:.4rem;
+      background:var(--gold);color:#fff;border-radius:var(--r);
+      padding:.65rem 1.3rem;font-size:.85rem;font-weight:500;
+    }
+
+    /* Toast */
+    #p-toast{
+      position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(8px);
+      background:var(--ink);border:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.9);font-family:var(--mono);font-size:.75rem;
+      padding:.55rem 1.1rem;border-radius:2rem;
+      opacity:0;transition:opacity .25s,transform .25s;
+      pointer-events:none;white-space:nowrap;z-index:999;
+    }
+    #p-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    @media(max-width:400px){.mini-stats{grid-template-columns:repeat(2,1fr)}.hero-score-row{gap:1.5rem}}
+  
+  /* v5.7.7 · aviso de perfil não publicado (só o dono vê) */
+  .perfil-aviso{margin:0 1rem 1rem;padding:.9rem 1rem;border-radius:10px;
+    background:var(--gold-bg,rgba(154,114,24,.08));
+    border:1px solid var(--gold-bd,rgba(154,114,24,.25))}
+  .perfil-aviso strong{display:block;font-size:.85rem;color:var(--gold-text,#7a5a10);
+    margin-bottom:.25rem;font-weight:600}
+  .perfil-aviso p{margin:0;font-size:.78rem;line-height:1.55;color:var(--muted,#6b6459)}
+
+  /* ── v5.8 · Galeria de trabalhos ─────────────────────────────── */
+  .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+  .gal-item{position:relative;aspect-ratio:1;overflow:hidden;background:var(--paper3,#ece7dd);
+    border:0;padding:0;cursor:pointer;display:block}
+  .gal-item img{width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .35s ease}
+  .gal-item:hover img{transform:scale(1.05)}
+  /* Selo de verificado: é o diferencial do produto, precisa aparecer
+     sobre a foto sem competir com ela. */
+  .gal-item::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(0,0,0,.28),transparent 45%);
+    pointer-events:none}
+  .gal-mais{width:100%;margin-top:.6rem;padding:.75rem;border:1px solid var(--border2,#d8d0c2);
+    background:transparent;border-radius:8px;color:var(--muted,#6b6459);
+    font-family:inherit;font-size:.82rem;cursor:pointer}
+
+  /* Lightbox */
+  .gal-lb{position:fixed;inset:0;z-index:200;background:rgba(12,11,10,.96);
+    display:none;align-items:center;justify-content:center}
+  .gal-lb.on{display:flex}
+  .gal-lb-img{max-width:100%;max-height:82vh;object-fit:contain}
+  .gal-lb-x{position:absolute;top:.75rem;right:.9rem;width:44px;height:44px;
+    background:rgba(255,255,255,.12);border:0;border-radius:50%;color:#fff;
+    font-size:1.1rem;cursor:pointer}
+  .gal-lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;
+    background:rgba(255,255,255,.12);border:0;border-radius:50%;color:#fff;
+    font-size:1.6rem;line-height:1;cursor:pointer}
+  .gal-lb-prev{left:.6rem} .gal-lb-next{right:.6rem}
+  .gal-lb-info{position:absolute;bottom:0;left:0;right:0;padding:1rem 1.25rem 1.5rem;
+    color:#e8e3da;font-size:.8rem;line-height:1.5;
+    background:linear-gradient(to top,rgba(0,0,0,.75),transparent)}
+  .gal-lb-info a{color:var(--gold,#c9a227);text-decoration:underline}
+  @media(prefers-reduced-motion:reduce){.gal-item img{transition:none}}
+
+  /* v6.3 · resposta do profissional à avaliação */
+  .review-reply{margin-top:.7rem;padding:.7rem .85rem;border-left:2px solid var(--gold-bd,#d8c9a0);
+    background:var(--paper3,#ece7dd);border-radius:0 8px 8px 0;font-size:.8rem;
+    line-height:1.55;color:var(--text2,#4a453d)}
+  .review-reply-lbl{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted,#6b6459);margin-bottom:.25rem}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="index.html" class="topbar-logo">
+    <div class="logo-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <span class="topbar-brand"><em>Fieldo</em></span>
+  </a>
+  <a href="explorar.html" class="topbar-back">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Explorar
+  </a>
+</header>
+
+<!-- HERO (skeleton) -->
+<div class="hero" id="heroSection">
+  <div class="hero-inner">
+    <div class="hero-avatar" id="heroAvatar"></div>
+    <div class="hero-name" id="heroName">Carregando…</div>
+    <div class="hero-spec" id="heroSpec"></div>
+    <div class="hero-city" id="heroCity"></div>
+    <div class="hero-verified" style="display:none" id="heroVerified">
+      <span class="hero-verified-dot"></span>
+      Portfólio verificado · Fieldo
+    </div>
+    <div class="hero-score-row" id="heroScoreRow" style="display:none">
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="heroScore"><em>—</em></div>
+        <div class="hero-stat-stars" id="heroStars"></div>
+        <div class="hero-stat-lbl">Score</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="heroAvals">—</div>
+        <div class="hero-stat-lbl">Avaliações</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="heroServicos">—</div>
+        <div class="hero-stat-lbl">Serviços</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="page">
+
+  <!-- Botões de contato -->
+  <div class="contact-bar" id="contactBar" style="display:none">
+    <div class="contact-activity" id="activityText" style="display:none"></div>
+    <div class="contact-row">
+      <a class="contact-btn wa" id="btnWA" href="#" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a9.98 9.98 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.114.552 4.1 1.522 5.832L0 24l6.337-1.51A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Solicitar serviço
+      </a>
+      <button class="contact-btn share" onclick="compartilhar()" aria-label="Compartilhar perfil">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Compartilhar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bio -->
+  <div id="bioWrap" style="display:none">
+    <p class="bio-text" id="bioText"></p>
+  </div>
+
+  <!-- Mini stats -->
+  <div class="mini-stats" id="miniStats" style="display:none">
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="msServicos">—</div>
+      <div class="mini-stat-lbl">Serviços</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="msScore"><em>—</em></div>
+      <div class="mini-stat-lbl">Score médio</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="msSelos">—</div>
+      <div class="mini-stat-lbl">Selos SHA-256</div>
+    </div>
+  </div>
+
+  <!-- v5.8: Galeria de trabalhos.
+       É a prova mais direta de bom serviço, e vem ANTES da lista: o
+       cliente decide olhando foto, não lendo linha de texto. -->
+  <div style="margin-bottom:1.5rem;display:none" id="secGaleria">
+    <div class="sec-head">
+      <div class="sec-title">Trabalhos</div>
+      <div class="sec-count" id="secGalCount"></div>
+    </div>
+    <div class="gal-grid" id="galGrid"></div>
+    <button class="gal-mais" id="galMais" style="display:none">Ver mais fotos</button>
+  </div>
+
+  <!-- Serviços -->
+  <div style="margin-bottom:1.5rem">
+    <div class="sec-head">
+      <div class="sec-title">Serviços realizados</div>
+      <div class="sec-count" id="secServCount"></div>
+    </div>
+    <div id="serviceList">
+      <div class="skel" style="height:62px;margin-bottom:.4rem"></div>
+      <div class="skel" style="height:62px;margin-bottom:.4rem"></div>
+      <div class="skel" style="height:62px"></div>
+    </div>
+  </div>
+
+  <!-- Avaliações -->
+  <div>
+    <div class="sec-head">
+      <div class="sec-title">Avaliações</div>
+      <div class="sec-count" id="secAvalCount"></div>
+    </div>
+    <div id="reviewList">
+      <div class="skel" style="height:80px;margin-bottom:.4rem"></div>
+      <div class="skel" style="height:80px"></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="fieldo-cta">
+    <div class="fieldo-cta-title">Você é profissional? <em>Apareça aqui.</em></div>
+    <p class="fieldo-cta-sub">Crie seu perfil grátis, registre seus serviços e construa uma reputação verificável que aparece no Google.</p>
+    <!-- v6.10: antes ia direto pro cadastro (entrar.html). Agora passa
+         pela vitrine de proposta de valor (comece.html) — quem clicou
+         aqui ainda não decidiu usar o Fieldo, só ficou curioso olhando
+         o perfil de outro profissional; vale convencer antes de pedir
+         pra criar conta. -->
+    <a href="comece.html" class="fieldo-cta-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Criar perfil grátis
+    </a>
+  </div>
+
+</div>
+
+<div id="p-toast"></div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+/* v5.0 · A anon key crua não é mais suficiente: sob RLS ela só
+   enxerga linhas públicas. Esta página tem dois modos:
+
+     · perfil de terceiros (?slug= / ?id=) → leitura ANÔNIMA, e a
+       policy prof_select_public devolve só quem é is_public;
+     · próprio perfil (sem parâmetro)      → leitura AUTENTICADA
+       via FIELDO, que anexa o JWT e passa por prof_select_own.
+
+   Antes, tudo ia com a anon key e o banco devolvia qualquer perfil
+   a qualquer pessoa. */
+var SUPABASE_URL = FIELDO.config.REST_URL;
+
+var NICHE_EMOJI = {
+  eletrica:'⚡',hidraulica:'🔧',pintura:'🎨',
+  'ar-condicionado':'❄️',alvenaria:'🧱',informatica:'💻',serralheria:'🔩'
+};
+
+var _prof = null;
+
+/* Leitura pública (perfil de terceiros, avaliações, serviços) */
+function api(path) {
+  return fetch(SUPABASE_URL + FIELDO.colunasPublicas(path), {
+    headers: {
+      'apikey':        FIELDO.config.ANON_KEY,
+      'Authorization': 'Bearer ' + FIELDO.config.ANON_KEY,
+    },
+  }).then(function(r) {
+    return r.ok ? r.json() : Promise.reject(r.status);
+  });
+}
+
+/* Leitura autenticada — usada só para o próprio perfil */
+function apiMe(path) {
+  return FIELDO.Auth.Session.getAccessToken().then(function(tok) {
+    return fetch(SUPABASE_URL + path, {
+      headers: {
+        'apikey':        FIELDO.config.ANON_KEY,
+        'Authorization': 'Bearer ' + (tok || FIELDO.config.ANON_KEY),
+      },
+    });
+  }).then(function(r) {
+    return r.ok ? r.json() : Promise.reject(r.status);
+  });
+}
+
+/* v6.4: delega para FIELDO.UI.esc.
+   A versão local escapava só & < > — faltavam ASPAS. Usada dentro
+   de um atributo (src="…", href="…"), um valor com aspa escapava do
+   atributo e abria caminho para injeção. Três implementações
+   diferentes no projeto significavam que a correta podia ser
+   contornada por acidente. Agora existe uma só. */
+function esc(s) { return FIELDO.UI.esc(s); }
+function stars(n) {
+  n = Math.round(parseFloat(n)||0);
+  return '★'.repeat(n)+'☆'.repeat(Math.max(0,5-n));
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ return iso; }
+}
+function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
+function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v}
+function show(id){var e=document.getElementById(id);if(e)e.style.display=''}
+function hide(id){var e=document.getElementById(id);if(e)e.style.display='none'}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var params = new URLSearchParams(window.location.search);
+  var slug   = params.get('slug');
+  var id     = params.get('id');
+
+  if (slug) {
+    api('/professionals?slug=eq.' + encodeURIComponent(slug) + '&limit=1').then(carregarPerfil);
+  } else if (id) {
+    api('/professionals?id=eq.' + encodeURIComponent(id) + '&limit=1').then(carregarPerfil);
+  } else {
+    /* Tenta carregar perfil do usuário logado */
+    var sessId = FIELDO.Auth.getId();
+    if (sessId) {
+      apiMe('/professionals?id=eq.' + sessId + '&limit=1')
+        .then(carregarPerfil).catch(renderErro);
+    } else {
+      renderErro();
+    }
+  }
+});
+
+function carregarPerfil(rows) {
+  if (!rows || !rows.length) { renderErro(); return; }
+  _prof = rows[0];
+
+  Promise.all([
+    api('/reports?professional_id=eq.' + _prof.id + '&is_public=eq.true&order=created_at.desc&limit=20'),
+    api('/avaliacoes?professional_id=eq.' + _prof.id + '&order=created_at.desc&limit=20'),
+    api('/document_hashes?professional_id=eq.' + _prof.id + '&order=created_at.desc&limit=5'),
+  ]).then(function(results) {
+    var reports  = results[0];
+    var avals    = results[1];
+    var hashes   = results[2];
+    renderTudo(_prof, reports, avals, hashes);
+  }).catch(function() {
+    renderTudo(_prof, [], [], []);
+  });
+}
+
+/* Reduz "Maria Aparecida Silva" a "Maria A." — concreto sem expor. */
+function nomeCurto(nome) {
+  var p = String(nome || '').trim().split(/\s+/).filter(Boolean);
+  if (!p.length) return 'Cliente';
+  if (p.length === 1) return p[0];
+  return p[0] + ' ' + p[1].charAt(0).toUpperCase() + '.';
+}
+
+/* ── v5.8 · Galeria de trabalhos ─────────────────────────────────
+   A prova mais direta de bom serviço. O cliente decide olhando foto,
+   não lendo linha de texto — por isso vem antes da lista.
+
+   Cada foto leva ao relatório completo, que é onde mora a
+   credibilidade: hash de autenticidade, data, avaliação do cliente. */
+var _galFotos = [];
+var _galVisiveis = 12;
+
+function montarGaleria(reports, prof) {
+  var sec = document.getElementById('secGaleria');
+  var grid = document.getElementById('galGrid');
+  if (!sec || !grid) return;
+
+  /* v6.0: sem consentimento, sem galeria.
+     O dono ainda vê a própria — precisa conferir o que publicaria — mas
+     com aviso de que ninguém mais enxerga. */
+  var consentiu = (prof || {}).portfolio_publico === true;
+  var souDono   = FIELDO.Auth.getId() && FIELDO.Auth.getId() === (prof || {}).id;
+  if (!consentiu && !souDono) { sec.style.display = 'none'; return; }
+
+  /* Achata as fotos de todos os serviços, guardando de qual vieram */
+  _galFotos = [];
+  reports.forEach(function (r) {
+    /* portfolio_ok = false esconde ESTE serviço sem desligar o
+       consentimento global (casa identificável, obra sensível). */
+    if (r.portfolio_ok === false) return;
+    var fotos = Array.isArray(r.photos) ? r.photos : [];
+    fotos.forEach(function (url) {
+      if (typeof url === 'string' && url) {
+        _galFotos.push({
+          url: url,
+          reportId: r.id,
+          categoria: r.category_label || r.niche || r.category_key || '',
+          data: r.service_date || r.created_at,
+          nota: r.rating || null,
+        });
+      }
+    });
+  });
+
+  if (!_galFotos.length) { sec.style.display = 'none'; return; }
+
+  sec.style.display = '';
+  setText('secGalCount', consentiu
+    ? _galFotos.length + (_galFotos.length === 1 ? ' foto' : ' fotos')
+    : 'só você vê — ative em Configurações');
+  renderGrid();
+}
+
+function renderGrid() {
+  var grid = document.getElementById('galGrid');
+  var mais = document.getElementById('galMais');
+  grid.textContent = '';
+
+  _galFotos.slice(0, _galVisiveis).forEach(function (f, i) {
+    var b = document.createElement('button');
+    b.className = 'gal-item';
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Ver foto ' + (i + 1));
+
+    var img = document.createElement('img');
+    img.src = f.url;
+    img.alt = f.categoria ? ('Trabalho de ' + f.categoria) : 'Trabalho realizado';
+    /* lazy: perfil com 40 fotos em 3G travaria o carregamento inteiro */
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    /* Foto quebrada (URL morta) some em vez de mostrar ícone partido */
+    img.onerror = function () { b.style.display = 'none'; };
+
+    b.appendChild(img);
+    b.addEventListener('click', function () { abrirLightbox(i); });
+    grid.appendChild(b);
+  });
+
+  if (mais) {
+    var resta = _galFotos.length - _galVisiveis;
+    mais.style.display = resta > 0 ? '' : 'none';
+    mais.textContent = 'Ver mais ' + resta + (resta === 1 ? ' foto' : ' fotos');
+  }
+}
+
+/* ── Lightbox ─────────────────────────────────────────────────── */
+var _lbIdx = 0;
+
+function abrirLightbox(i) {
+  _lbIdx = i;
+  var lb = document.getElementById('galLb');
+  if (!lb) return;
+  lb.classList.add('on');
+  document.body.style.overflow = 'hidden';
+  pintarLightbox();
+}
+
+function fecharLightbox() {
+  var lb = document.getElementById('galLb');
+  if (!lb) return;
+  lb.classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function pintarLightbox() {
+  var f = _galFotos[_lbIdx];
+  if (!f) return;
+  var img = document.getElementById('galLbImg');
+  var info = document.getElementById('galLbInfo');
+  img.src = f.url;
+  img.alt = f.categoria ? ('Trabalho de ' + f.categoria) : 'Trabalho realizado';
+
+  info.textContent = '';
+  var linha = document.createElement('div');
+  var partes = [];
+  if (f.categoria) partes.push(f.categoria);
+  if (f.data) partes.push(fmtDate(f.data));
+  if (f.nota) partes.push(stars(f.nota));
+  linha.textContent = partes.join(' · ');
+  info.appendChild(linha);
+
+  if (f.reportId) {
+    var a = document.createElement('a');
+    a.href = 'relatorio.html?id=' + encodeURIComponent(f.reportId);
+    a.textContent = 'Ver relatório completo';
+    a.style.display = 'inline-block';
+    a.style.marginTop = '.4rem';
+    info.appendChild(a);
+  }
+
+  var cont = _galFotos.length > 1 ? ' (' + (_lbIdx + 1) + '/' + _galFotos.length + ')' : '';
+  var c = document.createElement('div');
+  c.style.cssText = 'opacity:.6;font-size:.72rem;margin-top:.3rem';
+  c.textContent = 'Foto' + cont;
+  info.appendChild(c);
+
+  var un = _galFotos.length > 1;
+  document.getElementById('galLbPrev').style.display = un ? '' : 'none';
+  document.getElementById('galLbNext').style.display = un ? '' : 'none';
+}
+
+function navLightbox(d) {
+  if (!_galFotos.length) return;
+  _lbIdx = (_lbIdx + d + _galFotos.length) % _galFotos.length;
+  pintarLightbox();
+}
+
+/* v7.0: delegação no documento.
+
+   Antes eu registrava os listeners direto nos botões, num IIFE que roda
+   junto com o script. Só que o HTML do visualizador fica DEPOIS do
+   script no arquivo — então getElementById devolvia null e nenhum
+   listener era registrado. Resultado: as setas e o fechar não faziam
+   nada, sem erro no console.
+
+   Delegação no document não depende de ordem de carregamento nem de
+   quantas vezes a galeria é remontada. */
+document.addEventListener('click', function (ev) {
+  var alvo = ev.target;
+  if (!alvo || !alvo.closest) return;
+
+  if (alvo.closest('#galLbX'))    { ev.preventDefault(); fecharLightbox(); return; }
+  if (alvo.closest('#galLbPrev')) { ev.preventDefault(); navLightbox(-1);  return; }
+  if (alvo.closest('#galLbNext')) { ev.preventDefault(); navLightbox(1);   return; }
+  if (alvo.closest('#galMais'))   { ev.preventDefault(); _galVisiveis += 12; renderGrid(); return; }
+
+  /* Toque no fundo fecha — gesto esperado em tela cheia.
+     Só quando o clique é no próprio backdrop, não na imagem. */
+  if (alvo.id === 'galLb') fecharLightbox();
+});
+
+document.addEventListener('keydown', function (ev) {
+  var lb = document.getElementById('galLb');
+  if (!lb || !lb.classList.contains('on')) return;
+  if (ev.key === 'Escape')     fecharLightbox();
+  if (ev.key === 'ArrowLeft')  navLightbox(-1);
+  if (ev.key === 'ArrowRight') navLightbox(1);
+});
+
+/* Swipe: também por delegação, no documento */
+(function () {
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) {
+    var lb = document.getElementById('galLb');
+    if (lb && lb.classList.contains('on') && e.touches[0]) x0 = e.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = (e.changedTouches[0] || {}).clientX - x0;
+    if (Math.abs(dx) > 50) navLightbox(dx > 0 ? -1 : 1);
+    x0 = null;
+  }, { passive: true });
+})();
+
+function renderTudo(prof, reports, avals, hashes) {
+  /* ── SEO ── */
+  var title = esc(prof.name || prof.profissao || 'Profissional') + ' · Fieldo';
+  var desc  = 'Perfil verificado de ' + (prof.profissao || 'profissional') + (prof.city ? ' em ' + prof.city : '') + '. ' + reports.length + ' serviços realizados.';
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('metaDesc').content      = desc;
+  document.getElementById('ogTitle').content       = title;
+  document.getElementById('ogDesc').content        = desc;
+
+  /* Remove noindex se tem 3+ serviços */
+  if (reports.length >= 3) {
+    var robots = document.querySelector('meta[name="robots"]');
+    if (robots) robots.content = 'index,follow';
+  }
+
+  /* JSON-LD ProfessionalService.
+
+     v5.7.7: usava a mesma coluna inexistente (review_avg), então
+     publicava "ratingValue: 0.0" nos resultados do Google. Nota zero é
+     pior que nota nenhuma — o Google trata rating inválido como sinal
+     negativo e pode desqualificar o rich result inteiro.
+
+     Agora calcula das avaliações reais e OMITE o bloco quando não há
+     nenhuma, que é o correto pelo schema.org. */
+  var ldScore = 0;
+  if (avals.length) {
+    ldScore = avals.reduce(function (t, a) { return t + (Number(a.nota) || 0); }, 0) / avals.length;
+  }
+
+  var ld = {
+    '@context': 'https://schema.org',
+    '@type':    'ProfessionalService',
+    'name':     prof.name || prof.profissao || '',
+    'description': prof.bio || desc,
+    'areaServed': prof.city || '',
+  };
+  if (avals.length && ldScore > 0) {
+    ld.aggregateRating = {
+      '@type':       'AggregateRating',
+      'ratingValue': ldScore.toFixed(1),
+      'reviewCount': String(avals.length),
+      'bestRating':  '5',
+      'worstRating': '1',
+    };
+  }
+  var ldEl = document.createElement('script');
+  ldEl.type = 'application/ld+json';
+  ldEl.textContent = JSON.stringify(ld);
+  document.head.appendChild(ldEl);
+
+  /* ── HERO ── */
+  var inicial = (prof.name || prof.profissao || 'P').charAt(0).toUpperCase();
+  var avatarEl = document.getElementById('heroAvatar');
+  if (avatarEl) {
+    avatarEl.innerHTML = prof.logo_url
+      ? '<img src="' + esc(prof.logo_url) + '"/>'
+      : inicial;
+  }
+  setText('heroName', prof.name || prof.profissao || 'Profissional');
+  setText('heroSpec', prof.profissao || '');
+  if (prof.city) {
+    setHTML('heroCity',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' +
+      esc(prof.city));
+  }
+
+  if (reports.length > 0) show('heroVerified');
+
+  /* v6.10: calculado uma vez aqui, reaproveitado pelo aviso de perfil
+     privado logo abaixo e pelo botão do card de compartilhamento.
+     Antes esse cálculo só existia (duplicado) dentro de montarGaleria. */
+  var souDono = !!(FIELDO.Auth.getId() && FIELDO.Auth.getId() === prof.id);
+
+  /* v5.7.7: o dono não tinha como saber que o perfil estava privado.
+     Ele via a própria página normalmente (RLS permite ler o próprio),
+     tocava em "Compartilhar", mandava o link — e o cliente via nada.
+
+     Só o dono vê este aviso: para visitante seria ruído. */
+  if (prof.is_public === false && souDono) {
+    var faltam = Math.max(0, 3 - reports.length);
+    var av = document.createElement('div');
+    av.className = 'perfil-aviso';
+    av.innerHTML = '';
+    var t = document.createElement('strong');
+    t.textContent = 'Seu perfil ainda não está público';
+    var p = document.createElement('p');
+    p.textContent = faltam > 0
+      ? 'Registre mais ' + faltam + (faltam === 1 ? ' serviço' : ' serviços') +
+        ' para aparecer nas buscas. Até lá, o link compartilhado não abre para o cliente.'
+      : 'Complete nome, profissão e cidade no perfil para publicar.';
+    av.appendChild(t); av.appendChild(p);
+    var alvo = document.querySelector('.contact-bar') || document.body;
+    alvo.parentNode.insertBefore(av, alvo.nextSibling);
+  }
+
+  /* v5.7.7: o score era lido de `prof.review_avg` — coluna que NÃO
+     existe no schema v5 (era campo desnormalizado da v4, que eu não
+     recriei). Resultado: undefined → 0 → "—", enquanto a contagem de
+     avaliações vinha de outra consulta e aparecia normal. A página
+     mostrava "2 avaliações" com score vazio.
+
+     Calcular a partir das próprias avaliações elimina a
+     desnormalização: não há segundo lugar para ficar dessincronizado. */
+  var score = 0;
+  if (avals.length) {
+    var soma = avals.reduce(function (t, a) { return t + (Number(a.nota) || 0); }, 0);
+    score = soma / avals.length;
+  }
+
+  if (score > 0 || avals.length > 0) {
+    show('heroScoreRow');
+    setHTML('heroScore', '<em>' + (score > 0 ? score.toFixed(1) : '—') + '</em>');
+    setText('heroStars', score > 0 ? stars(Math.round(score)) : '');
+    setText('heroAvals', avals.length || '—');
+    setText('heroServicos', reports.length || '—');
+  }
+
+  /* ── CONTATO ── */
+  if (prof.whatsapp) {
+    /* v5.5.2: normalização única — evita DDI duplicado.
+       waLink devolve '' se o número não servir; nesse caso o botão
+       fica escondido em vez de abrir o WhatsApp em branco. */
+    var wapLink = FIELDO.UI.waLink(prof.whatsapp,
+      'Olá! Vi o perfil de ' + (prof.name || 'você') + ' no Fieldo e gostaria de solicitar um serviço.');
+    var btnWA = document.getElementById('btnWA');
+    if (wapLink && btnWA) {
+      btnWA.href = wapLink;
+      show('contactBar');
+    }
+  }
+
+  /* v7.5: badge de atividade real — reforço de prova social bem em
+     cima do botão de WhatsApp, no momento exato em que o visitante
+     está decidindo se chama ou não. Deliberadamente NÃO é "responde
+     em X horas": o Fieldo não vê conversa de WhatsApp nenhuma, não
+     tem como medir isso de verdade. Contagem de serviços concluídos
+     este mês, essa sim é um dado real, direto de reports.service_date. */
+  if (prof.whatsapp && reports.length > 0) {
+    var agora = new Date();
+    var mesAtual = agora.getMonth(), anoAtual = agora.getFullYear();
+    var esteMs = reports.filter(function (r) {
+      var d = new Date(r.service_date || r.created_at);
+      return !isNaN(d) && d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+    }).length;
+    if (esteMs > 0) {
+      setText('activityText', esteMs + ' serviço' + (esteMs === 1 ? '' : 's') + ' concluído' + (esteMs === 1 ? '' : 's') + ' este mês');
+      show('activityText');
+    }
+  }
+
+  /* ── BIO ── */
+  if (prof.bio) {
+    setText('bioText', prof.bio);
+    show('bioWrap');
+  }
+
+  /* ── MINI STATS ── */
+  if (reports.length > 0 || avals.length > 0) {
+    show('miniStats');
+    setText('msServicos', reports.length || '—');
+    setHTML('msScore', score > 0 ? '<em>' + score.toFixed(1) + '</em>' : '—');
+    setText('msSelos', hashes.length || '—');
+  }
+
+  /* ── SERVIÇOS ── */
+  montarGaleria(reports, prof);
+
+  setText('secServCount', reports.length ? reports.length + ' registrados' : '');
+  var sl = document.getElementById('serviceList');
+  if (!sl) {}
+  else if (!reports.length) {
+    sl.innerHTML = '<div class="empty-sm">Nenhum serviço registrado ainda</div>';
+  } else {
+    sl.innerHTML = reports.map(function(r) {
+      var emoji = NICHE_EMOJI[r.niche || r.category_key] || '🔧';
+      var thumb = r.photos && r.photos[0]
+        ? '<img src="'+esc(r.photos[0])+'" loading="lazy"/>'
+        : '<div class="service-thumb-ph">'+emoji+'</div>';
+      var rating = r.rating ? '<div class="service-score">'+stars(r.rating)+'</div>' : '';
+      /* v5.8: nome do cliente resumido.
+         Esta página é PÚBLICA. Exibir "Maria Aparecida Silva" para
+         qualquer estranho expõe um terceiro que nunca consentiu — e
+         não agrega nada a quem está avaliando o profissional.
+         Primeiro nome + inicial basta para dar concretude. */
+      return '<a href="relatorio.html?id='+esc(r.id)+'" class="service-card">'+
+        '<div class="service-thumb">'+thumb+'</div>'+
+        '<div class="service-info">'+
+          '<div class="service-client">'+esc(nomeCurto(r.client_name))+'</div>'+
+          '<div class="service-meta">'+
+            '<span class="service-niche">'+esc(r.category_label||r.niche||r.category_key||'—')+'</span>'+
+            '<span class="service-dot"></span>'+
+            '<span class="service-date">'+fmtDate(r.service_date||r.created_at)+'</span>'+
+          '</div>'+
+        '</div>'+
+        rating+
+      '</a>';
+    }).join('');
+  }
+
+  
+
+
+  /* ── AVALIAÇÕES ── */
+  setText('secAvalCount', avals.length ? avals.length + ' avaliações' : '');
+  var rl = document.getElementById('reviewList');
+  if (!rl) {}
+  else if (!avals.length) {
+    rl.innerHTML = '<div class="empty-sm">Nenhuma avaliação ainda</div>';
+  } else {
+    rl.innerHTML = avals.map(function(a) {
+      return '<div class="review-card">'+
+        '<div class="review-head">'+
+          '<div class="review-stars">'+stars(a.nota)+'</div>'+
+          '<div class="review-date">'+fmtDate(a.created_at)+'</div>'+
+        '</div>'+
+        /* Mesmo critério do cartão de serviço: quem avalia se identifica
+           para o profissional, não para a internet inteira. */
+        (a.nome_avaliador?'<div class="review-author">'+esc(nomeCurto(a.nome_avaliador))+'</div>':'')+
+        (a.comentario?'<div class="review-comment">'+esc(a.comentario)+'</div>':'')+
+        /* v6.3: direito de resposta. A nota e o comentário do cliente
+           ficam intocados — o profissional só acrescenta o lado dele.
+           Apagar avaliação seria censura e destruiria a confiança no
+           sistema inteiro; responder equilibra sem falsear. */
+        (a.resposta
+          ? '<div class="review-reply">'+
+              '<div class="review-reply-lbl">Resposta do profissional</div>'+
+              '<div>'+esc(a.resposta)+'</div>'+
+            '</div>'
+          : '')+
+      '</div>';
+    }).join('');
+  }
+}
+
+function renderErro() {
+  document.getElementById('heroName').textContent = 'Perfil não encontrado';
+  setText('heroSpec', 'Este link pode estar desatualizado');
+}
+
+function compartilhar() {
+  var url = window.location.href;
+  if (navigator.share && _prof) {
+    navigator.share({
+      title: (_prof.name || 'Profissional') + ' · Fieldo',
+      url:   url,
+    }).catch(function() {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast('Link copiado ✓'); });
+  } else {
+    toast('Copie o link da barra de endereço');
+  }
+}
+
+function toast(msg) {
+  var el = document.getElementById('p-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2600);
+}
+</script>
+
+<!-- v5.8: visualizador de foto em tela cheia -->
+<div class="gal-lb" id="galLb" role="dialog" aria-modal="true" aria-label="Foto do trabalho">
+  <button class="gal-lb-x" id="galLbX" aria-label="Fechar">✕</button>
+  <img class="gal-lb-img" id="galLbImg" alt=""/>
+  <div class="gal-lb-info" id="galLbInfo"></div>
+  <button class="gal-lb-nav gal-lb-prev" id="galLbPrev" aria-label="Anterior">‹</button>
+  <button class="gal-lb-nav gal-lb-next" id="galLbNext" aria-label="Próxima">›</button>
+</div>
+</body>
+</html>

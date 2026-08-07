@@ -1,0 +1,70 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "geolocation=(self), camera=(self), microphone=()"
+
+# Cache: HTML sempre revalidado (senão o usuário fica preso numa versão antiga
+# do db.js e recebe erros de auth que já foram corrigidos — aconteceu na v5.0).
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/db.js"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/fieldo.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# codes.html foi REMOVIDO do projeto na v5.0: continha o segredo HMAC e a
+# senha de admin em texto claro. A emissão de licenças passou para a Edge
+# Function license-issue. Este bloqueio é defesa em profundidade, caso o
+# arquivo reapareça por engano num deploy futuro.
+[[redirects]]
+  from   = "/codes.html"
+  to     = "/index.html"
+  status = 404
+  force  = true
+
+# admin.html NÃO contém segredo (a chave é digitada e validada no servidor),
+# então vazar o arquivo é inofensivo. Ainda assim fica bloqueado por padrão:
+# publicá-lo só entrega um formulário para força bruta contra a FIELDO_ADMIN_KEY.
+# Uso recomendado: abrir o arquivo local, direto do disco.
+# Para publicar mesmo assim, remova este bloco e use uma chave longa e aleatória.
+[[redirects]]
+  from   = "/admin.html"
+  to     = "/index.html"
+  status = 404
+  force  = true
+
+# ── Service Worker DESATIVADO (v5.9) ────────────────────────────
+# sw.js virou kill-switch: se desregistra e limpa os caches.
+# Continua com no-store porque o navegador PRECISA baixar esta versão
+# nova para que a desinstalação aconteça. Manter publicado por algumas
+# semanas, até todos os aparelhos passarem por ele.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Ícones mudam raramente e são imutáveis por nome
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"

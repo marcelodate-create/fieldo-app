@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Pesquisa · Fieldo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    .search-wrap{position:relative;margin-bottom:1rem}
+    .search-icon{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .search-field{width:100%;background:var(--paper2);border:1px solid var(--border2);border-radius:var(--r-l);padding:.8rem 2.75rem .8rem 2.75rem;color:var(--text);font-family:var(--sans);font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
+    .search-field:focus{border-color:var(--gold-bd);box-shadow:0 0 0 3px var(--gold-bg)}
+    .search-field::placeholder{color:var(--ghost)}
+    .search-clear{position:absolute;right:.95rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;display:none;padding:.25rem}
+    .search-clear.visible{display:block}
+
+    /* Tabs */
+    .stabs{display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:1.25rem}
+    .stab{padding:.7rem 1rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:.15s;margin-bottom:-1px}
+    .stab.active{color:var(--gold-d);border-bottom-color:var(--gold)}
+    .stab:hover:not(.active){color:var(--text2)}
+    .stab-count{font-family:var(--mono);font-size:.6rem;background:var(--paper3);color:var(--muted);border-radius:2rem;padding:.08rem .45rem;margin-left:.3rem}
+    .stab.active .stab-count{background:var(--gold-bg);color:var(--gold-d)}
+
+    /* Resultado item */
+    .result-item{display:flex;align-items:center;gap:.85rem;padding:.8rem 1rem;border-radius:var(--r);border:1px solid var(--border);background:var(--paper);margin-bottom:.4rem;cursor:pointer;transition:background .15s;text-decoration:none;color:inherit}
+    .result-item:hover{background:var(--paper2);border-color:var(--border2)}
+    .result-icon{width:38px;height:38px;border-radius:8px;background:var(--paper3);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1px solid var(--border)}
+    .result-body{flex:1;min-width:0}
+    .result-title{font-size:.86rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .result-meta{display:flex;align-items:center;gap:.4rem;margin-top:.12rem;flex-wrap:wrap}
+    .result-tag{font-family:var(--mono);font-size:.6rem;color:var(--muted)}
+    .result-dot{width:3px;height:3px;border-radius:50%;background:var(--ghost);flex-shrink:0}
+    .result-date{font-family:var(--mono);font-size:.6rem;color:var(--subtle)}
+    .result-badge{font-family:var(--mono);font-size:.58rem;padding:.1rem .45rem;border-radius:2rem;flex-shrink:0}
+    .result-badge.serv{background:var(--gold-bg);color:var(--gold-d)}
+    .result-badge.orc{background:var(--green-bg);color:var(--green-l)}
+    .result-score{font-family:var(--mono);font-size:.72rem;font-weight:500;color:var(--gold-d);flex-shrink:0}
+
+    /* Empty */
+    .empty-search{text-align:center;padding:3rem 1.5rem;color:var(--muted)}
+    .empty-glyph{font-family:var(--serif);font-size:2.5rem;font-style:italic;color:var(--paper4);margin-bottom:.65rem}
+
+    /* Tip inicial */
+    .search-tip{text-align:center;padding:2rem 1rem;color:var(--muted)}
+    .search-tip p{font-size:.82rem;line-height:1.7}
+    .search-tip-icon{font-size:1.75rem;margin-bottom:.5rem}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="contratos.html" class="menu-nav-item" data-pro="1" style="display:none"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Contratos</span></a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--narrow">
+  <div class="page-eyebrow">Pesquisa</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Encontrar <em>documentos</em></h1>
+  <p class="page-sub" style="margin-bottom:1.25rem">Busque por nome do cliente, categoria ou data</p>
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-field" type="text" id="searchInput" placeholder="Nome do cliente, categoria, cidade…" oninput="pesquisar()" autocomplete="off"/>
+    <button class="search-clear" id="clearBtn" onclick="limpar()" aria-label="Limpar busca">✕</button>
+  </div>
+
+  <div class="stabs">
+    <button class="stab active" onclick="setTab('todos',this)">
+      Todos <span class="stab-count" id="countTodos">0</span>
+    </button>
+    <button class="stab" onclick="setTab('relatorios',this)">
+      Relatórios <span class="stab-count" id="countRelatorios">0</span>
+    </button>
+    <button class="stab" onclick="setTab('orcamentos',this)">
+      Orçamentos <span class="stab-count" id="countOrcamentos">0</span>
+    </button>
+    <button class="stab" onclick="setTab('receber',this)">
+      A receber <span class="stab-count" id="countReceber">0</span>
+    </button>
+  </div>
+
+  <div id="resultados">
+    <div class="search-tip">
+      <div class="search-tip-icon">🔍</div>
+      <p>Digite para buscar seus relatórios e orçamentos</p>
+    </div>
+  </div>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+if(!FIELDO.Auth.isLoggedIn()) window.location.href = 'entrar.html';
+
+var NICHE_EMOJI = {eletrica:'⚡',hidraulica:'🔧',pintura:'🎨','ar-condicionado':'❄️',alvenaria:'🧱',informatica:'💻',serralheria:'🔩'};
+var _relatorios = [];
+var _orcamentos = [];
+var _tab = 'todos';
+var _query = '';
+
+document.addEventListener('DOMContentLoaded', function () {
+  /* v7.5: "Ver a receber →" no dashboard apontava pra "#" — nunca foi
+     ligado a lugar nenhum. Reaproveita esta página (já lista
+     relatórios) com uma aba nova em vez de criar uma tela só pra
+     isso. ?receber=1 pré-seleciona a aba ao chegar aqui de lá. */
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('receber') === '1') {
+    _tab = 'receber';
+    document.querySelectorAll('.stab').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelector('.stab[onclick*="receber"]').classList.add('active');
+  }
+  carregarTudo();
+});
+
+function carregarTudo(){
+  Promise.all([
+    FIELDO.Reports.list({limit:200}),
+    FIELDO.Budgets.list(200),
+  ]).then(function(res){
+    _relatorios = res[0] || [];
+    _orcamentos = res[1] || [];
+    renderResultados();
+  }).catch(function(){ FIELDO.UI.toast('Erro ao carregar documentos'); });
+}
+
+function pesquisar(){
+  _query = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+  var clearBtn = document.getElementById('clearBtn');
+  if(clearBtn) clearBtn.classList.toggle('visible', !!_query);
+  renderResultados();
+}
+
+function limpar(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').classList.remove('visible');
+  _query = '';
+  renderResultados();
+}
+
+function setTab(tab, btn){
+  _tab = tab;
+  document.querySelectorAll('.stab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderResultados();
+}
+
+function filtrar(items, campo1, campo2, campo3){
+  if(!_query) return items;
+  return items.filter(function(i){
+    return (i[campo1]||'').toLowerCase().includes(_query) ||
+           (i[campo2]||'').toLowerCase().includes(_query) ||
+           (i[campo3]||'').toLowerCase().includes(_query);
+  });
+}
+
+function renderResultados(){
+  var relFiltrados = filtrar(_relatorios, 'client_name', 'category_label', 'service_location');
+  var orcFiltrados = filtrar(_orcamentos, 'client_name', 'titulo', 'local');
+  var receberFiltrados = relFiltrados.filter(function (r) { return r.payment_status === 'pendente' && r.valor; });
+
+  setText('countTodos', relFiltrados.length + orcFiltrados.length);
+  setText('countRelatorios', relFiltrados.length);
+  setText('countOrcamentos', orcFiltrados.length);
+  setText('countReceber', receberFiltrados.length);
+
+  var items = [];
+  if(_tab === 'todos' || _tab === 'relatorios'){
+    items = items.concat(relFiltrados.map(function(r){ return {tipo:'rel', data:r}; }));
+  }
+  if(_tab === 'todos' || _tab === 'orcamentos'){
+    items = items.concat(orcFiltrados.map(function(r){ return {tipo:'orc', data:r}; }));
+  }
+  if(_tab === 'receber'){
+    items = receberFiltrados.map(function(r){ return {tipo:'rel', data:r}; });
+  }
+
+  /* Ordena por data desc */
+  items.sort(function(a, b){
+    var da = new Date(a.data.created_at||0).getTime();
+    var db = new Date(b.data.created_at||0).getTime();
+    return db - da;
+  });
+
+  var res = document.getElementById('resultados');
+  if(!_query && !items.length && _tab === 'receber'){
+    res.innerHTML = '<div class="search-tip"><div class="search-tip-icon">✓</div><p>Nada pendente — tudo recebido.</p></div>';
+    return;
+  }
+  if(!_query && !items.length){
+    res.innerHTML = '<div class="search-tip"><div class="search-tip-icon">📁</div><p>Nenhum documento ainda.<br><a href="servico.html" style="color:var(--gold-d)">Registrar primeiro serviço →</a></p></div>';
+    return;
+  }
+  if(_query && !items.length){
+    res.innerHTML = '<div class="empty-search"><div class="empty-glyph">🔍</div><p>Nenhum resultado para <strong>'+esc(_query)+'</strong></p></div>';
+    return;
+  }
+
+  res.innerHTML = items.map(function(item){
+    if(item.tipo==='rel') return renderRel(item.data);
+    return renderOrc(item.data);
+  }).join('');
+}
+
+function renderRel(r){
+  var emoji = NICHE_EMOJI[r.niche||r.category_key]||'🔧';
+  var rating = r.rating ? '★'.repeat(r.rating)+'☆'.repeat(5-r.rating) : '';
+  var pendente = r.payment_status === 'pendente' && r.valor;
+  return '<a href="relatorio.html?id='+esc(r.id)+'" class="result-item">'+
+    '<div class="result-icon">'+emoji+'</div>'+
+    '<div class="result-body">'+
+      '<div class="result-title">'+esc(r.client_name)+'</div>'+
+      '<div class="result-meta">'+
+        '<span class="result-tag">'+esc(r.category_label||r.niche||r.category_key||'Serviço')+'</span>'+
+        (r.service_location?'<span class="result-dot"></span><span class="result-date">'+esc(r.service_location)+'</span>':'')+
+        '<span class="result-dot"></span><span class="result-date">'+FIELDO.UI.fmtDate(r.service_date||r.created_at)+'</span>'+
+      '</div>'+
+    '</div>'+
+    (pendente?'<div class="result-score" style="color:var(--amber)">'+FIELDO.UI.brl(r.valor)+'</div>':(rating?'<div class="result-score" style="color:var(--gold-l);font-size:.75rem">'+rating+'</div>':''))+
+    '<span class="result-badge serv">Relatório</span>'+
+  '</a>';
+}
+
+function renderOrc(o){
+  var status = o.status||'pendente';
+  var statusColors = {pendente:'color:var(--amber)',assinado:'color:var(--green-l)',aprovado:'color:var(--green-l)'};
+  return '<a href="orcamento.html?id='+esc(o.id)+'" class="result-item">'+
+    '<div class="result-icon">📋</div>'+
+    '<div class="result-body">'+
+      '<div class="result-title">'+esc(o.client_name)+(o.titulo?' — '+esc(o.titulo):'')+'</div>'+
+      '<div class="result-meta">'+
+        '<span class="result-tag" style="'+(statusColors[status]||'color:var(--muted)')+'">'+status+'</span>'+
+        '<span class="result-dot"></span><span class="result-date">'+FIELDO.UI.brl(o.total)+'</span>'+
+        '<span class="result-dot"></span><span class="result-date">'+FIELDO.UI.fmtDate(o.created_at)+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<span class="result-badge orc">Orçamento</span>'+
+  '</a>';
+}
+
+function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+/* v6.4: delega para FIELDO.UI.esc.
+   A versão local escapava só & < > — faltavam ASPAS. Usada dentro
+   de um atributo (src="…", href="…"), um valor com aspa escapava do
+   atributo e abria caminho para injeção. Três implementações
+   diferentes no projeto significavam que a correta podia ser
+   contornada por acidente. Agora existe uma só. */
+function esc(s) { return FIELDO.UI.esc(s); }
+</script>
+</body>
+</html>

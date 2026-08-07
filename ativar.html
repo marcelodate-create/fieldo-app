@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0e0e14"/>
+<title>Ativar Pro · Fieldo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+<style>
+  body { background: var(--bg); }
+
+  .page-wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+  }
+
+  .page-box { width: 100%; max-width: 460px; padding-top: 1rem; }
+
+  .pro-hero {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r-l);
+    padding: 2rem 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .pro-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(196,154,48,.32) 0%, transparent 60%),
+      radial-gradient(ellipse at 0% 100%, rgba(154,114,24,.18) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .pro-hero-inner { position: relative; z-index: 1; }
+
+  .pro-eyebrow {
+    font-family: var(--mono); font-size: .6rem;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--gold-l);
+    display: flex; align-items: center; gap: .55rem;
+    margin-bottom: 1rem;
+  }
+  .pro-eyebrow::before { content: ''; width: 14px; height: 1px; background: var(--gold-l); }
+
+  .pro-title {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 5vw, 2.1rem);
+    font-weight: 300; line-height: 1.1;
+    margin-bottom: .5rem;
+    color: rgba(255,255,255,.95);
+    letter-spacing: -.02em;
+  }
+  .pro-title em { font-style: italic; color: var(--gold-l); }
+
+  .pro-sub {
+    font-size: .88rem;
+    color: rgba(255,255,255,.7);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .pro-features {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex; flex-direction: column;
+    gap: .55rem;
+  }
+  .pro-features li {
+    font-size: .82rem;
+    color: rgba(255,255,255,.85);
+    display: flex; align-items: center; gap: .65rem;
+  }
+  .pro-features li::before {
+    content: '✓';
+    color: var(--gold-l);
+    font-weight: 600;
+    flex-shrink: 0;
+    width: 1rem; text-align: center;
+  }
+
+  /* Card de ativação */
+  .activate-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--r-l);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .field-input.code-input {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .activate-help {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .05em;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 1rem;
+    line-height: 1.7;
+  }
+
+  /* Estado: já tem acesso */
+  .pro-active-card {
+    background: var(--green-bg);
+    border: 1px solid var(--green-bd);
+    border-radius: var(--r-l);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .pro-active-icon {
+    width: 48px; height: 48px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    color: #fff;
+  }
+  .pro-active-title {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: var(--green);
+    margin-bottom: .35rem;
+  }
+  .pro-active-sub {
+    font-size: .82rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  /* Loading */
+  .loading-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .back-link {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .5rem 0;
+    margin-bottom: .5rem;
+  }
+  .back-link:hover { color: var(--gold-d); }
+</style>
+</head>
+<body>
+
+<a href="#main" class="sr-only">Pular para conteúdo</a>
+
+<div class="page-wrap">
+  <main id="main" class="page-box">
+
+    <a href="index.html" class="back-link" aria-label="Voltar para o dashboard">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Voltar
+    </a>
+
+    <!-- Hero -->
+    <div class="pro-hero">
+      <div class="pro-hero-inner">
+        <div class="pro-eyebrow">Fieldo · Pro</div>
+        <h1 class="pro-title">Desbloquear<br><em>Contratos</em></h1>
+        <p class="pro-sub">
+          Controle de obras, diárias, empreitada e extras &mdash; com cálculo automático
+          e resumo para pagamento.
+        </p>
+
+        <ul class="pro-features">
+          <li>Empreiteiros e empreitadas ilimitados</li>
+          <li>Diárias, empreitadas e extras por obra</li>
+          <li>Cálculo de saldo em tempo real</li>
+          <li>Histórico completo e exportável</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Loading inicial (enquanto verifica se já é Pro) -->
+    <div id="loadingState" class="loading-state">
+      Verificando seu acesso…
+    </div>
+
+    <!-- Estado: ativar (default escondido, mostrado se NÃO for Pro) -->
+    <div id="activateState" style="display:none">
+      <div class="activate-card">
+        <div class="field-group">
+          <label class="field-label" for="codeInput">Cole sua chave Pro</label>
+          <textarea
+            id="codeInput"
+            class="field-input code-input"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            rows="3"
+            placeholder="eyJ1IjoiSm9hbyIsInAiOiJtZW5zYWwi…"
+            aria-describedby="codeError"
+            style="font-family:var(--mono);font-size:.78rem;letter-spacing:.02em;text-transform:none;text-align:left;line-height:1.5;resize:none;word-break:break-all"
+          ></textarea>
+          <div class="field-error" id="codeError" role="alert" style="display:none"></div>
+        </div>
+
+        <button
+          id="btnActivate"
+          class="btn btn--primary btn--full btn--lg"
+          onclick="ativar()"
+          style="margin-top:1rem"
+        >
+          <span id="btnLabel">Ativar Pro</span>
+          <span class="btn__spin" id="spinActivate"></span>
+        </button>
+      </div>
+
+      <p class="activate-help">
+        Você recebeu um código?<br>
+        Cole acima e ative em um clique.<br>
+        Para obter um código, fale com a equipe Fieldo.
+      </p>
+    </div>
+
+    <!-- Estado: já é Pro -->
+    <div id="alreadyProState" style="display:none">
+      <div class="pro-active-card">
+        <div class="pro-active-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="pro-active-title">Pro ativo</div>
+        <div class="pro-active-sub" id="proSubLabel">Seu acesso está ativo.</div>
+        <a href="contratos.html" class="btn btn--primary btn--full btn--lg">
+          Ir para Contratos
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script>
+'use strict';
+
+/* Guard: ativação requer estar logado */
+if (!FIELDO.Auth.isLoggedIn()) {
+  window.location.href = 'entrar.html?next=ativar.html';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  initCodeInput();
+  verificarStatus();
+});
+
+function initCodeInput() {
+  var inp = document.getElementById('codeInput');
+  if (!inp) return;
+  inp.addEventListener('input', function () {
+    document.getElementById('codeError').style.display = 'none';
+  });
+  inp.addEventListener('keydown', function (e) {
+    /* Enter (sem shift) submete */
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      ativar();
+    }
+  });
+  inp.addEventListener('paste', function (e) {
+    /* Ao colar, tenta validar automaticamente */
+    setTimeout(function () {
+      if (inp.value.trim().length > 30) ativar();
+    }, 50);
+  });
+}
+
+function verificarStatus() {
+  /* v4.0: ativação é puramente client-side (token HMAC).
+     Não exige Supabase Auth nem login prévio. */
+
+  FIELDO.Pro.check(true).then(function (isPro) {
+    document.getElementById('loadingState').style.display = 'none';
+
+    if (isPro) {
+      mostrarJaPro();
+    } else {
+      document.getElementById('activateState').style.display = 'block';
+      setTimeout(function () {
+        var inp = document.getElementById('codeInput');
+        if (inp) inp.focus();
+      }, 200);
+    }
+  }).catch(function (e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('activateState').style.display = 'block';
+    console.error('[ativar] check:', e);
+  });
+}
+
+function mostrarJaPro() {
+  document.getElementById('activateState').style.display = 'none';
+  document.getElementById('alreadyProState').style.display = 'block';
+
+  FIELDO.Pro.details().then(function (det) {
+    var sub = document.getElementById('proSubLabel');
+    if (!sub || !det) return;
+    var planLabel = ({ semanal: 'Plano Semanal', mensal: 'Plano Mensal', vitalicio: 'Plano Vitalício' })[det.plan] || 'Pro';
+    var nome = det.user_name ? ' · ' + det.user_name : '';
+
+    if (det.days_left && det.days_left > 365) {
+      sub.textContent = planLabel + nome + ' · vitalício';
+    } else if (det.days_left) {
+      sub.textContent = planLabel + nome + ' · ' + det.days_left + ' dia' + (det.days_left === 1 ? '' : 's') + ' restante' + (det.days_left === 1 ? '' : 's');
+    } else if (det.expires_at) {
+      sub.textContent = planLabel + nome + ' · até ' + FIELDO.UI.fmtDate(det.expires_at);
+    } else {
+      sub.textContent = planLabel + nome;
+    }
+  }).catch(function () { /* não crítico */ });
+}
+
+function setLoading(loading) {
+  var btn = document.getElementById('btnActivate');
+  var spin = document.getElementById('spinActivate');
+  var lbl = document.getElementById('btnLabel');
+  if (!btn) return;
+  btn.disabled = loading;
+  if (spin) spin.classList.toggle('on', loading);
+  if (lbl) lbl.textContent = loading ? 'Validando…' : 'Ativar Pro';
+}
+
+function mostrarErro(msg) {
+  var err = document.getElementById('codeError');
+  if (!err) return;
+  err.textContent = msg;
+  err.classList.add('visible');
+  err.style.display = 'block';
+}
+
+function ativar() {
+  var inp = document.getElementById('codeInput');
+  var code = (inp && inp.value || '').trim();
+  var err = document.getElementById('codeError');
+  if (err) err.style.display = 'none';
+
+  if (!code) {
+    mostrarErro('Cole a chave Pro recebida');
+    if (inp) inp.focus();
+    return;
+  }
+
+  setLoading(true);
+
+  /* v4.1: usa Validator que já traz mensagem traduzida + rate limit. */
+  FIELDO.Validator.activate(code).then(function (result) {
+    setLoading(false);
+
+    if (!result.valid) {
+      mostrarErro(result.message);
+      return;
+    }
+
+    FIELDO.UI.toast('Pro ativado! Bem-vindo.', 3500);
+    setTimeout(mostrarJaPro, 700);
+  }).catch(function (e) {
+    setLoading(false);
+    FIELDO.UI.handleError(e);
+  });
+}
+</script>
+
+</body>
+</html>
