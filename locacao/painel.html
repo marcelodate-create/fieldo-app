@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Minha vitrine · Locação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../fieldo.css"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="apple-mobile-web-app-title" content="Locação"/>
+  <style>
+    body { background: var(--bg); padding-bottom: 3rem; }
+    .loc-main { max-width: 560px; margin: 0 auto; padding: 1.25rem; }
+
+    .loc-hero {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--r-l); padding: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .loc-hero-eyebrow {
+      font-family: var(--mono); font-size: .58rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: .4rem;
+    }
+    .loc-hero-nome { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; color: var(--ink); }
+    .loc-hero-cidade { font-size: .82rem; color: var(--muted); margin-top: .2rem; margin-bottom: 1rem; }
+
+    .publish-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--paper2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: .85rem 1rem; gap: .75rem;
+    }
+    .publish-status { font-family: var(--mono); font-size: .68rem; }
+    .publish-status.on  { color: var(--green); }
+    .publish-status.off { color: var(--muted); }
+
+    .equip-row {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1rem 1.1rem; margin-bottom: .75rem;
+    }
+    .equip-top { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
+    .equip-nome { font-family: var(--serif); font-size: 1.05rem; font-weight: 400; color: var(--ink); }
+    .equip-cat { font-family: var(--mono); font-size: .64rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: .15rem; }
+    .equip-preco { font-family: var(--mono); font-size: .8rem; color: var(--gold-text); font-weight: 500; white-space: nowrap; }
+    .equip-acts { display: flex; gap: .5rem; margin-top: .75rem; }
+
+    .status-pill {
+      font-family: var(--mono); font-size: .62rem; letter-spacing: .05em;
+      padding: .3rem .6rem; border-radius: 999px; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: .3rem; margin-top: .5rem;
+    }
+    .status-pill.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+    .status-pill.amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+
+    .loc-fab { position: fixed; right: 1.1rem; bottom: 1.4rem; z-index: 20; }
+    .loc-form-card { display: none; }
+    .loc-form-card.open { display: block; }
+
+    .loc-topbar-brand em { color: var(--gold-l); font-style: italic; font-weight: 300; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="./index.html" class="topbar-logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <rect x="1" y="7" width="15" height="11"/><path d="M16 10h4l3 3v5h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>
+        </svg>
+      </div>
+      <span class="topbar-brand loc-topbar-brand"><em>Locação</em></span>
+      <span class="topbar-badge">v1</span>
+    </a>
+    <button class="btn btn--ghost btn--sm" onclick="sair()" aria-label="Sair">Sair</button>
+  </div>
+</header>
+
+<main class="loc-main">
+
+  <div class="loc-hero" id="heroLocadora">
+    <div class="loc-hero-eyebrow">Sua vitrine</div>
+    <div class="loc-hero-nome" id="heroNome">Carregando…</div>
+    <div class="loc-hero-cidade" id="heroCidade"></div>
+
+    <div class="publish-row">
+      <div>
+        <div class="publish-status off" id="publishStatus">Vitrine não publicada</div>
+        <div class="field-hint" style="margin-top:.15rem">Só aparece pros clientes depois de publicada.</div>
+      </div>
+      <button class="btn btn--primary btn--sm" id="btnPublicar" onclick="alternarPublicacao()">Publicar</button>
+    </div>
+  </div>
+
+  <div class="card-title">Meus equipamentos</div>
+
+  <div id="listaEquipamentos"><!-- preenchido via JS --></div>
+
+  <div class="empty-state" id="emptyEquipamentos" style="display:none">
+    <div class="empty-state-glyph">⬡</div>
+    <h3>Nenhum equipamento <em>cadastrado</em></h3>
+    <p>Betoneira, andaime, gerador — cadastre o primeiro pra começar a aparecer na busca.</p>
+    <button class="btn btn--primary" onclick="abrirForm()">Cadastrar o primeiro</button>
+  </div>
+
+  <!-- Formulário equipamento -->
+  <div class="card loc-form-card" id="formCard">
+    <div class="card-title" id="formCardTitle">Novo equipamento</div>
+
+    <div class="field-group" style="margin-bottom:1rem">
+      <label class="field-label">Nome <span class="required">*</span></label>
+      <input class="field-input" id="inpNome" type="text" placeholder="Ex: Betoneira 400L"/>
+    </div>
+
+    <div class="field-group" style="margin-bottom:1rem">
+      <label class="field-label">Categoria <span class="required">*</span></label>
+      <select class="field-select" id="inpCategoria"><option value="">Carregando…</option></select>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Marca</label>
+        <input class="field-input" id="inpMarca" type="text" placeholder="Opcional"/>
+      </div>
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Modelo</label>
+        <input class="field-input" id="inpModelo" type="text" placeholder="Opcional"/>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Preço/dia <span class="required">*</span></label>
+        <input class="field-input" id="inpPrecoDia" type="number" inputmode="decimal" step="0.01" placeholder="0,00"/>
+      </div>
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Quantidade</label>
+        <input class="field-input" id="inpQuantidade" type="number" inputmode="numeric" min="1" value="1"/>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Preço/semana</label>
+        <input class="field-input" id="inpPrecoSemana" type="number" inputmode="decimal" step="0.01" placeholder="Opcional"/>
+      </div>
+      <div class="field-group" style="flex:1">
+        <label class="field-label">Caução</label>
+        <input class="field-input" id="inpCaucao" type="number" inputmode="decimal" step="0.01" placeholder="Opcional"/>
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom:1.25rem">
+      <label class="field-label">Descrição</label>
+      <textarea class="field-textarea" id="inpDescricao" rows="2" placeholder="Estado de conservação, acessórios inclusos, etc."></textarea>
+    </div>
+
+    <label style="display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;cursor:pointer">
+      <input type="checkbox" id="inpEquipPublico" checked style="margin-top:.2rem"/>
+      <span>Mostrar este equipamento na vitrine pública (além de publicar a vitrine em si).</span>
+    </label>
+
+    <div style="display:flex;gap:.6rem">
+      <button class="btn btn--ghost" style="flex:1" onclick="fecharForm()">Cancelar</button>
+      <button class="btn btn--primary" style="flex:1" id="btnSalvarEquip" onclick="salvarEquipamento()">Salvar</button>
+    </div>
+  </div>
+
+</main>
+
+<button class="btn btn--primary btn--lg loc-fab" id="fabNovo" onclick="abrirForm()" aria-label="Novo equipamento" style="display:none">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Novo
+</button>
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>window.FIELDO_APP_NS = 'loc';</script>
+<script src="../db.js"></script>
+<script src="../db.locacao.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   Locação · Painel — vitrine (locadora) + catálogo de equipamentos.
+
+   Publicação em duas camadas, de propósito (reflete a RLS real):
+   locadoras.is_public precisa ser true E equipamentos.is_public
+   precisa ser true PRA CADA item — a vitrine inteira pode estar
+   publicada com só alguns equipamentos visíveis.
+════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function falhaCritica(msg, err) {
+    if (err) console.error('[locacao-painel]', err);
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
+      'background:#7a2020;color:#fff;padding:1rem 1.25rem;font-family:system-ui,sans-serif;' +
+      'font-size:.85rem;line-height:1.5';
+    var p = document.createElement('div');
+    p.textContent = msg;
+    var b = document.createElement('button');
+    b.textContent = 'Recarregar';
+    b.style.cssText = 'margin-top:.7rem;width:100%;padding:.7rem;border:0;border-radius:8px;' +
+      'background:#fff;color:#7a2020;font-weight:600;font-family:inherit;font-size:.85rem';
+    b.onclick = function () { location.reload(true); };
+    box.appendChild(p); box.appendChild(b);
+    document.body.appendChild(box);
+  }
+
+  if (typeof FIELDO === 'undefined' || !FIELDO.Auth) {
+    falhaCritica('O app não carregou por completo. Verifique a conexão e recarregue.');
+    return;
+  }
+  if (typeof FIELDO_LOCACAO === 'undefined' || !FIELDO_LOCACAO.Locadoras) {
+    falhaCritica('Módulo da Locação não carregou. Verifique a conexão e recarregue.');
+    return;
+  }
+
+  window.addEventListener('error', function (ev) {
+    if (window.__locErroMostrado) return;
+    window.__locErroMostrado = true;
+    falhaCritica('Ocorreu um erro nesta tela. Recarregue para tentar de novo.', ev.error || ev.message);
+  });
+
+  var esc = (FIELDO.UI && FIELDO.UI.esc) || function (s) { return String(s == null ? '' : s); };
+  var state = { locadora: null, categorias: [], equipamentosCache: [], editandoId: null };
+
+  if (!FIELDO.Auth.isLoggedIn()) {
+    location.href = './index.html';
+    return;
+  }
+
+  function toast(msg) {
+    if (FIELDO.UI && FIELDO.UI.toast) return FIELDO.UI.toast(msg);
+    alert(msg);
+  }
+
+  function fmtMoeda(v) {
+    return (v == null) ? null : 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
+  /* ── Carrega locadora + categorias + equipamentos ──────────── */
+  function carregar() {
+    return FIELDO_LOCACAO.Locadoras.me()
+      .then(function (locadora) {
+        if (!locadora) {
+          location.href = './index.html';
+          return Promise.reject(new Error('sem_locadora'));
+        }
+        state.locadora = locadora;
+        renderHero();
+        return Promise.all([
+          state.categorias.length ? state.categorias : FIELDO_LOCACAO.EquipamentoCategorias.listAprovadas(),
+          FIELDO_LOCACAO.Equipamentos.listOwn(),
+        ]);
+      })
+      .then(function (res) {
+        state.categorias = res[0];
+        popularSelectCategorias();
+        renderEquipamentos(res[1]);
+      })
+      .catch(function (err) {
+        if (err && err.message === 'sem_locadora') return;
+        toast('Falha ao carregar. Puxe pra atualizar.');
+        console.error('[locacao-painel] carregar', err);
+      });
+  }
+
+  function renderHero() {
+    document.getElementById('heroNome').textContent = state.locadora.nome;
+    document.getElementById('heroCidade').textContent = state.locadora.city || '';
+    var statusEl = document.getElementById('publishStatus');
+    var btn = document.getElementById('btnPublicar');
+    if (state.locadora.is_public) {
+      statusEl.textContent = 'Vitrine publicada';
+      statusEl.className = 'publish-status on';
+      btn.textContent = 'Despublicar';
+      btn.className = 'btn btn--ghost btn--sm';
+    } else {
+      statusEl.textContent = 'Vitrine não publicada';
+      statusEl.className = 'publish-status off';
+      btn.textContent = 'Publicar';
+      btn.className = 'btn btn--primary btn--sm';
+    }
+  }
+
+  window.alternarPublicacao = function () {
+    var novoValor = !state.locadora.is_public;
+    if (novoValor && !(state.equipamentosCache && state.equipamentosCache.length)) {
+      if (!confirm('Publicar sem nenhum equipamento cadastrado ainda? Você pode adicionar depois.')) return;
+    }
+    FIELDO_LOCACAO.Locadoras.update({ is_public: novoValor })
+      .then(function (l) {
+        state.locadora = l;
+        renderHero();
+        toast(novoValor ? 'Vitrine publicada.' : 'Vitrine despublicada.');
+      })
+      .catch(function (err) {
+        toast('Falha ao atualizar. Tente de novo.');
+        console.error('[locacao-painel] alternarPublicacao', err);
+      });
+  };
+
+  function popularSelectCategorias() {
+    var sel = document.getElementById('inpCategoria');
+    sel.innerHTML = state.categorias.map(function (c) {
+      return '<option value="' + esc(c.id) + '">' + esc(c.nome) + '</option>';
+    }).join('');
+  }
+
+  function nomeCategoria(id) {
+    var c = state.categorias.find(function (x) { return x.id === id; });
+    return c ? c.nome : 'Sem categoria';
+  }
+
+  function renderEquipamentos(lista) {
+    state.equipamentosCache = lista || [];
+    var wrap = document.getElementById('listaEquipamentos');
+    var empty = document.getElementById('emptyEquipamentos');
+    var fab = document.getElementById('fabNovo');
+
+    if (!lista || !lista.length) {
+      wrap.innerHTML = '';
+      empty.style.display = '';
+      fab.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    fab.style.display = '';
+
+    wrap.innerHTML = lista.map(function (e) {
+      var precoTxt = fmtMoeda(e.preco_dia);
+      var visivel = e.is_public && e.ativo;
+      return (
+        '<div class="equip-row">' +
+          '<div class="equip-top">' +
+            '<div>' +
+              '<div class="equip-nome">' + esc(e.nome) + '</div>' +
+              '<div class="equip-cat">' + esc(nomeCategoria(e.categoria_id)) + '</div>' +
+            '</div>' +
+            (precoTxt ? '<div class="equip-preco">' + esc(precoTxt) + '/dia</div>' : '') +
+          '</div>' +
+          '<span class="status-pill ' + (visivel ? 'green' : 'amber') + '">' +
+            (visivel ? '✓ Na vitrine' : (e.ativo ? 'Oculto' : 'Inativo')) +
+          '</span>' +
+          '<div class="equip-acts">' +
+            '<button class="btn btn--ghost btn--sm" style="flex:1" onclick="editarEquipamento(\'' + esc(e.id) + '\')">Editar</button>' +
+            '<button class="btn btn--ghost btn--sm" onclick="excluirEquipamento(\'' + esc(e.id) + '\')" style="color:var(--red)">Excluir</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  /* ── Form novo/editar equipamento ───────────────────────────── */
+  window.abrirForm = function (idParaEditar) {
+    state.editandoId = idParaEditar || null;
+
+    if (idParaEditar) {
+      var e = state.equipamentosCache.find(function (x) { return x.id === idParaEditar; });
+      if (!e) return toast('Equipamento não encontrado. Atualize a página.');
+      document.getElementById('inpNome').value = e.nome || '';
+      document.getElementById('inpCategoria').value = e.categoria_id || '';
+      document.getElementById('inpMarca').value = e.marca || '';
+      document.getElementById('inpModelo').value = e.modelo || '';
+      document.getElementById('inpPrecoDia').value = e.preco_dia != null ? e.preco_dia : '';
+      document.getElementById('inpPrecoSemana').value = e.preco_semana != null ? e.preco_semana : '';
+      document.getElementById('inpCaucao').value = e.caucao != null ? e.caucao : '';
+      document.getElementById('inpQuantidade').value = e.quantidade || 1;
+      document.getElementById('inpDescricao').value = e.descricao || '';
+      document.getElementById('inpEquipPublico').checked = !!e.is_public;
+      document.getElementById('formCardTitle').textContent = 'Editar equipamento';
+      document.getElementById('btnSalvarEquip').textContent = 'Salvar edição';
+    } else {
+      document.getElementById('formCardTitle').textContent = 'Novo equipamento';
+      document.getElementById('btnSalvarEquip').textContent = 'Salvar';
+    }
+
+    document.getElementById('formCard').classList.add('open');
+    document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  window.editarEquipamento = function (id) { abrirForm(id); };
+
+  window.fecharForm = function () {
+    document.getElementById('formCard').classList.remove('open');
+    ['inpNome', 'inpMarca', 'inpModelo', 'inpPrecoDia', 'inpPrecoSemana', 'inpCaucao', 'inpDescricao'].forEach(function (id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('inpQuantidade').value = 1;
+    document.getElementById('inpEquipPublico').checked = true;
+    state.editandoId = null;
+  };
+
+  window.salvarEquipamento = function () {
+    var btn = document.getElementById('btnSalvarEquip');
+    var nome = (document.getElementById('inpNome').value || '').trim();
+    var categoriaId = document.getElementById('inpCategoria').value;
+    var precoDia = parseFloat(document.getElementById('inpPrecoDia').value);
+    var editandoId = state.editandoId;
+
+    if (!nome) return toast('Informe o nome do equipamento.');
+    if (!categoriaId) return toast('Selecione uma categoria.');
+    if (isNaN(precoDia) || precoDia <= 0) return toast('Informe o preço por dia.');
+
+    function numOuNull(v) { v = parseFloat(v); return isNaN(v) ? null : v; }
+
+    var payload = {
+      nome: nome,
+      categoria_id: categoriaId,
+      marca: (document.getElementById('inpMarca').value || '').trim() || null,
+      modelo: (document.getElementById('inpModelo').value || '').trim() || null,
+      preco_dia: precoDia,
+      preco_semana: numOuNull(document.getElementById('inpPrecoSemana').value),
+      caucao: numOuNull(document.getElementById('inpCaucao').value),
+      quantidade: parseInt(document.getElementById('inpQuantidade').value, 10) || 1,
+      descricao: (document.getElementById('inpDescricao').value || '').trim() || null,
+      is_public: document.getElementById('inpEquipPublico').checked,
+      ativo: true,
+    };
+
+    btn.disabled = true; btn.textContent = 'Salvando…';
+
+    var op = editandoId
+      ? FIELDO_LOCACAO.Equipamentos.update(editandoId, payload)
+      : FIELDO_LOCACAO.Equipamentos.create(payload);
+
+    op.then(function () {
+      btn.disabled = false; btn.textContent = 'Salvar';
+      fecharForm();
+      toast(editandoId ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
+      return carregar();
+    }).catch(function (err) {
+      btn.disabled = false; btn.textContent = 'Salvar';
+      toast('Falha ao salvar. Tente de novo.');
+      console.error('[locacao-painel] salvarEquipamento', err);
+    });
+  };
+
+  window.excluirEquipamento = function (id) {
+    if (!confirm('Excluir esse equipamento? Isso não pode ser desfeito.')) return;
+    FIELDO_LOCACAO.Equipamentos.remove(id)
+      .then(function () {
+        toast('Equipamento excluído.');
+        return carregar();
+      })
+      .catch(function (err) {
+        toast('Falha ao excluir. Tente de novo.');
+        console.error('[locacao-painel] excluirEquipamento', err);
+      });
+  };
+
+  /* ── Sair ────────────────────────────────────────────────────── */
+  window.sair = function () {
+    if (!confirm('Sair? Você precisa do código de recuperação pra entrar de novo neste aparelho.')) return;
+    FIELDO.Auth.logout();
+    location.href = './index.html';
+  };
+
+  carregar();
+})();
+</script>
+
+</body>
+</html>
