@@ -273,6 +273,17 @@ var FIELDO = (function () {
        quando locadora passou a ser entidade própria, e este mapa ficou
        para trás. PostgREST devolve 400 "column does not exist" e a
        leitura pública do catálogo falha inteira — não degrada, quebra. */
+    /* v7.9: locadoras faltava aqui — mesma classe de bug do v6.5/v6.7
+       em equipamentos. Sem esta entrada, qualquer leitura pública de
+       locadoras vira SELECT * e falha inteira com "permission denied",
+       porque só um subconjunto de colunas tem GRANT pro anon (cnpj,
+       razao_social, email, phone, pix_key/tipo, plan* ficam de fora).
+       Confirmado 1:1 contra os GRANTs reais do banco antes de escrever
+       esta lista — não é suposição. */
+    locadoras:     'id,nome,slug,city,city_slug,uf,endereco,whatsapp,bio,' +
+                   'logo_url,instagram,horario,entrega,raio_entrega_km,' +
+                   'is_public,created_at,updated_at',
+
     equipamentos:  'id,locadora_id,categoria_id,nome,marca,modelo,' +
                    'descricao,specs,fotos,preco_dia,preco_semana,preco_mes,' +
                    'caucao,quantidade,slug,ativo,is_public,created_at,updated_at',
@@ -299,11 +310,23 @@ var FIELDO = (function () {
 
   /* ════════════════════════════════════════════════════════════
      LS — wrapper com prefixo "fieldo_" para evitar colisão
+
+     v7.0 — namespace de app (Fieldo / Locação / Zelo) no mesmo
+     domínio. localStorage é por ORIGEM, não por path: sem isto,
+     /zelo/ e /locacao/ leriam a MESMA sessão do Fieldo profissional
+     no mesmo aparelho. window.FIELDO_APP_NS deve ser definido ANTES
+     deste script carregar, só nas páginas de /zelo/ e /locacao/. O
+     Fieldo core nunca define isso → cai em '' → mesmas chaves de
+     sempre, ninguém desloga em produção.
   ════════════════════════════════════════════════════════════ */
+  var APP_NS = (typeof window !== 'undefined' && window.FIELDO_APP_NS) || '';
+  function _lsKey(k) {
+    return APP_NS ? ('fieldo_' + APP_NS + '_' + k) : ('fieldo_' + k);
+  }
   var LS = {
-    get:    function (k)    { try { return JSON.parse(localStorage.getItem('fieldo_' + k)); } catch(e) { return null; } },
-    set:    function (k, v) { try { localStorage.setItem('fieldo_' + k, JSON.stringify(v)); } catch(e) {} },
-    remove: function (k)    { try { localStorage.removeItem('fieldo_' + k); } catch(e) {} },
+    get:    function (k)    { try { return JSON.parse(localStorage.getItem(_lsKey(k))); } catch(e) { return null; } },
+    set:    function (k, v) { try { localStorage.setItem(_lsKey(k), JSON.stringify(v)); } catch(e) {} },
+    remove: function (k)    { try { localStorage.removeItem(_lsKey(k)); } catch(e) {} },
   };
 
   /* ════════════════════════════════════════════════════════════
@@ -505,7 +528,7 @@ var FIELDO = (function () {
         /* Persiste no aparelho novo: sem isto, quem acabou de recuperar
            veria "código indisponível" no Perfil e ficaria sem saída no
            próximo aparelho. */
-        try { localStorage.setItem('fieldo_recovery_code', clean); } catch (e) {}
+        try { localStorage.setItem(_lsKey('recovery_code'), clean); } catch (e) {}
         return _save(j);
       });
     }
@@ -573,7 +596,7 @@ var FIELDO = (function () {
       /* Sem isto, o próximo usuário do mesmo aparelho encontraria o
          código de recuperação do anterior — acesso permanente à conta
          alheia. É a peça mais sensível guardada localmente. */
-      try { localStorage.removeItem('fieldo_recovery_code'); } catch (e) {}
+      try { localStorage.removeItem(_lsKey('recovery_code')); } catch (e) {}
       try { LocalDB.wipe(); } catch (e) {}
     },
 
@@ -2445,7 +2468,7 @@ var FIELDO = (function () {
        o app pinta um badge dourado e mais nada: as policies de
        Contratos consultam is_pro() no Postgres. */
 
-    var STORAGE_KEY = 'fieldo_license_cache';
+    var STORAGE_KEY = _lsKey('license_cache');
 
     function _cache()      { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return null; } }
     function _saveCache(o) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(o)); } catch (e) {} }
