@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Zelo · Gestão de condomínio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../fieldo.css"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <meta name="apple-mobile-web-app-title" content="Zelo"/>
+  <style>
+    /* ── Mesmo layout de onboarding do Fieldo (entrar.html),
+       reaproveitado 1:1 — só o conteúdo dos steps muda. ── */
+    body { background: var(--bg); }
+
+    .ob-wrap {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+      position: relative;
+      z-index: 1;
+    }
+    .ob-wrap::after {
+      content: '';
+      position: fixed;
+      top: -120px; right: -120px;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(154,114,24,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ob-box { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+
+    .ob-logo { display: flex; flex-direction: column; align-items: center; margin-bottom: 2.5rem; }
+    .ob-logo-mark {
+      width: 56px; height: 56px;
+      background: var(--gold);
+      border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 32px rgba(154,114,24,.25);
+      animation: fadeUp .4s ease both;
+    }
+    .ob-logo-name {
+      font-family: var(--serif); font-size: 1.6rem; font-weight: 300;
+      color: var(--ink); animation: fadeUp .4s .08s ease both;
+    }
+    .ob-logo-name em { font-style: italic; color: var(--gold); }
+
+    .ob-step { display: none; animation: fadeUp .3s ease both; }
+    .ob-step.active { display: block; }
+
+    .ob-eyebrow {
+      font-family: var(--mono); font-size: .58rem; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--gold);
+      display: flex; align-items: center; gap: .55rem; margin-bottom: .5rem;
+    }
+    .ob-eyebrow::before { content: ''; display: inline-block; width: 14px; height: 1px; background: var(--gold); }
+    .ob-title {
+      font-family: var(--serif); font-size: clamp(1.8rem, 6vw, 2.4rem);
+      font-weight: 300; line-height: 1.08; color: var(--ink);
+      margin-bottom: .5rem; letter-spacing: -.02em;
+    }
+    .ob-title em { font-style: italic; color: var(--gold); }
+    .ob-sub { font-size: .86rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.75rem; }
+
+    .ob-success { text-align: center; padding: 1rem 0; }
+    .ob-success-seal {
+      width: 72px; height: 72px; background: var(--green-bg); border: 2px solid var(--green-bd);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem; font-size: 1.8rem; animation: bounceIn .4s var(--ez) both;
+    }
+    @keyframes bounceIn { 0% { transform: scale(.5); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+    .ob-success-name { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; font-style: italic; color: var(--ink); margin-bottom: .35rem; }
+    .ob-success-sub { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin-bottom: 1.5rem; }
+    .ob-success-desc { font-size: .85rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; max-width: 300px; margin-left: auto; margin-right: auto; }
+
+    .ob-progress { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-bottom: 2.5rem; }
+    .ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--paper4); transition: background .3s, transform .3s; }
+    .ob-dot.active { background: var(--gold); transform: scale(1.4); }
+    .ob-dot.done { background: var(--green-l); }
+
+    .ob-legal { font-family: var(--mono); font-size: .62rem; color: var(--ghost); text-align: center; margin-top: 1.25rem; line-height: 1.6; }
+    .ob-legal a { color: var(--muted); text-decoration: underline; }
+
+    .ob-back {
+      display: flex; align-items: center; gap: .4rem; font-family: var(--mono); font-size: .72rem;
+      color: var(--muted); background: none; border: none; cursor: pointer; padding: 0;
+      margin-bottom: 1.5rem; transition: color var(--t);
+    }
+    .ob-back:hover { color: var(--text); }
+
+    .field-error { font-family: var(--mono); font-size: .65rem; color: var(--red); margin-top: .35rem; display: none; }
+    .field-error.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="ob-wrap">
+  <div class="ob-box">
+
+    <!-- Logo -->
+    <div class="ob-logo">
+      <div class="ob-logo-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/>
+        </svg>
+      </div>
+      <div class="ob-logo-name"><em>Zelo</em></div>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="ob-progress">
+      <div class="ob-dot active" id="dot0"></div>
+      <div class="ob-dot" id="dot1"></div>
+      <div class="ob-dot" id="dot2"></div>
+    </div>
+
+    <!-- ════════════════════════════════
+         STEP 1 — Boas-vindas
+    ════════════════════════════════ -->
+    <div class="ob-step active" id="step1">
+      <div class="ob-eyebrow">Bem-vindo</div>
+      <h1 class="ob-title">Cuide do<br><em>condomínio</em></h1>
+      <p class="ob-sub">
+        Controle as manutenções recorrentes e contrate profissionais
+        já verificados pelo Fieldo. Sem cadastro, sem senha — e
+        continua funcionando sem internet.
+      </p>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnComecar" onclick="comecar()">
+        Criar meu espaço
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+
+      <p class="ob-sub" style="margin:1.5rem 0 0;text-align:center;font-size:.78rem">
+        Já usa o Zelo em outro aparelho?<br>
+        <a href="#" onclick="irStep(1.5);return false" style="color:var(--gold);text-decoration:underline">
+          Recuperar com meu código
+        </a>
+      </p>
+    </div>
+
+    <!-- ════════════════════════════════
+         STEP 1.5 — Recuperação (mesmo padrão do Fieldo)
+    ════════════════════════════════ -->
+    <div class="ob-step" id="step1_5">
+      <button class="ob-back" onclick="irStep(1)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar
+      </button>
+      <div class="ob-eyebrow">Recuperação</div>
+      <h1 class="ob-title">Seu código de<br><em>recuperação</em></h1>
+      <p class="ob-sub">Os 16 caracteres que o Zelo mostrou quando você criou seu espaço.</p>
+
+      <div class="field-group">
+        <label class="field-label" for="inpRecovery">Código</label>
+        <input class="field-input" id="inpRecovery" type="text" inputmode="text"
+               autocapitalize="characters" autocomplete="one-time-code" spellcheck="false"
+               maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX"
+               style="font-family:var(--mono);letter-spacing:.12em;text-align:center"/>
+        <div class="field-hint">Letras e números, sem I, L, O ou U.</div>
+      </div>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnRecuperar" onclick="recuperar()">
+        Recuperar meu espaço
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════
+         STEP 2 — Síndico + Condomínio
+    ════════════════════════════════ -->
+    <div class="ob-step" id="step2">
+      <div class="ob-eyebrow">Seus dados</div>
+      <h1 class="ob-title">Seu<br><em>condomínio</em></h1>
+      <p class="ob-sub">Usamos isso pra organizar as manutenções e, quando você contratar um profissional, linkar o relatório ao condomínio certo.</p>
+
+      <div class="field-group" style="margin-bottom:1rem">
+        <label class="field-label">Seu nome <span class="required">*</span></label>
+        <input class="field-input" id="inpNomeSindico" type="text" placeholder="Ex: Maria Souza" autocomplete="name"/>
+      </div>
+
+      <div class="field-group" style="margin-bottom:1rem">
+        <label class="field-label">WhatsApp</label>
+        <input class="field-input" id="inpWhatsapp" type="tel" placeholder="(00) 00000-0000" autocomplete="tel"/>
+        <div class="field-hint">Opcional — usamos só se você quiser receber avisos por lá.</div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:1rem">
+        <label class="field-label">Nome do condomínio <span class="required">*</span></label>
+        <input class="field-input" id="inpNomeCondominio" type="text" placeholder="Ex: Edifício Girassol"/>
+      </div>
+
+      <div class="field-group" style="margin-bottom:1.25rem">
+        <label class="field-label">Cidade <span class="required">*</span></label>
+        <input class="field-input" id="inpCidade" type="text" placeholder="Ex: Caraguatatuba – SP" autocomplete="address-level2"/>
+      </div>
+
+      <div class="field-error" id="condoError" style="margin-bottom:.75rem">
+        Preencha seu nome, o nome do condomínio e a cidade.
+      </div>
+
+      <button class="btn btn--primary btn--full btn--lg" id="btnCriarEspaco" onclick="criarEspaco()">
+        Criar meu espaço
+        <span class="btn__spin" id="spinCriar"></span>
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════
+         STEP 3 — Sucesso
+    ════════════════════════════════ -->
+    <div class="ob-step" id="step3">
+      <div class="ob-success">
+        <div class="ob-success-seal">✓</div>
+        <div class="ob-success-name" id="successName">Bem-vindo!</div>
+        <div class="ob-success-sub">Espaço criado · Zelo</div>
+
+        <div class="callout" style="text-align:left;margin:1.25rem 0">
+          <div class="callout-label">Guarde este código</div>
+          <div id="recoveryCode" style="font-family:var(--mono);font-size:1.05rem;
+               letter-spacing:.14em;color:var(--ink);word-break:break-all;
+               margin:.6rem 0;font-weight:500">••••-••••-••••-••••</div>
+          <p style="font-size:.76rem;color:var(--muted);line-height:1.6;margin:0">
+            É a única forma de recuperar seus dados se você trocar de celular
+            ou limpar o navegador. O Zelo não guarda cópia dele.
+          </p>
+          <div style="display:flex;gap:.5rem;margin-top:.75rem">
+            <button class="btn btn--ghost btn--sm" style="flex:1" onclick="copiarCodigo()">Copiar</button>
+            <button class="btn btn--ghost btn--sm" style="flex:1" onclick="baixarCodigo()">Baixar .txt</button>
+          </div>
+        </div>
+
+        <label style="display:flex;gap:.6rem;align-items:flex-start;text-align:left;
+                      font-size:.8rem;color:var(--muted);margin-bottom:1rem;cursor:pointer">
+          <input type="checkbox" id="chkSalvou" onchange="toggleSalvou()" style="margin-top:.2rem"/>
+          <span>Salvei meu código de recuperação em local seguro.</span>
+        </label>
+        <p class="ob-success-desc">
+          Seu condomínio está cadastrado. O próximo passo é cadastrar as
+          manutenções recorrentes — elevador, extintor, para-raios — pra
+          nunca mais perder um vencimento.
+        </p>
+        <button class="btn btn--primary btn--full btn--lg" id="btnIrPainel" disabled onclick="irParaPainel()">
+          Ver meu condomínio
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /ob-box -->
+</div><!-- /ob-wrap -->
+
+<div id="fieldo-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>window.FIELDO_APP_NS = 'zelo';</script>
+<script src="../db.js" onerror="document.documentElement.innerHTML='&lt;div style=\'font-family:system-ui;padding:2rem;text-align:center\'&gt;&lt;h2 style=\'font-weight:500\'&gt;Falha ao carregar&lt;/h2&gt;&lt;p style=\'color:#666;line-height:1.6\'&gt;Verifique a conexão. Seus dados continuam salvos.&lt;/p&gt;&lt;button onclick=\'location.reload(true)\' style=\'padding:.8rem 1.5rem;border:0;border-radius:8px;background:#9a7218;color:#fff;font-size:.9rem\'&gt;Recarregar&lt;/button&gt;&lt;/div&gt;'"></script>
+<script src="../db.condo.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   Zelo · Onboarding — síndico + primeiro condomínio num fluxo só.
+
+   Mesma base do entrar.html do Fieldo: Session.ensure() cria
+   identidade anônima (própria do Zelo, graças a FIELDO_APP_NS),
+   depois Sindicos.create() e Condominios.create() gravam os dados.
+════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function falhaCritica(msg, err) {
+    if (err) console.error('[zelo-onboarding]', err);
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
+      'background:#7a2020;color:#fff;padding:1rem 1.25rem;font-family:system-ui,sans-serif;' +
+      'font-size:.85rem;line-height:1.5';
+    var p = document.createElement('div');
+    p.textContent = msg;
+    var b = document.createElement('button');
+    b.textContent = 'Recarregar';
+    b.style.cssText = 'margin-top:.7rem;width:100%;padding:.7rem;border:0;border-radius:8px;' +
+      'background:#fff;color:#7a2020;font-weight:600;font-family:inherit;font-size:.85rem';
+    b.onclick = function () { location.reload(true); };
+    box.appendChild(p); box.appendChild(b);
+    document.body.appendChild(box);
+  }
+
+  if (typeof FIELDO === 'undefined' || !FIELDO.Auth || !FIELDO.Auth.Session) {
+    falhaCritica('O app não carregou por completo. Verifique a conexão e recarregue — seus dados continuam salvos.');
+    return;
+  }
+  if (typeof FIELDO_CONDO === 'undefined' || !FIELDO_CONDO.Sindicos) {
+    falhaCritica('Módulo do Zelo não carregou. Verifique a conexão e recarregue.');
+    return;
+  }
+
+  window.addEventListener('error', function (ev) {
+    if (window.__zeloErroMostrado) return;
+    window.__zeloErroMostrado = true;
+    falhaCritica('Ocorreu um erro nesta tela. Recarregue para tentar de novo.', ev.error || ev.message);
+  });
+
+  var Session = FIELDO.Auth.Session;
+  var state = { code: null };
+
+  /* Se já existe sessão completa (síndico + já passou do onboarding),
+     não faz sentido reonboardar. */
+  if (FIELDO.Auth.isLoggedIn()) {
+    location.href = './painel.html';
+    return;
+  }
+
+  function irStep(n) {
+    ['step1', 'step1_5', 'step2', 'step3'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.toggle('active', id === 'step' + String(n).replace('.', '_'));
+    });
+    window.scrollTo(0, 0);
+  }
+  window.irStep = irStep;
+
+  function busy(btn, on, label) {
+    if (!btn) return;
+    btn.disabled = on;
+    btn.dataset.label = btn.dataset.label || btn.innerHTML;
+    btn.innerHTML = on ? (label || 'Aguarde…') : btn.dataset.label;
+  }
+
+  function toast(msg) {
+    if (FIELDO.UI && FIELDO.UI.toast) return FIELDO.UI.toast(msg);
+    alert(msg);
+  }
+
+  function explicarErro(err) {
+    if (location.protocol === 'file:') {
+      return 'Este app precisa estar hospedado (Netlify) ou rodando num servidor — abrir o arquivo direto do disco não funciona, o navegador bloqueia o acesso ao banco por segurança.';
+    }
+    if (navigator.onLine === false) return 'Sem conexão. O primeiro acesso precisa de internet.';
+    var code = (err && (err.code || err.message)) || '';
+    if (/anonymous_provider_disabled|anonymous sign-ins are disabled/i.test(code)) {
+      return 'Config: ative "Anonymous sign-ins" no painel do Supabase.';
+    }
+    if (/over_request_rate_limit|rate limit/i.test(code)) return 'Muitas tentativas. Aguarde um minuto.';
+    if (err && err.status === 401) return 'Config: anon key inválida em db.js.';
+    if (/Failed to fetch|NetworkError/i.test(code)) return 'Não alcançou o servidor. Verifique a URL do Supabase.';
+    return 'Falha ao criar espaço: ' + (code || 'erro desconhecido');
+  }
+
+  /* ── Passo 1: cria identidade anônima do Zelo ──────────────── */
+  window.comecar = function () {
+    var btn = document.getElementById('btnComecar');
+    busy(btn, true, 'Criando…');
+    Session.ensure()
+      .then(function () { busy(btn, false); irStep(2); })
+      .catch(function (err) {
+        busy(btn, false);
+        toast(explicarErro(err));
+        console.error('[zelo-onboarding] Session.ensure', err);
+      });
+  };
+
+  /* ── Recuperação em outro aparelho ─────────────────────────── */
+  var inpRec = document.getElementById('inpRecovery');
+  if (inpRec) {
+    inpRec.addEventListener('input', function () {
+      var raw = this.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 16);
+      this.value = (raw.match(/.{1,4}/g) || []).join('-');
+    });
+  }
+
+  window.recuperar = function () {
+    var btn  = document.getElementById('btnRecuperar');
+    var code = (inpRec.value || '').replace(/[^0-9A-Z]/gi, '').toUpperCase();
+    if (code.length !== 16) return toast('O código tem 16 caracteres.');
+
+    busy(btn, true, 'Recuperando…');
+    Session.recoverWithCode(code)
+      .then(function () { return FIELDO_CONDO.Sindicos.me(); })
+      .then(function (sindico) {
+        if (!sindico) throw new Error('perfil_ausente');
+        FIELDO.Auth.setSession(sindico);
+        toast('Espaço recuperado.');
+        irStep(3);
+      })
+      .catch(function (err) {
+        busy(btn, false);
+        toast(err && err.message === 'perfil_ausente'
+          ? 'Código válido, mas sem síndico vinculado.'
+          : 'Código não encontrado. Confira os caracteres.');
+        console.error('[zelo-onboarding] recover', err);
+      });
+  };
+
+  /* ── Passo 2: cria síndico + condomínio ────────────────────── */
+  window.criarEspaco = function () {
+    var btn = document.getElementById('btnCriarEspaco');
+    var nome        = (document.getElementById('inpNomeSindico').value || '').trim();
+    var whatsapp    = (document.getElementById('inpWhatsapp').value || '').trim();
+    var nomeCondo   = (document.getElementById('inpNomeCondominio').value || '').trim();
+    var cidade      = (document.getElementById('inpCidade').value || '').trim();
+    var errEl       = document.getElementById('condoError');
+
+    if (!nome || !nomeCondo || cidade.length < 3) {
+      if (errEl) errEl.classList.add('visible');
+      return;
+    }
+    if (errEl) errEl.classList.remove('visible');
+
+    /* Código de recuperação: mesma técnica do Fieldo. Gerado no
+       dispositivo, o servidor só vê o hash (ver Session._emailFor). */
+    var code = Session.generateRecoveryCode();
+    state.code = code;
+    /* Salva local pra eventual reexibição — mesma fórmula de chave
+       namespaced que o db.js usa internamente (_lsKey), replicada
+       aqui porque essa função é privada ao closure do db.js. */
+    try {
+      var ns = window.FIELDO_APP_NS ? (window.FIELDO_APP_NS + '_') : '';
+      localStorage.setItem('fieldo_' + ns + 'recovery_code', code);
+    } catch (e) {}
+
+    busy(btn, true, 'Criando espaço…');
+
+    Session.ensure()
+      .then(function () { return Session.attachRecoveryCode(code); })
+      .then(function () {
+        return FIELDO_CONDO.Sindicos.create({ name: nome, whatsapp: whatsapp || null });
+      })
+      .then(function () {
+        return FIELDO_CONDO.Condominios.create({ nome: nomeCondo, city: cidade });
+      })
+      .then(function () {
+        document.getElementById('successName').textContent = nomeCondo;
+        document.getElementById('recoveryCode').textContent =
+          (code.match(/.{1,4}/g) || []).join('-');
+        busy(btn, false);
+        irStep(3);
+      })
+      .catch(function (err) {
+        busy(btn, false);
+        var msg = String((err && (err.code || err.message)) || 'erro');
+        if (/crypto_indisponivel/.test(msg)) {
+          toast('Abra o app por HTTPS. Sem isso não dá para criar o código de recuperação.');
+          return;
+        }
+        toast(/email|confirm/i.test(msg)
+          ? 'Config: desative "Confirm email" no painel do Supabase.'
+          : 'Falha ao criar espaço: ' + msg);
+        console.error('[zelo-onboarding] criarEspaco', err);
+      });
+  };
+
+  /* ── Passo 3: código de recuperação ────────────────────────── */
+  function codigoFormatado() {
+    return (state.code || '').match(/.{1,4}/g).join('-');
+  }
+
+  window.copiarCodigo = function () {
+    var txt = codigoFormatado();
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(function () { toast('Código copiado.'); })
+      .catch(function () { toast('Copie manualmente: ' + txt); });
+  };
+
+  window.baixarCodigo = function () {
+    var conteudo =
+      'ZELO — CÓDIGO DE RECUPERAÇÃO\n\n' + codigoFormatado() +
+      '\n\nGuarde este arquivo. É a única forma de recuperar seus dados\n' +
+      'em outro aparelho. O Zelo não mantém cópia deste código.\n\n' +
+      'Gerado em ' + new Date().toLocaleString('pt-BR') + '\n';
+    var blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'zelo-codigo-recuperacao.txt';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  };
+
+  window.toggleSalvou = function () {
+    var ok = document.getElementById('chkSalvou').checked;
+    document.getElementById('btnIrPainel').disabled = !ok;
+  };
+
+  window.irParaPainel = function () {
+    location.href = './painel.html';
+  };
+})();
+</script>
+
+</body>
+</html>
