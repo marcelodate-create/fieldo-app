@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f5f2ec"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Meu Funil · Fieldo</title>
+  <meta name="robots" content="noindex,follow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fieldo.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-title" content="Fieldo"/>
+  <style>
+    .period-tabs{display:flex;gap:.4rem;margin-bottom:1.4rem;background:var(--paper2);border:1px solid var(--border2);border-radius:10px;padding:3px}
+    .period-tab{flex:1;text-align:center;padding:.5rem;border-radius:8px;font-size:.78rem;color:var(--muted);font-weight:500;cursor:pointer;transition:.15s;border:none;background:transparent;font-family:inherit}
+    .period-tab.active{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(14,14,20,.08)}
+
+    .summary{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.5rem}
+    .sum-card{background:var(--paper);border:1px solid var(--border2);border-radius:12px;padding:.9rem 1rem}
+    .sum-lbl{font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+    .sum-val{font-family:var(--serif);font-size:1.4rem;color:var(--ink);line-height:1.25}
+
+    .funnel{display:flex;flex-direction:column}
+    .stage{position:relative;padding:1.1rem 1.1rem 1.1rem 1.3rem;background:var(--paper);border:1px solid var(--border2);border-radius:12px;margin-bottom:.55rem}
+    .stage-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+    .stage-label{display:flex;align-items:center;gap:.6rem}
+    .stage-emoji{font-size:1.15rem;line-height:1;flex-shrink:0}
+    .stage-name{font-size:.86rem;font-weight:600;color:var(--text)}
+    .stage-num{font-family:var(--serif);font-size:1.6rem;color:var(--ink);line-height:1}
+    .stage-bar-track{height:6px;background:var(--paper3);border-radius:99px;margin-top:.7rem;overflow:hidden}
+    .stage-bar-fill{height:100%;background:var(--gold);border-radius:99px;transition:width .4s var(--ez)}
+
+    .drop{display:flex;align-items:center;gap:.4rem;padding:.35rem 0 .35rem 1.85rem;font-family:var(--mono);font-size:.66rem;color:var(--subtle)}
+    .drop svg{width:11px;height:11px;flex-shrink:0}
+    .drop b{color:var(--text2);font-weight:500}
+    .drop.warn b{color:#8a5e0a}
+    .drop.good b{color:var(--green)}
+
+    .stage--leak{border-color:var(--gold-bd);background:var(--gold-bg)}
+    .leak-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;background:var(--gold);color:#fff;padding:.18rem .5rem;border-radius:999px;flex-shrink:0}
+
+    .note{display:flex;gap:.6rem;background:var(--paper2);border:1px solid var(--border);border-radius:10px;padding:.85rem .95rem;margin-top:1.4rem;font-size:.76rem;color:var(--text2);line-height:1.5}
+    .note svg{width:16px;height:16px;color:var(--muted);flex-shrink:0;margin-top:.1rem}
+
+    .empty-state{text-align:center;padding:2.5rem 1.5rem;color:var(--muted)}
+    .empty-state svg{width:32px;height:32px;color:var(--ghost);margin-bottom:.9rem}
+    .empty-state p{font-size:.85rem;max-width:32ch;margin:0 auto}
+
+    .skel{background:var(--paper2);border-radius:8px;animation:pulse 1.3s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:.9}}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="topbar-brand"><em>Fieldo</em></span>
+    </a>
+    <button class="hbg-btn" id="menuBtn" onclick="HBG.toggle()" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuDrawer">
+      <span class="hbg-line"></span><span class="hbg-line"></span><span class="hbg-line"></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu-overlay" aria-hidden="true" id="menuOverlay" onclick="HBG.close()"></div>
+<div class="menu-drawer" id="menuDrawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu de navegação">
+  <div class="menu-drawer-head">
+    <div class="menu-drawer-brand"><em>Fieldo</em></div>
+    <button class="menu-drawer-close" onclick="HBG.close()" aria-label="Fechar menu">✕</button>
+  </div>
+  <div class="menu-section-lbl">Navegação</div>
+  <nav class="menu-nav" aria-label="Navegação principal">
+    <a href="index.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="servico.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span>Novo Serviço</span></a>
+    <a href="orcamento.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Orçamento</span></a>
+    <a href="funil.html" class="menu-nav-item active"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></span><span>Meu Funil</span></a>
+    <div class="menu-divider"></div>
+    <a href="busca.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Pesquisa</span></a>
+    <a href="explorar.html" class="menu-nav-item"><span class="menu-nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span><span>Explorar</span></a>
+  </nav>
+  <div class="menu-drawer-foot">Fieldo · v1.0 · 2026</div>
+</div>
+
+<div class="page page--narrow" style="padding-bottom:6rem">
+  <div class="page-eyebrow">Impacto</div>
+  <h1 class="page-title" style="margin-bottom:.4rem">Meu <em>Funil</em></h1>
+  <p class="page-sub" style="margin-bottom:1.5rem">Do card ao serviço fechado — cada etapa é medida de verdade, nada aqui é estimativa.</p>
+
+  <div class="period-tabs" role="tablist">
+    <button class="period-tab" data-dias="7" role="tab">7 dias</button>
+    <button class="period-tab active" data-dias="30" role="tab">30 dias</button>
+    <button class="period-tab" data-dias="90" role="tab">90 dias</button>
+  </div>
+
+  <div id="funilRoot">
+    <div class="summary">
+      <div class="sum-card"><div class="sum-lbl">Taxa geral</div><div class="skel" style="width:60%;height:1.5rem"></div></div>
+      <div class="sum-card"><div class="sum-lbl">Maior vazamento</div><div class="skel" style="width:80%;height:1.5rem"></div></div>
+    </div>
+    <div class="funnel">
+      <div class="stage"><div class="skel" style="height:2.5rem"></div></div>
+      <div class="stage"><div class="skel" style="height:2.5rem"></div></div>
+      <div class="stage"><div class="skel" style="height:2.5rem"></div></div>
+      <div class="stage"><div class="skel" style="height:2.5rem"></div></div>
+      <div class="stage"><div class="skel" style="height:2.5rem"></div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <span><b style="color:var(--text)">"Cards gerados"</b> conta quantas peças você publicou — não é o mesmo que "pessoas que viram", porque o Fieldo não tem acesso a visualizações dentro do Instagram/WhatsApp. A partir de "Entraram no perfil", tudo é contagem real, direto do banco. Os números somam eventos do período — não seguem a mesma pessoa etapa a etapa.</span>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+if (!FIELDO.Auth.isLoggedIn()) window.location.href = 'entrar.html';
+
+var STAGES = [
+  { key: 'cards_gerados',     emoji: '✨', label: 'Cards gerados' },
+  { key: 'entraram_perfil',   emoji: '👤', label: 'Entraram no perfil' },
+  { key: 'cliques_whatsapp',  emoji: '📲', label: 'Clicaram no WhatsApp' },
+  { key: 'pediram_orcamento', emoji: '🧾', label: 'Pediram orçamento' },
+  { key: 'servicos_fechados', emoji: '✅', label: 'Serviços fechados' }
+];
+
+function esc(s) { return FIELDO.UI.esc(s); }
+
+function svgDrop() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
+}
+
+function svgEmptyIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>';
+}
+
+function renderFunil(data) {
+  var root = document.getElementById('funilRoot');
+
+  var vals = STAGES.map(function (s) { return Number(data[s.key]) || 0; });
+  var totalTop = vals[0] || vals[1]; /* base do funil: cards, senão visitas */
+
+  if (vals.every(function (v) { return v === 0; })) {
+    root.innerHTML =
+      '<div class="empty-state">' +
+        svgEmptyIcon() +
+        '<p>Nenhum dado nesse período ainda. Gere um card de compartilhamento em um serviço avaliado pra começar a alimentar o funil.</p>' +
+      '</div>';
+    return;
+  }
+
+  /* taxa geral: última etapa / primeira etapa não-zero */
+  var base = vals.find(function (v) { return v > 0; }) || 1;
+  var taxaGeral = (vals[vals.length - 1] / base * 100);
+
+  /* maior vazamento: maior queda relativa entre etapas consecutivas,
+     só considerando pares onde a etapa anterior tem volume (senão a
+     % de queda é ruído de amostra pequena) */
+  var piorIdx = -1, piorQueda = -1;
+  for (var i = 0; i < vals.length - 1; i++) {
+    if (vals[i] < 3) continue; /* piso mínimo — evita "queda de 100%" com N=1 */
+    var queda = vals[i] > 0 ? (1 - vals[i + 1] / vals[i]) : 0;
+    if (queda > piorQueda) { piorQueda = queda; piorIdx = i; }
+  }
+
+  var html = '<div class="summary">' +
+    '<div class="sum-card"><div class="sum-lbl">Taxa geral</div><div class="sum-val">' +
+      (base >= 3 ? taxaGeral.toFixed(1).replace('.', ',') + '<span style="font-size:1rem;color:var(--muted)">%</span>' : '<span style="font-size:.85rem;color:var(--muted)">poucos dados ainda</span>') +
+    '</div></div>' +
+    '<div class="sum-card"><div class="sum-lbl">Maior vazamento</div><div class="sum-val" style="font-size:1rem;color:var(--gold-text);line-height:1.3">' +
+      (piorIdx >= 0 ? esc(STAGES[piorIdx].label) + ' → ' + esc(STAGES[piorIdx + 1].label) : 'sem sinal suficiente') +
+    '</div></div>' +
+  '</div><div class="funnel">';
+
+  STAGES.forEach(function (s, i) {
+    var v = vals[i];
+    var pct = totalTop > 0 ? Math.max(2, (v / totalTop * 100)) : 0;
+    var isLeak = i === piorIdx + 1;
+    html += '<div class="stage' + (isLeak ? ' stage--leak' : '') + '">' +
+      '<div class="stage-row">' +
+        '<div class="stage-label"><span class="stage-emoji">' + s.emoji + '</span><span class="stage-name">' + esc(s.label) + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:.5rem">' +
+          (isLeak ? '<span class="leak-tag">Vazamento</span>' : '') +
+          '<span class="stage-num">' + v + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stage-bar-track"><div class="stage-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+    '</div>';
+
+    if (i < STAGES.length - 1) {
+      var prev = vals[i], next = vals[i + 1];
+      var dropCls = 'drop';
+      var dropTxt;
+      if (prev < 3) {
+        dropTxt = 'poucos dados ainda pra calcular essa taxa';
+      } else {
+        var taxa = (next / prev * 100);
+        dropCls += taxa >= 30 ? ' good' : (taxa < 15 ? ' warn' : '');
+        dropTxt = '<b>' + taxa.toFixed(0) + '%</b> seguiram pra próxima etapa';
+      }
+      html += '<div class="' + dropCls + '">' + svgDrop() + ' ' + dropTxt + '</div>';
+    }
+  });
+
+  html += '</div>';
+  root.innerHTML = html;
+}
+
+function carregar(dias) {
+  var root = document.getElementById('funilRoot');
+  root.style.opacity = '.5';
+  FIELDO.rest.rpc('get_impact_funnel', { p_dias: dias })
+    .then(function (rows) {
+      renderFunil((rows && rows[0]) || {});
+    })
+    .catch(function (e) {
+      console.error('[funil]', e);
+      root.innerHTML = '<div class="empty-state"><p>Não foi possível carregar o funil agora. Tenta de novo em alguns segundos.</p></div>';
+    })
+    .then(function () { root.style.opacity = '1'; });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  carregar(30);
+  document.querySelectorAll('.period-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.period-tab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      carregar(Number(btn.dataset.dias));
+    });
+  });
+});
+</script>
+</body>
+</html>
